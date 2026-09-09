@@ -1,3 +1,4 @@
+console.log("ทดสอบ: เซิร์ฟเวอร์อัปเดตแล้ว!");
 const express = require('express');
 const cors = require('cors');
 const omise = require('omise')({
