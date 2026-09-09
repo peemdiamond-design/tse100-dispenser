@@ -26,13 +26,25 @@
 
     <script>
         async function buyMedicine() {
+            // แสดงส่วนของ QR Code และขึ้นรูปโหลดรอไว้ก่อน
             document.getElementById('qr-section').style.display = 'block';
             document.getElementById('qr-image').src = "https://via.placeholder.com/200?text=Loading...";
 
-            const response = await fetch('http://localhost:3000/api/create-qr', { method: 'POST' });
-            const data = await response.json();
-            
-            document.getElementById('qr-image').src = data.qrImage;
+            try {
+                // เรียก API ไปที่เซิร์ฟเวอร์ของเรา (พอร์ต 3000)
+                const response = await fetch('http://localhost:3000/api/create-qr', { method: 'POST' });
+                const data = await response.json();
+                
+                // ถ้ามีลิงก์รูป QR Code ส่งกลับมา ให้แสดงรูปนั้น
+                if (data.qrImage) {
+                    document.getElementById('qr-image').src = data.qrImage;
+                } else {
+                    alert("เกิดข้อผิดพลาด: " + (data.error || "ไม่สามารถสร้าง QR Code ได้"));
+                }
+            } catch (err) {
+                alert("เชื่อมต่อหลังบ้านไม่ได้! อย่าลืมรันคำสั่ง 'node server.js' ใน Terminal นะครับ");
+                console.error(err);
+            }
         }
     </script>
 </body>
