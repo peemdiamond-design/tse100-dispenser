@@ -30,6 +30,7 @@ app.post('/api/create-qr', async (req, res) => {
             qrImage: charge.source.scannable_code.image.download_uri
         });
     } catch (error) {
+        console.error("❌ Omise Error:", error); // เพิ่มบรรทัดนี้
         res.status(500).json({ error: error.message });
     }
 });
