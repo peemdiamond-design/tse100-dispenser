@@ -1,8 +1,8 @@
-console.log("ทดสอบ: เซิร์ฟเวอร์อัปเดตแล้ว!");
 const express = require('express');
 const cors = require('cors');
 const omise = require('omise')({
-    secretKey: 'skey_test_68yjsgwrdgq1ortftyk', // เอาไว้เปลี่ยนทีหลังตอนทดสอบของจริง
+    publicKey: 'pkey_test_68yjm1vzidi0j5gejzy',   // เพิ่มบรรทัดนี้เข้ามา (จากในรูป)
+    secretKey: 'skey_test_68yjsgwrdgq1ortftyk', // คีย์ลับตัวเดิม
     omiseVersion: '2019-05-29'
 });
 
