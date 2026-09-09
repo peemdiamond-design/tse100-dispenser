@@ -1,7 +1,7 @@
 const express = require('express');
 const cors = require('cors');
 const omise = require('omise')({
-    secretKey: 'skey_test_ของคุณที่ได้จากระบบ', // เอาไว้เปลี่ยนทีหลังตอนทดสอบของจริง
+    secretKey: 'skey_test_68yjm1wfc8k1p4nsmre', // เอาไว้เปลี่ยนทีหลังตอนทดสอบของจริง
     omiseVersion: '2019-05-29'
 });
 
