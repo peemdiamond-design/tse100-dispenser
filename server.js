@@ -15,12 +15,12 @@ app.post('/api/create-qr', async (req, res) => {
     try {
         const source = await omise.sources.create({
             type: 'promptpay',
-            amount: 1500, // 15.00 บาท
+            amount: 2000, // 20.00 บาท
             currency: 'thb'
         });
         
         const charge = await omise.charges.create({
-            amount: 1500,
+            amount: 2000,
             currency: 'thb',
             source: source.id,
             return_uri: 'http://localhost:3000'
