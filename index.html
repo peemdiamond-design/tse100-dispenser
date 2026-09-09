@@ -1,0 +1,39 @@
+<!DOCTYPE html>
+<html lang="th">
+<head>
+    <meta charset="UTF-8">
+    <title>ตู้จ่ายยา (Demo)</title>
+    <style>
+        body { text-align: center; font-family: sans-serif; padding: 50px; background-color: #f4f7f6; }
+        .product { border: 1px solid #ccc; padding: 20px; display: inline-block; border-radius: 8px; background: white; }
+        button { background: #28a745; color: white; border: none; padding: 10px 20px; cursor: pointer; font-size: 16px; border-radius: 4px; }
+        button:hover { background: #218838; }
+    </style>
+</head>
+<body>
+    <h1>ตู้จ่ายยาอัตโนมัติ (TSE100 Demo)</h1>
+    
+    <div class="product">
+        <h3>💊 ยาพาราเซตามอล (15 บาท)</h3>
+        <button onclick="buyMedicine()">กดเพื่อซื้อ</button>
+    </div>
+
+    <div id="qr-section" style="display:none; margin-top:20px;">
+        <h3>📱 สแกนเพื่อจ่ายเงิน</h3>
+        <img id="qr-image" src="" width="200" alt="QR Code">
+        <p>กำลังรอการชำระเงิน...</p>
+    </div>
+
+    <script>
+        async function buyMedicine() {
+            document.getElementById('qr-section').style.display = 'block';
+            document.getElementById('qr-image').src = "https://via.placeholder.com/200?text=Loading...";
+
+            const response = await fetch('http://localhost:3000/api/create-qr', { method: 'POST' });
+            const data = await response.json();
+            
+            document.getElementById('qr-image').src = data.qrImage;
+        }
+    </script>
+</body>
+</html>
