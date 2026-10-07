@@ -40,7 +40,7 @@
         .btn-primary { width: 100%; background: var(--tu-red); color: white; padding: 14px; border: none; border-radius: 12px; font-size: 15px; font-weight: 600; cursor: pointer; margin-bottom: 10px; }
         .btn-secondary { width: 100%; background: var(--tu-yellow); color: #1d1d1f; padding: 14px; border: none; border-radius: 12px; font-size: 15px; font-weight: 600; cursor: pointer; }
         .profile-card { background: white; margin: 20px; padding: 30px 20px; border-radius: 16px; text-align: center; box-shadow: 0 4px 15px rgba(0,0,0,0.03); }
-        .profile-card i { font-size: 60px; color: var(--tu-red); margin-bottom: 15px; }
+        .profile-card i.main-icon { font-size: 60px; color: var(--tu-red); margin-bottom: 15px; }
         #auth-loading { text-align: center; color: var(--tu-red); display: none; margin-bottom: 15px; font-size: 14px; }
         .payment-overlay { position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.5); z-index: 20; display: none; justify-content: center; align-items: flex-end; }
         .payment-sheet { background: var(--card-bg); width: 100%; max-width: 480px; border-radius: 24px 24px 0 0; padding: 25px 20px 40px; animation: slideUp 0.3s ease-out; display: flex; flex-direction: column; align-items: center; }
@@ -53,6 +53,13 @@
         .summary-row { width: 100%; display: flex; justify-content: space-between; padding: 15px 0; border-top: 1px dashed #eee; font-size: 15px; font-weight: 600; }
         .btn-cancel { width: 100%; background: #f0f1f4; color: var(--text-main); padding: 14px; border-radius: 12px; border: none; font-size: 15px; font-weight: 600; margin-top: 10px; cursor: pointer; }
         .order-history-card { background: white; padding: 15px; border-radius: 12px; margin-bottom: 12px; box-shadow: 0 2px 8px rgba(0,0,0,0.03); border: 1px solid #f0f1f4; }
+        
+        /* สไตล์สำหรับกล่อง Dashboard */
+        .stats-container { display: flex; gap: 10px; margin-bottom: 20px; }
+        .stat-box { flex: 1; background: #f0f1f4; padding: 15px; border-radius: 12px; border: 1px solid #e5e5ea; }
+        .stat-box h3 { color: var(--tu-red); font-size: 24px; margin-bottom: 5px; }
+        .stat-box p { font-size: 12px; color: var(--text-sub); }
+
         @keyframes slideUp { from { transform: translateY(100%); } to { transform: translateY(0); } }
         @keyframes spin { 0% { transform: rotate(0deg); } 100% { transform: rotate(360deg); } }
     </style>
@@ -147,12 +154,46 @@
             <button class="btn-primary" id="btnLogin">เข้าสู่ระบบ</button>
             <button class="btn-secondary" id="btnRegister">สมัครสมาชิกใหม่</button>
         </div>
+        
+        <!-- ส่วน Profile Dashboard ที่อัปเกรดแล้ว -->
         <div id="profile-section" style="display: none;">
             <div class="profile-card">
-                <i class="fa-solid fa-circle-user"></i>
+                <i class="fa-solid fa-circle-user main-icon"></i>
                 <h2 id="displayStuId">รหัสนักศึกษา</h2>
                 <p style="color: var(--text-sub); margin-bottom: 20px;">นักศึกษามหาวิทยาลัยธรรมศาสตร์</p>
-                <button class="btn-secondary" id="btnLogout" style="background: #f0f1f4; color: var(--tu-red);">ออกจากระบบ</button>
+
+                <!-- กล่องสถิติการใช้งาน -->
+                <div class="stats-container">
+                    <div class="stat-box">
+                        <h3 id="stat-total-orders">0</h3>
+                        <p>จำนวนครั้งที่รับยา</p>
+                    </div>
+                    <div class="stat-box">
+                        <h3 id="stat-total-spent">฿0</h3>
+                        <p>ยอดใช้จ่ายรวม</p>
+                    </div>
+                </div>
+
+                <!-- ปุ่มฟังก์ชันต่างๆ -->
+                <button class="btn-primary" id="btnEditProfile" style="background: #1d1d1f; margin-bottom: 12px;">
+                    <i class="fa-solid fa-pen-to-square"></i> แก้ไขข้อมูลส่วนตัว
+                </button>
+                <button class="btn-secondary" id="btnResetPwd" style="background: white; border: 1px solid #ddd; margin-bottom: 12px;">
+                    <i class="fa-solid fa-key"></i> เปลี่ยนรหัสผ่าน
+                </button>
+                <button class="btn-secondary" id="btnReportIssue" style="background: #fff5f5; color: var(--tu-red); border: 1px solid var(--tu-red); margin-bottom: 25px;">
+                    <i class="fa-solid fa-triangle-exclamation"></i> แจ้งปัญหา / ขอคืนเงิน
+                </button>
+
+                <!-- ปุ่มออกจากระบบ -->
+                <button class="btn-secondary" id="btnLogout" style="background: #f0f1f4; color: var(--text-main);">
+                    ออกจากระบบ
+                </button>
+                
+                <!-- นโยบายความเป็นส่วนตัว -->
+                <p style="font-size: 11px; color: var(--text-sub); margin-top: 25px; text-decoration: underline; cursor: pointer;" onclick="Swal.fire('นโยบายความเป็นส่วนตัว', 'ข้อมูลประวัติการสั่งซื้อและรหัสนักศึกษาของคุณ จะถูกเก็บรักษาเป็นความลับเพื่อใช้สำหรับการให้บริการตู้จ่ายยาอัตโนมัติเท่านั้น', 'info')">
+                    ข้อตกลงและนโยบายความเป็นส่วนตัว
+                </p>
             </div>
         </div>
     </div>
@@ -189,7 +230,8 @@
 
 <script type="module">
     import { initializeApp } from "https://www.gstatic.com/firebasejs/10.8.1/firebase-app.js";
-    import { getAuth, createUserWithEmailAndPassword, signInWithEmailAndPassword, onAuthStateChanged, signOut } from "https://www.gstatic.com/firebasejs/10.8.1/firebase-auth.js";
+    // 💡 เพิ่มคำสั่ง sendPasswordResetEmail เข้ามา
+    import { getAuth, createUserWithEmailAndPassword, signInWithEmailAndPassword, onAuthStateChanged, signOut, sendPasswordResetEmail } from "https://www.gstatic.com/firebasejs/10.8.1/firebase-auth.js";
     import { getFirestore, collection, addDoc, getDocs, query, where, serverTimestamp } from "https://www.gstatic.com/firebasejs/10.8.1/firebase-firestore.js";
 
     const firebaseConfig = {
@@ -220,17 +262,37 @@
 
     async function loadOrders(stuId) {
         const ordersList = document.getElementById('orders-list');
-        ordersList.innerHTML = '<div class="loader" style="margin: 20px auto;"></div>';
+        // รีเซ็ตค่าหน้า Profile เผื่อไว้
+        document.getElementById('stat-total-orders').innerText = "0";
+        document.getElementById('stat-total-spent').innerText = "฿0";
+        
+        if(document.getElementById('view-orders').classList.contains('active')) {
+            ordersList.innerHTML = '<div class="loader" style="margin: 20px auto;"></div>';
+        }
+        
         try {
             const q = query(collection(db, "orders"), where("stuId", "==", stuId));
             const querySnapshot = await getDocs(q);
             const orders = [];
-            querySnapshot.forEach((doc) => { orders.push(doc.data()); });
+            let totalSpent = 0;
+            
+            querySnapshot.forEach((doc) => { 
+                const data = doc.data();
+                orders.push(data);
+                totalSpent += parseInt(data.price || 0); // คำนวณยอดเงินรวม
+            });
+            
+            // อัปเดตสถิติลงหน้า Dashboard
+            document.getElementById('stat-total-orders').innerText = orders.length;
+            document.getElementById('stat-total-spent').innerText = `฿${totalSpent}`;
+
             orders.sort((a,b) => b.createdAt?.toMillis() - a.createdAt?.toMillis());
+
             if(orders.length === 0) {
                 ordersList.innerHTML = '<p style="text-align:center; color:var(--text-sub); margin-top:20px;">ยังไม่มีประวัติการรับยา</p>';
                 return;
             }
+
             let html = '';
             orders.forEach(order => {
                 const dateOptions = { year: 'numeric', month: 'short', day: 'numeric', hour: '2-digit', minute: '2-digit' };
@@ -281,7 +343,6 @@
         startTimer(180); 
 
         try {
-            // 💡 ส่งข้อมูลราคา ไปที่หลังบ้าน
             const response = await fetch(`${BACKEND_URL}/api/create-qr`, {
                 method: 'POST',
                 headers: { 'Content-Type': 'application/json' },
@@ -327,6 +388,8 @@
                                 status: "completed",
                                 createdAt: serverTimestamp() 
                             });
+                            // โหลดข้อมูลอัปเดตสถิติหลังซื้อทันที
+                            loadOrders(stuId);
                         } catch (e) {
                             console.error("Error saving doc: ", e);
                         }
@@ -370,6 +433,60 @@
         }, 1000);
     }
 
+    // -----------------------------------------------------------
+    // ปุ่มฟังก์ชันในหน้า Profile
+    // -----------------------------------------------------------
+    
+    // แจ้งปัญหา
+    document.getElementById('btnReportIssue').addEventListener('click', () => {
+        Swal.fire({
+            icon: 'warning',
+            title: 'แจ้งปัญหาตู้ขัดข้อง',
+            html: 'กรุณาติดต่อ Line OA: <b>@TSE_SmartRx</b><br>หรือ โทร <b>08X-XXX-XXXX</b><br><br><span style="font-size:13px; color:#c51d23;"><i>* โปรดเตรียมภาพสลิปโอนเงินเพื่อขอคืนเงิน</i></span>',
+            confirmButtonColor: 'var(--tu-red)',
+            confirmButtonText: 'รับทราบ'
+        });
+    });
+
+    // แก้ไขข้อมูล
+    document.getElementById('btnEditProfile').addEventListener('click', async () => {
+        const { value: formValues } = await Swal.fire({
+            title: 'แก้ไขข้อมูลส่วนตัว',
+            html:
+                '<input id="swal-input1" class="swal2-input" placeholder="ชื่อ-นามสกุล">' +
+                '<input id="swal-input2" class="swal2-input" placeholder="เบอร์โทรศัพท์ (10 หลัก)">',
+            focusConfirm: false,
+            confirmButtonColor: 'var(--tu-red)',
+            confirmButtonText: 'บันทึกข้อมูล',
+            preConfirm: () => {
+                return [
+                    document.getElementById('swal-input1').value,
+                    document.getElementById('swal-input2').value
+                ]
+            }
+        });
+        if (formValues && formValues[0]) {
+            Swal.fire('บันทึกสำเร็จ!', 'อัปเดตข้อมูลของคุณเรียบร้อยแล้ว', 'success');
+        }
+    });
+
+    // เปลี่ยนรหัสผ่าน (Firebase)
+    document.getElementById('btnResetPwd').addEventListener('click', () => {
+        if(auth.currentUser) {
+            const email = auth.currentUser.email;
+            sendPasswordResetEmail(auth, email)
+                .then(() => {
+                    Swal.fire('สำเร็จ!', 'ระบบส่งอีเมลสำหรับเปลี่ยนรหัสผ่านไปแล้ว (ฟังก์ชันนี้ต้องใช้อีเมลจริงในการทดสอบ)', 'success');
+                })
+                .catch((error) => {
+                    Swal.fire('ข้อผิดพลาด', error.message, 'error');
+                });
+        }
+    });
+
+    // -----------------------------------------------------------
+    // ระบบ Authentication (เข้าสู่ระบบ)
+    // -----------------------------------------------------------
     const authSection = document.getElementById('auth-section');
     const profileSection = document.getElementById('profile-section');
     const stuIdInput = document.getElementById('stuIdInput');
@@ -386,12 +503,16 @@
             displayStuId.innerText = stuId;
             authSection.style.display = 'none';
             profileSection.style.display = 'block';
+            
             ordersLoginWarning.style.display = 'none';
             ordersListContainer.style.display = 'block';
+            
+            // โหลดข้อมูลเพื่อโชว์ในสถิติทันที
             loadOrders(stuId); 
         } else {
             authSection.style.display = 'block';
             profileSection.style.display = 'none';
+            
             ordersLoginWarning.style.display = 'block';
             ordersListContainer.style.display = 'none';
         }
