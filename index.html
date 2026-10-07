@@ -53,7 +53,6 @@
         .summary-row { width: 100%; display: flex; justify-content: space-between; padding: 15px 0; border-top: 1px dashed #eee; font-size: 15px; font-weight: 600; }
         .btn-cancel { width: 100%; background: #f0f1f4; color: var(--text-main); padding: 14px; border-radius: 12px; border: none; font-size: 15px; font-weight: 600; margin-top: 10px; cursor: pointer; }
         
-        /* สไตล์สำหรับกล่องประวัติคำสั่งซื้อ */
         .order-history-card { background: white; padding: 15px; border-radius: 12px; margin-bottom: 12px; box-shadow: 0 2px 8px rgba(0,0,0,0.03); border: 1px solid #f0f1f4; }
         
         @keyframes slideUp { from { transform: translateY(100%); } to { transform: translateY(0); } }
@@ -76,6 +75,8 @@
     <!-- VIEW: Home -->
     <div id="view-home" class="view-section active">
         <div class="product-list" style="margin-top:20px;">
+            
+            <!-- สินค้าที่ 1: พาราเซตามอล -->
             <div class="product-card">
                 <div class="prod-img">💊</div>
                 <div class="prod-info">
@@ -87,24 +88,59 @@
                     </div>
                 </div>
             </div>
+
+            <!-- สินค้าที่ 2: ผงถ่านคาร์บอน -->
+            <div class="product-card">
+                <div class="prod-img">🖤</div>
+                <div class="prod-info">
+                    <h3>ผงถ่านคาร์บอน (10 เม็ด)</h3>
+                    <p>แก้ท้องเสีย อาหารเป็นพิษ</p>
+                    <div class="price-row">
+                        <span class="price">฿25</span>
+                        <button class="add-btn" onclick="openPayment('ผงถ่านคาร์บอน', 25)"><i class="fa-solid fa-plus"></i></button>
+                    </div>
+                </div>
+            </div>
+
+            <!-- สินค้าที่ 3: พลาสเตอร์ยา -->
+            <div class="product-card">
+                <div class="prod-img">🩹</div>
+                <div class="prod-info">
+                    <h3>พลาสเตอร์ยา (5 ชิ้น)</h3>
+                    <p>ปิดแผล ป้องกันเชื้อโรค</p>
+                    <div class="price-row">
+                        <span class="price">฿15</span>
+                        <button class="add-btn" onclick="openPayment('พลาสเตอร์ยา', 15)"><i class="fa-solid fa-plus"></i></button>
+                    </div>
+                </div>
+            </div>
+
+            <!-- สินค้าที่ 4: ยาดม -->
+            <div class="product-card">
+                <div class="prod-img">🌿</div>
+                <div class="prod-info">
+                    <h3>ยาดมตราโป๊ยเซียน</h3>
+                    <p>แก้วิงเวียน หน้ามืด คัดจมูก</p>
+                    <div class="price-row">
+                        <span class="price">฿20</span>
+                        <button class="add-btn" onclick="openPayment('ยาดม', 20)"><i class="fa-solid fa-plus"></i></button>
+                    </div>
+                </div>
+            </div>
+
         </div>
     </div>
 
-    <!-- VIEW: Orders (ประวัติคำสั่งซื้อ) -->
+    <!-- VIEW: Orders -->
     <div id="view-orders" class="view-section">
-        <!-- โชว์เมื่อยังไม่ล็อกอิน -->
         <div id="orders-login-warning" style="text-align: center; padding: 50px 20px; color: var(--text-sub);">
             <i class="fa-solid fa-receipt" style="font-size: 50px; color: #ddd; margin-bottom: 15px;"></i>
             <h3>ประวัติคำสั่งซื้อ</h3>
             <p>กรุณาเข้าสู่ระบบเพื่อดูข้อมูล</p>
         </div>
-        
-        <!-- โชว์เมื่อล็อกอินแล้ว -->
         <div id="orders-list-container" style="display: none; padding: 20px;">
             <h3 style="margin-bottom: 15px; color: var(--tu-red);">ประวัติการรับยาของคุณ</h3>
-            <div id="orders-list">
-                <!-- รายการสั่งซื้อจะมาแทรกตรงนี้ด้วย JS -->
-            </div>
+            <div id="orders-list"></div>
         </div>
     </div>
 
@@ -162,11 +198,10 @@
     </div>
 </div>
 
-<!-- รวม Script ทั้งหมดไว้ใน Module เดียวเพื่อให้ใช้ Firebase ได้ -->
+<!-- Scripts -->
 <script type="module">
     import { initializeApp } from "https://www.gstatic.com/firebasejs/10.8.1/firebase-app.js";
     import { getAuth, createUserWithEmailAndPassword, signInWithEmailAndPassword, onAuthStateChanged, signOut } from "https://www.gstatic.com/firebasejs/10.8.1/firebase-auth.js";
-    // 💡 นำเข้า Firestore สำหรับบันทึกฐานข้อมูล
     import { getFirestore, collection, addDoc, getDocs, query, where, serverTimestamp } from "https://www.gstatic.com/firebasejs/10.8.1/firebase-firestore.js";
 
     const firebaseConfig = {
@@ -181,27 +216,20 @@
 
     const app = initializeApp(firebaseConfig);
     const auth = getAuth(app);
-    const db = getFirestore(app); // 💡 เปิดใช้งาน Firestore
+    const db = getFirestore(app);
 
-    // -------------------------------------------------------------
-    // ระบบเปลี่ยนหน้า (Tab)
-    // -------------------------------------------------------------
     window.switchTab = function(viewId, navElement) {
         document.querySelectorAll('.view-section').forEach(el => el.classList.remove('active'));
         document.getElementById(viewId).classList.add('active');
         document.querySelectorAll('.nav-item').forEach(el => el.classList.remove('active'));
         navElement.classList.add('active');
         
-        // ถ้ากดเข้าหน้าคำสั่งซื้อ ให้โหลดประวัติใหม่
         if(viewId === 'view-orders' && auth.currentUser) {
             const stuId = auth.currentUser.email.split('@')[0];
             loadOrders(stuId);
         }
     }
 
-    // -------------------------------------------------------------
-    // ระบบดึงข้อมูลประวัติคำสั่งซื้อ
-    // -------------------------------------------------------------
     async function loadOrders(stuId) {
         const ordersList = document.getElementById('orders-list');
         ordersList.innerHTML = '<div class="loader" style="margin: 20px auto;"></div>';
@@ -215,7 +243,6 @@
                 orders.push(doc.data());
             });
 
-            // เรียงลำดับจากล่าสุดไปเก่าสุด
             orders.sort((a,b) => b.createdAt?.toMillis() - a.createdAt?.toMillis());
 
             if(orders.length === 0) {
@@ -225,7 +252,6 @@
 
             let html = '';
             orders.forEach(order => {
-                // แปลงเวลาให้เป็นฟอร์แมตไทยสวยๆ
                 const dateOptions = { year: 'numeric', month: 'short', day: 'numeric', hour: '2-digit', minute: '2-digit' };
                 const dateStr = order.createdAt ? new Date(order.createdAt.toDate()).toLocaleDateString('th-TH', dateOptions) : 'เพิ่งสั่งซื้อ';
                 
@@ -249,9 +275,6 @@
         }
     }
 
-    // -------------------------------------------------------------
-    // ระบบชำระเงินและบันทึกประวัติ (Frontend-driven save)
-    // -------------------------------------------------------------
     const BACKEND_URL = 'https://api.peemcn25.dev'; 
     let timerInterval;
     let paymentCheckInterval;
@@ -291,7 +314,6 @@
                 qrImg.style.display = 'block';
                 statusTxt.innerText = 'สแกนคิวอาร์โค้ดเพื่อชำระเงินและรับยา';
                 
-                // เริ่มเช็กสถานะเงินเข้า โดยส่ง itemName และ price ไปด้วยเพื่อรอเซฟลง DB
                 startCheckingPayment(data.chargeId, itemName, itemPrice);
             } else {
                 throw new Error('QR Error');
@@ -316,7 +338,6 @@
                     document.getElementById('qr-status').style.color = '#28a745';
                     document.getElementById('qr-status').style.innerText = '✅ ชำระเงินสำเร็จแล้ว!';
                     
-                    // 💡 บันทึกประวัติลง Firestore Database
                     if (auth.currentUser) {
                         const stuId = auth.currentUser.email.split('@')[0];
                         try {
@@ -326,7 +347,7 @@
                                 price: itemPrice,
                                 chargeId: chargeId,
                                 status: "completed",
-                                createdAt: serverTimestamp() // เวลาปัจจุบัน
+                                createdAt: serverTimestamp() 
                             });
                             console.log("บันทึกประวัติลง Database สำเร็จ!");
                         } catch (e) {
@@ -342,7 +363,6 @@
                         showConfirmButton: false
                     }).then(() => {
                         window.closePayment();
-                        // เด้งไปหน้าประวัติคำสั่งซื้อ
                         window.switchTab('view-orders', document.querySelectorAll('.nav-item')[1]);
                     });
                 }
@@ -376,9 +396,6 @@
         }, 1000);
     }
 
-    // -------------------------------------------------------------
-    // ระบบ Authentication (เข้าสู่ระบบ)
-    // -------------------------------------------------------------
     const authSection = document.getElementById('auth-section');
     const profileSection = document.getElementById('profile-section');
     const stuIdInput = document.getElementById('stuIdInput');
@@ -397,15 +414,13 @@
             authSection.style.display = 'none';
             profileSection.style.display = 'block';
             
-            // สลับโชว์หน้า Orders
             ordersLoginWarning.style.display = 'none';
             ordersListContainer.style.display = 'block';
-            loadOrders(stuId); // ดึงข้อมูลทันทีที่ล็อกอิน
+            loadOrders(stuId); 
         } else {
             authSection.style.display = 'block';
             profileSection.style.display = 'none';
             
-            // สลับโชว์หน้า Orders
             ordersLoginWarning.style.display = 'block';
             ordersListContainer.style.display = 'none';
         }
