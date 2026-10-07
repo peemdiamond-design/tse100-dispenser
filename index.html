@@ -52,9 +52,7 @@
         .loader { border: 3px solid #f3f3f3; border-top: 3px solid var(--tu-red); border-radius: 50%; width: 40px; height: 40px; animation: spin 1s linear infinite; margin: 40px auto; }
         .summary-row { width: 100%; display: flex; justify-content: space-between; padding: 15px 0; border-top: 1px dashed #eee; font-size: 15px; font-weight: 600; }
         .btn-cancel { width: 100%; background: #f0f1f4; color: var(--text-main); padding: 14px; border-radius: 12px; border: none; font-size: 15px; font-weight: 600; margin-top: 10px; cursor: pointer; }
-        
         .order-history-card { background: white; padding: 15px; border-radius: 12px; margin-bottom: 12px; box-shadow: 0 2px 8px rgba(0,0,0,0.03); border: 1px solid #f0f1f4; }
-        
         @keyframes slideUp { from { transform: translateY(100%); } to { transform: translateY(0); } }
         @keyframes spin { 0% { transform: rotate(0deg); } 100% { transform: rotate(360deg); } }
     </style>
@@ -75,8 +73,6 @@
     <!-- VIEW: Home -->
     <div id="view-home" class="view-section active">
         <div class="product-list" style="margin-top:20px;">
-            
-            <!-- สินค้าที่ 1: พาราเซตามอล -->
             <div class="product-card">
                 <div class="prod-img">💊</div>
                 <div class="prod-info">
@@ -88,8 +84,6 @@
                     </div>
                 </div>
             </div>
-
-            <!-- สินค้าที่ 2: ผงถ่านคาร์บอน -->
             <div class="product-card">
                 <div class="prod-img">🖤</div>
                 <div class="prod-info">
@@ -101,8 +95,6 @@
                     </div>
                 </div>
             </div>
-
-            <!-- สินค้าที่ 3: พลาสเตอร์ยา -->
             <div class="product-card">
                 <div class="prod-img">🩹</div>
                 <div class="prod-info">
@@ -114,8 +106,6 @@
                     </div>
                 </div>
             </div>
-
-            <!-- สินค้าที่ 4: ยาดม -->
             <div class="product-card">
                 <div class="prod-img">🌿</div>
                 <div class="prod-info">
@@ -127,7 +117,6 @@
                     </div>
                 </div>
             </div>
-
         </div>
     </div>
 
@@ -198,7 +187,6 @@
     </div>
 </div>
 
-<!-- Scripts -->
 <script type="module">
     import { initializeApp } from "https://www.gstatic.com/firebasejs/10.8.1/firebase-app.js";
     import { getAuth, createUserWithEmailAndPassword, signInWithEmailAndPassword, onAuthStateChanged, signOut } from "https://www.gstatic.com/firebasejs/10.8.1/firebase-auth.js";
@@ -233,28 +221,20 @@
     async function loadOrders(stuId) {
         const ordersList = document.getElementById('orders-list');
         ordersList.innerHTML = '<div class="loader" style="margin: 20px auto;"></div>';
-        
         try {
             const q = query(collection(db, "orders"), where("stuId", "==", stuId));
             const querySnapshot = await getDocs(q);
             const orders = [];
-            
-            querySnapshot.forEach((doc) => {
-                orders.push(doc.data());
-            });
-
+            querySnapshot.forEach((doc) => { orders.push(doc.data()); });
             orders.sort((a,b) => b.createdAt?.toMillis() - a.createdAt?.toMillis());
-
             if(orders.length === 0) {
                 ordersList.innerHTML = '<p style="text-align:center; color:var(--text-sub); margin-top:20px;">ยังไม่มีประวัติการรับยา</p>';
                 return;
             }
-
             let html = '';
             orders.forEach(order => {
                 const dateOptions = { year: 'numeric', month: 'short', day: 'numeric', hour: '2-digit', minute: '2-digit' };
                 const dateStr = order.createdAt ? new Date(order.createdAt.toDate()).toLocaleDateString('th-TH', dateOptions) : 'เพิ่งสั่งซื้อ';
-                
                 html += `
                     <div class="order-history-card">
                         <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 8px;">
@@ -285,7 +265,6 @@
             window.switchTab('view-account', document.querySelectorAll('.nav-item')[2]);
             return;
         }
-
         document.getElementById('summary-name').innerText = itemName;
         document.getElementById('summary-price').innerText = `฿${itemPrice}.00`;
         document.getElementById('payment-overlay').style.display = 'flex';
@@ -302,9 +281,11 @@
         startTimer(180); 
 
         try {
+            // 💡 ส่งข้อมูลราคา ไปที่หลังบ้าน
             const response = await fetch(`${BACKEND_URL}/api/create-qr`, {
                 method: 'POST',
-                headers: { 'Content-Type': 'application/json' }
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ price: itemPrice, itemName: itemName })
             });
             const data = await response.json();
 
@@ -313,7 +294,6 @@
                 qrImg.src = data.qrImage;
                 qrImg.style.display = 'block';
                 statusTxt.innerText = 'สแกนคิวอาร์โค้ดเพื่อชำระเงินและรับยา';
-                
                 startCheckingPayment(data.chargeId, itemName, itemPrice);
             } else {
                 throw new Error('QR Error');
@@ -329,14 +309,12 @@
             try {
                 const response = await fetch(`${BACKEND_URL}/api/check-payment/${chargeId}`);
                 const data = await response.json();
-                
                 if (data.status === 'success') {
                     clearInterval(paymentCheckInterval);
                     clearInterval(timerInterval);
-                    
                     document.getElementById('qr-image').style.display = 'none';
                     document.getElementById('qr-status').style.color = '#28a745';
-                    document.getElementById('qr-status').style.innerText = '✅ ชำระเงินสำเร็จแล้ว!';
+                    document.getElementById('qr-status').innerText = '✅ ชำระเงินสำเร็จแล้ว!';
                     
                     if (auth.currentUser) {
                         const stuId = auth.currentUser.email.split('@')[0];
@@ -349,12 +327,10 @@
                                 status: "completed",
                                 createdAt: serverTimestamp() 
                             });
-                            console.log("บันทึกประวัติลง Database สำเร็จ!");
                         } catch (e) {
                             console.error("Error saving doc: ", e);
                         }
                     }
-                    
                     Swal.fire({
                         icon: 'success',
                         title: 'ชำระเงินสำเร็จ!',
@@ -382,12 +358,10 @@
         clearInterval(timerInterval);
         const display = document.getElementById('countdown');
         let remaining = seconds;
-        
         timerInterval = setInterval(() => {
             let m = parseInt(remaining / 60, 10);
             let s = parseInt(remaining % 60, 10);
             display.textContent = (m < 10 ? "0" + m : m) + ":" + (s < 10 ? "0" + s : s);
-            
             if (--remaining < 0) {
                 clearInterval(timerInterval);
                 window.closePayment();
@@ -404,7 +378,6 @@
     const authLoading = document.getElementById('auth-loading');
     const ordersLoginWarning = document.getElementById('orders-login-warning');
     const ordersListContainer = document.getElementById('orders-list-container');
-
     const FAKE_DOMAIN = "@tse.tu.ac.th";
 
     onAuthStateChanged(auth, (user) => {
@@ -413,14 +386,12 @@
             displayStuId.innerText = stuId;
             authSection.style.display = 'none';
             profileSection.style.display = 'block';
-            
             ordersLoginWarning.style.display = 'none';
             ordersListContainer.style.display = 'block';
             loadOrders(stuId); 
         } else {
             authSection.style.display = 'block';
             profileSection.style.display = 'none';
-            
             ordersLoginWarning.style.display = 'block';
             ordersListContainer.style.display = 'none';
         }
@@ -431,7 +402,6 @@
         const pwd = pwdInput.value.trim();
         if(id.length < 10) return alert('กรุณากรอกรหัสนักศึกษาให้ครบ 10 หลัก');
         if(pwd.length < 6) return alert('รหัสผ่านต้องมีอย่างน้อย 6 ตัวอักษร');
-
         authLoading.style.display = 'block';
         createUserWithEmailAndPassword(auth, id + FAKE_DOMAIN, pwd)
             .then(() => { alert("สมัครสมาชิกสำเร็จ!"); stuIdInput.value = ''; pwdInput.value = ''; })
@@ -443,7 +413,6 @@
         const id = stuIdInput.value.trim();
         const pwd = pwdInput.value.trim();
         if(!id || !pwd) return alert('กรุณากรอกข้อมูลให้ครบถ้วน');
-
         authLoading.style.display = 'block';
         signInWithEmailAndPassword(auth, id + FAKE_DOMAIN, pwd)
             .then(() => { stuIdInput.value = ''; pwdInput.value = ''; })
