@@ -2,50 +2,319 @@
 <html lang="th">
 <head>
     <meta charset="UTF-8">
-    <title>ตู้จ่ายยา (Demo)</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>TU Smart Rx | สั่งยาสามัญประจำบ้าน</title>
+    <link href="https://fonts.googleapis.com/css2?family=Prompt:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     <style>
-        body { text-align: center; font-family: sans-serif; padding: 50px; background-color: #f4f7f6; }
-        .product { border: 1px solid #ccc; padding: 20px; display: inline-block; border-radius: 8px; background: white; }
-        button { background: #28a745; color: white; border: none; padding: 10px 20px; cursor: pointer; font-size: 16px; border-radius: 4px; }
-        button:hover { background: #218838; }
+        :root { --tu-red: #c51d23; --tu-yellow: #f6c026; --bg-color: #f5f6f8; --card-bg: #ffffff; --text-main: #1d1d1f; --text-sub: #86868b; --border-color: #e5e5ea; }
+        * { box-sizing: border-box; font-family: 'Prompt', sans-serif; margin: 0; padding: 0; -webkit-tap-highlight-color: transparent; }
+        body { background-color: var(--bg-color); color: var(--text-main); }
+        .app-container { width: 100%; max-width: 480px; margin: 0 auto; background: var(--bg-color); min-height: 100vh; position: relative; padding-bottom: 70px; box-shadow: 0 0 20px rgba(0,0,0,0.05); overflow-x: hidden; }
+        .header { background: var(--card-bg); padding: 15px 20px; position: sticky; top: 0; z-index: 10; box-shadow: 0 2px 10px rgba(0,0,0,0.03); display: flex; align-items: center; justify-content: space-between; }
+        .location-info { display: flex; align-items: center; gap: 12px; }
+        .tu-logo { width: 45px; height: 45px; object-fit: contain; }
+        .location-text h1 { font-size: 16px; font-weight: 700; color: var(--tu-red); }
+        .location-text p { font-size: 12px; color: var(--text-sub); display: flex; align-items: center; gap: 4px; }
+        .view-section { display: none; animation: fadeIn 0.3s ease; }
+        .view-section.active { display: block; }
+        @keyframes fadeIn { from { opacity: 0; } to { opacity: 1; } }
+        .search-container { padding: 15px 20px; background: var(--card-bg); }
+        .search-bar { background: #f0f1f4; border-radius: 12px; padding: 0 15px; display: flex; align-items: center; gap: 10px; height: 45px; }
+        .search-bar input { border: none; background: transparent; width: 100%; height: 100%; font-size: 14px; outline: none; color: var(--text-main); }
+        .category-section { padding: 15px 20px 5px; }
+        .category-scroll { display: flex; gap: 12px; overflow-x: auto; padding-bottom: 10px; scrollbar-width: none; }
+        .category-scroll::-webkit-scrollbar { display: none; }
+        .cat-pill { background: var(--card-bg); border: 1px solid var(--border-color); cursor: pointer; padding: 8px 16px; border-radius: 20px; font-size: 13px; font-weight: 500; white-space: nowrap; transition: 0.2s; }
+        .cat-pill.active { background: var(--tu-red); color: white; border-color: var(--tu-red); }
+        .product-list { padding: 0 20px 20px; display: flex; flex-direction: column; gap: 15px; }
+        .product-card { background: var(--card-bg); border-radius: 16px; padding: 15px; display: flex; gap: 15px; align-items: center; box-shadow: 0 2px 8px rgba(0,0,0,0.02); }
+        .prod-img { width: 70px; height: 70px; background: #fff5f5; border-radius: 12px; display: flex; justify-content: center; align-items: center; font-size: 35px; }
+        .prod-info { flex: 1; }
+        .prod-info h3 { font-size: 15px; font-weight: 600; margin-bottom: 4px; }
+        .price-row { display: flex; justify-content: space-between; align-items: center; }
+        .price { font-size: 16px; font-weight: 700; color: var(--tu-red); }
+        .add-btn { background: var(--tu-yellow); color: #1a1a1a; border: none; width: 32px; height: 32px; border-radius: 50%; font-size: 16px; font-weight: bold; cursor: pointer; }
+        .bottom-nav { position: fixed; bottom: 0; width: 100%; max-width: 480px; background: var(--card-bg); display: flex; justify-content: space-around; padding: 12px 0 20px; border-top: 1px solid #eee; z-index: 10; }
+        .nav-item { display: flex; flex-direction: column; align-items: center; gap: 4px; color: var(--text-sub); font-size: 10px; cursor: pointer; flex: 1; }
+        .nav-item.active { color: var(--tu-red); }
+        .nav-item i { font-size: 20px; margin-bottom: 2px; }
+        .auth-container { background: white; margin: 20px; padding: 25px 20px; border-radius: 16px; box-shadow: 0 4px 15px rgba(0,0,0,0.03); }
+        .auth-title { text-align: center; font-size: 18px; font-weight: 600; margin-bottom: 20px; color: var(--tu-red); }
+        .form-group { margin-bottom: 15px; }
+        .form-group input { width: 100%; padding: 14px; border: 1px solid var(--border-color); border-radius: 12px; font-size: 14px; outline: none; }
+        .form-group input:focus { border-color: var(--tu-red); }
+        .btn-primary { width: 100%; background: var(--tu-red); color: white; padding: 14px; border: none; border-radius: 12px; font-size: 15px; font-weight: 600; cursor: pointer; margin-bottom: 10px; }
+        .btn-secondary { width: 100%; background: var(--tu-yellow); color: #1d1d1f; padding: 14px; border: none; border-radius: 12px; font-size: 15px; font-weight: 600; cursor: pointer; }
+        .profile-card { background: white; margin: 20px; padding: 30px 20px; border-radius: 16px; text-align: center; box-shadow: 0 4px 15px rgba(0,0,0,0.03); }
+        .profile-card i { font-size: 60px; color: var(--tu-red); margin-bottom: 15px; }
+        #auth-loading { text-align: center; color: var(--tu-red); display: none; margin-bottom: 15px; font-size: 14px; }
+        .payment-overlay { position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.5); z-index: 20; display: none; justify-content: center; align-items: flex-end; }
+        .payment-sheet { background: var(--card-bg); width: 100%; max-width: 480px; border-radius: 24px 24px 0 0; padding: 25px 20px 40px; animation: slideUp 0.3s ease-out; display: flex; flex-direction: column; align-items: center; }
+        .drag-handle { width: 40px; height: 5px; background: #ddd; border-radius: 3px; margin: 0 auto 20px; }
+        .timer-badge { background: #fff5f5; color: var(--tu-red); padding: 6px 12px; border-radius: 20px; font-size: 13px; font-weight: 600; margin-bottom: 15px; }
+        .qr-box { background: white; border: 1.5px solid #eee; border-radius: 16px; padding: 20px; text-align: center; width: 100%; margin-bottom: 20px; }
+        .pp-logo { width: 100px; margin-bottom: 15px; }
+        #qr-image { width: 180px; height: 180px; display: none; margin: 0 auto; }
+        .loader { border: 3px solid #f3f3f3; border-top: 3px solid var(--tu-red); border-radius: 50%; width: 40px; height: 40px; animation: spin 1s linear infinite; margin: 40px auto; }
+        .summary-row { width: 100%; display: flex; justify-content: space-between; padding: 15px 0; border-top: 1px dashed #eee; font-size: 15px; font-weight: 600; }
+        .btn-cancel { width: 100%; background: #f0f1f4; color: var(--text-main); padding: 14px; border-radius: 12px; border: none; font-size: 15px; font-weight: 600; margin-top: 10px; cursor: pointer; }
+        @keyframes slideUp { from { transform: translateY(100%); } to { transform: translateY(0); } }
+        @keyframes spin { 0% { transform: rotate(0deg); } 100% { transform: rotate(360deg); } }
     </style>
 </head>
 <body>
-    <h1>ตู้จ่ายยาอัตโนมัติ (TSE100 Demo)</h1>
-    
-    <div class="product">
-        <h3>💊 ยาพาราเซตามอล (20 บาท)</h3>
-        <button onclick="buyMedicine()">กดเพื่อซื้อ</button>
+
+<div class="app-container">
+    <div class="header">
+        <div class="location-info">
+            <img src="images.png" alt="TU Logo" class="tu-logo">
+            <div class="location-text">
+                <h1>ตู้จ่ายยาอัตโนมัติ TSE</h1>
+                <p><i class="fa-solid fa-location-dot" style="color: var(--tu-red);"></i> อาคารเรียนรวม 1 (ตึกวิศวะฯ)</p>
+            </div>
+        </div>
     </div>
 
-    <div id="qr-section" style="display:none; margin-top:20px;">
-        <h3>📱 สแกนเพื่อจ่ายเงิน</h3>
-        <img id="qr-image" src="" width="200" alt="QR Code">
-        <p>กำลังรอการชำระเงิน...</p>
+    <!-- VIEW: Home -->
+    <div id="view-home" class="view-section active">
+        <div class="product-list" style="margin-top:20px;">
+            <div class="product-card">
+                <div class="prod-img">💊</div>
+                <div class="prod-info">
+                    <h3>พาราเซตามอล 500mg</h3>
+                    <p>แผงละ 10 เม็ด (บรรเทาปวด ลดไข้)</p>
+                    <div class="price-row">
+                        <span class="price">฿20</span>
+                        <button class="add-btn" onclick="openPayment('พาราเซตามอล 500mg', 20)"><i class="fa-solid fa-plus"></i></button>
+                    </div>
+                </div>
+            </div>
+        </div>
     </div>
 
-    <script>
-        async function buyMedicine() {
-            // แสดงส่วนของ QR Code และขึ้นรูปโหลดรอไว้ก่อน
-            document.getElementById('qr-section').style.display = 'block';
-            document.getElementById('qr-image').src = "https://via.placeholder.com/200?text=Loading...";
+    <!-- VIEW: Orders -->
+    <div id="view-orders" class="view-section">
+        <div style="text-align: center; padding: 50px 20px; color: var(--text-sub);">
+            <i class="fa-solid fa-receipt" style="font-size: 50px; color: #ddd; margin-bottom: 15px;"></i>
+            <h3>ประวัติคำสั่งซื้อ</h3>
+            <p>กรุณาเข้าสู่ระบบเพื่อดูข้อมูล</p>
+        </div>
+    </div>
 
-            try {
-                // เรียก API ไปที่เซิร์ฟเวอร์ของเรา (พอร์ต 3000)
-                const response = await fetch('http://localhost:3000/api/create-qr', { method: 'POST' });
-                const data = await response.json();
-                
-                // ถ้ามีลิงก์รูป QR Code ส่งกลับมา ให้แสดงรูปนั้น
-                if (data.qrImage) {
-                    document.getElementById('qr-image').src = data.qrImage;
-                } else {
-                    alert("เกิดข้อผิดพลาด: " + (data.error || "ไม่สามารถสร้าง QR Code ได้"));
-                }
-            } catch (err) {
-                alert("เชื่อมต่อหลังบ้านไม่ได้! อย่าลืมรันคำสั่ง 'node server.js' ใน Terminal นะครับ");
-                console.error(err);
+    <!-- VIEW: Account -->
+    <div id="view-account" class="view-section">
+        <div id="auth-section" class="auth-container">
+            <div class="auth-title">เข้าสู่ระบบนักศึกษา</div>
+            <p id="auth-loading">กำลังประมวลผล...</p>
+            <div class="form-group">
+                <input type="number" id="stuIdInput" placeholder="เลขทะเบียนนักศึกษา (10 หลัก)">
+            </div>
+            <div class="form-group">
+                <input type="password" id="pwdInput" placeholder="รหัสผ่าน">
+            </div>
+            <button class="btn-primary" id="btnLogin">เข้าสู่ระบบ</button>
+            <button class="btn-secondary" id="btnRegister">สมัครสมาชิกใหม่</button>
+        </div>
+        <div id="profile-section" style="display: none;">
+            <div class="profile-card">
+                <i class="fa-solid fa-circle-user"></i>
+                <h2 id="displayStuId">รหัสนักศึกษา</h2>
+                <p style="color: var(--text-sub); margin-bottom: 20px;">นักศึกษามหาวิทยาลัยธรรมศาสตร์</p>
+                <button class="btn-secondary" id="btnLogout" style="background: #f0f1f4; color: var(--tu-red);">ออกจากระบบ</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Bottom Nav -->
+    <div class="bottom-nav">
+        <div class="nav-item active" onclick="switchTab('view-home', this)"><i class="fa-solid fa-house"></i><span>หน้าหลัก</span></div>
+        <div class="nav-item" onclick="switchTab('view-orders', this)"><i class="fa-solid fa-clipboard-list"></i><span>คำสั่งซื้อ</span></div>
+        <div class="nav-item" onclick="switchTab('view-account', this)"><i class="fa-regular fa-user"></i><span>บัญชี</span></div>
+    </div>
+</div>
+
+<!-- Payment Bottom Sheet -->
+<div class="payment-overlay" id="payment-overlay">
+    <div class="payment-sheet">
+        <div class="drag-handle"></div>
+        <div class="timer-badge">
+            <i class="fa-regular fa-clock"></i> ทำรายการภายใน <span id="countdown">03:00</span>
+        </div>
+        <h2 style="font-size: 18px; margin-bottom: 20px;">ชำระเงินผ่านแอปธนาคาร</h2>
+        <div class="qr-box">
+            <img src="https://www.bot.or.th/content/dam/bot/documents/th/our-roles/payment-systems/about-payment-systems/PromptPay-logo.png" alt="PromptPay" class="pp-logo">
+            <div id="loader" class="loader"></div>
+            <img id="qr-image" src="" alt="QR Code">
+            <p id="qr-status" style="margin-top: 15px; font-size: 13px; color: var(--text-sub);">ระบบกำลังสร้างคิวอาร์โค้ด...</p>
+        </div>
+        <div class="summary-row">
+            <span id="summary-name" style="color: var(--text-sub);"></span>
+            <span id="summary-price" style="color: var(--tu-red);"></span>
+        </div>
+        <button class="btn-cancel" onclick="closePayment()">ยกเลิกคำสั่งซื้อ</button>
+    </div>
+</div>
+
+<script>
+    // ---------------- การเชื่อมต่อ Backend ----------------
+    // แก้ไขเป็นพอร์ต 5000 แล้ว
+    const BACKEND_URL = 'http://localhost:5000'; 
+    let timerInterval;
+
+    function switchTab(viewId, navElement) {
+        document.querySelectorAll('.view-section').forEach(el => el.classList.remove('active'));
+        document.getElementById(viewId).classList.add('active');
+        document.querySelectorAll('.nav-item').forEach(el => el.classList.remove('active'));
+        navElement.classList.add('active');
+    }
+
+    async function openPayment(itemName, itemPrice) {
+        document.getElementById('summary-name').innerText = itemName;
+        document.getElementById('summary-price').innerText = `฿${itemPrice}.00`;
+        document.getElementById('payment-overlay').style.display = 'flex';
+        
+        const loader = document.getElementById('loader');
+        const qrImg = document.getElementById('qr-image');
+        const statusTxt = document.getElementById('qr-status');
+        
+        loader.style.display = 'block';
+        qrImg.style.display = 'none';
+        statusTxt.innerText = 'ระบบกำลังสร้างคิวอาร์โค้ด...';
+
+        startTimer(180); 
+
+        try {
+            const response = await fetch(`${BACKEND_URL}/api/create-qr`, {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' }
+            });
+            const data = await response.json();
+
+            if (data.qrImage) {
+                loader.style.display = 'none';
+                qrImg.src = data.qrImage;
+                qrImg.style.display = 'block';
+                statusTxt.innerText = 'สแกนคิวอาร์โค้ดเพื่อชำระเงินและรับยา';
+            } else {
+                throw new Error('QR Error');
             }
+        } catch (error) {
+            loader.style.display = 'none';
+            statusTxt.innerText = 'เกิดข้อผิดพลาด ไม่สามารถเชื่อมต่อระบบได้';
         }
-    </script>
+    }
+
+    function closePayment() {
+        document.getElementById('payment-overlay').style.display = 'none';
+        clearInterval(timerInterval);
+    }
+
+    function startTimer(seconds) {
+        clearInterval(timerInterval);
+        const display = document.getElementById('countdown');
+        let remaining = seconds;
+        
+        timerInterval = setInterval(() => {
+            let minutes = parseInt(remaining / 60, 10);
+            let seconds = parseInt(remaining % 60, 10);
+            
+            minutes = minutes < 10 ? "0" + minutes : minutes;
+            seconds = seconds < 10 ? "0" + seconds : seconds;
+            
+            display.textContent = minutes + ":" + seconds;
+            
+            if (--remaining < 0) {
+                clearInterval(timerInterval);
+                closePayment();
+                alert("หมดเวลาทำรายการ กรุณาสั่งซื้อใหม่อีกครั้ง");
+            }
+        }, 1000);
+    }
+</script>
+
+<!-- สคริปต์ Firebase -->
+<script type="module">
+    import { initializeApp } from "https://www.gstatic.com/firebasejs/10.8.1/firebase-app.js";
+    import { getAuth, createUserWithEmailAndPassword, signInWithEmailAndPassword, onAuthStateChanged, signOut } from "https://www.gstatic.com/firebasejs/10.8.1/firebase-auth.js";
+
+    const firebaseConfig = {
+      apiKey: "AIzaSyDQ3VbYMTqPw2kR6EOIpiTYPcWVsa0otKc",
+      authDomain: "tse100.firebaseapp.com",
+      projectId: "tse100",
+      storageBucket: "tse100.firebasestorage.app",
+      messagingSenderId: "257252295457",
+      appId: "1:257252295457:web:7786fc5ac5b94de7b1b460",
+      measurementId: "G-LLWWBWPVYQ"
+    };
+
+    const app = initializeApp(firebaseConfig);
+    const auth = getAuth(app);
+
+    const authSection = document.getElementById('auth-section');
+    const profileSection = document.getElementById('profile-section');
+    const stuIdInput = document.getElementById('stuIdInput');
+    const pwdInput = document.getElementById('pwdInput');
+    const displayStuId = document.getElementById('displayStuId');
+    const authLoading = document.getElementById('auth-loading');
+
+    const FAKE_DOMAIN = "@tse.tu.ac.th";
+
+    onAuthStateChanged(auth, (user) => {
+        if (user) {
+            const stuId = user.email.split('@')[0];
+            displayStuId.innerText = stuId;
+            authSection.style.display = 'none';
+            profileSection.style.display = 'block';
+        } else {
+            authSection.style.display = 'block';
+            profileSection.style.display = 'none';
+        }
+    });
+
+    document.getElementById('btnRegister').addEventListener('click', () => {
+        const id = stuIdInput.value.trim();
+        const pwd = pwdInput.value.trim();
+        if(id.length < 10) return alert('กรุณากรอกรหัสนักศึกษาให้ครบ 10 หลัก');
+        if(pwd.length < 6) return alert('รหัสผ่านต้องมีอย่างน้อย 6 ตัวอักษร');
+
+        authLoading.style.display = 'block';
+        const dummyEmail = id + FAKE_DOMAIN;
+
+        createUserWithEmailAndPassword(auth, dummyEmail, pwd)
+            .then(() => {
+                alert("สมัครสมาชิกสำเร็จ!");
+                stuIdInput.value = ''; pwdInput.value = '';
+            })
+            .catch((error) => {
+                if(error.code === 'auth/email-already-in-use') alert('รหัสนักศึกษานี้ถูกสมัครไปแล้ว');
+                else alert('เกิดข้อผิดพลาด: ' + error.message);
+            })
+            .finally(() => authLoading.style.display = 'none');
+    });
+
+    document.getElementById('btnLogin').addEventListener('click', () => {
+        const id = stuIdInput.value.trim();
+        const pwd = pwdInput.value.trim();
+        if(!id || !pwd) return alert('กรุณากรอกข้อมูลให้ครบถ้วน');
+
+        authLoading.style.display = 'block';
+        const dummyEmail = id + FAKE_DOMAIN;
+
+        signInWithEmailAndPassword(auth, dummyEmail, pwd)
+            .then(() => {
+                stuIdInput.value = ''; pwdInput.value = '';
+            })
+            .catch((error) => {
+                alert('รหัสนักศึกษาหรือรหัสผ่านไม่ถูกต้อง');
+            })
+            .finally(() => authLoading.style.display = 'none');
+    });
+
+    document.getElementById('btnLogout').addEventListener('click', () => {
+        signOut(auth);
+    });
+</script>
+
 </body>
 </html>
