@@ -6,7 +6,12 @@
     <title>TU Smart Rx | สั่งยาสามัญประจำบ้าน</title>
     <link href="https://fonts.googleapis.com/css2?family=Prompt:wght@300;400;500;600;700&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    
+    <!-- เพิ่มไลบรารี SweetAlert2 สำหรับแจ้งเตือนสวยๆ -->
+    <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+    
     <style>
+        /* สไตล์เดิมทั้งหมดของคุณ */
         :root { --tu-red: #c51d23; --tu-yellow: #f6c026; --bg-color: #f5f6f8; --card-bg: #ffffff; --text-main: #1d1d1f; --text-sub: #86868b; --border-color: #e5e5ea; }
         * { box-sizing: border-box; font-family: 'Prompt', sans-serif; margin: 0; padding: 0; -webkit-tap-highlight-color: transparent; }
         body { background-color: var(--bg-color); color: var(--text-main); }
@@ -68,7 +73,6 @@
 <div class="app-container">
     <div class="header">
         <div class="location-info">
-            <!-- ดึงรูปจากโฟลเดอร์ assets -->
             <img src="assets/images.png" alt="TU Logo" class="tu-logo">
             <div class="location-text">
                 <h1>ตู้จ่ายยาอัตโนมัติ TSE</h1>
@@ -161,12 +165,52 @@
     // ---------------- การเชื่อมต่อ Backend ----------------
     const BACKEND_URL = 'https://api.peemcn25.dev'; 
     let timerInterval;
+    let paymentCheckInterval; // เพิ่มตัวแปรสำหรับเก็บการวนลูป
 
     function switchTab(viewId, navElement) {
         document.querySelectorAll('.view-section').forEach(el => el.classList.remove('active'));
         document.getElementById(viewId).classList.add('active');
         document.querySelectorAll('.nav-item').forEach(el => el.classList.remove('active'));
         navElement.classList.add('active');
+    }
+
+    // 💡 ฟังก์ชันใหม่: ชะเง้อถามสถานะการจ่ายเงิน
+    function startCheckingPayment(chargeId) {
+        console.log("เริ่มเช็กสถานะการจ่ายเงินสำหรับ Charge ID:", chargeId);
+        
+        // ให้ยิงไปถามหลังบ้านทุกๆ 3 วินาที
+        paymentCheckInterval = setInterval(async () => {
+            try {
+                const response = await fetch(`${BACKEND_URL}/api/check-payment/${chargeId}`);
+                const data = await response.json();
+                
+                if (data.status === 'success') {
+                    // 1. ถ้าจ่ายสำเร็จ ให้หยุดถาม
+                    clearInterval(paymentCheckInterval);
+                    clearInterval(timerInterval); // หยุดนับเวลาด้วย
+                    
+                    // 2. ซ่อน QR และโชว์สถานะสำเร็จ
+                    document.getElementById('qr-image').style.display = 'none';
+                    document.getElementById('qr-status').style.color = '#28a745';
+                    document.getElementById('qr-status').style.fontWeight = 'bold';
+                    document.getElementById('qr-status').innerText = '✅ ชำระเงินสำเร็จแล้ว!';
+                    
+                    // 3. เด้ง Alert สวยๆ ให้ลูกค้า
+                    Swal.fire({
+                        icon: 'success',
+                        title: 'ชำระเงินสำเร็จ!',
+                        text: 'ระบบกำลังสั่งตู้จ่ายยา กรุณารอรับยาด้านล่าง',
+                        timer: 3500, // โชว์ 3.5 วินาที
+                        showConfirmButton: false
+                    }).then(() => {
+                        // ปิดป๊อปอัปจ่ายเงิน
+                        closePayment();
+                    });
+                }
+            } catch (error) {
+                console.error("เช็กสถานะผิดพลาด:", error);
+            }
+        }, 3000); 
     }
 
     async function openPayment(itemName, itemPrice) {
@@ -181,6 +225,7 @@
         loader.style.display = 'block';
         qrImg.style.display = 'none';
         statusTxt.innerText = 'ระบบกำลังสร้างคิวอาร์โค้ด...';
+        statusTxt.style.color = 'var(--text-sub)'; 
 
         startTimer(180); 
 
@@ -196,6 +241,10 @@
                 qrImg.src = data.qrImage;
                 qrImg.style.display = 'block';
                 statusTxt.innerText = 'สแกนคิวอาร์โค้ดเพื่อชำระเงินและรับยา';
+                
+                // 💡 จุดสำคัญ: โชว์ QR Code เสร็จแล้ว ให้เริ่มเช็กเงินเข้าทันที!
+                startCheckingPayment(data.chargeId);
+                
             } else {
                 throw new Error('QR Error');
             }
@@ -208,6 +257,11 @@
     function closePayment() {
         document.getElementById('payment-overlay').style.display = 'none';
         clearInterval(timerInterval);
+        
+        // เคลียร์การถามสถานะเวลาลูกค้ากดยกเลิกกลางคัน
+        if (paymentCheckInterval) {
+            clearInterval(paymentCheckInterval);
+        }
     }
 
     function startTimer(seconds) {
