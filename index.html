@@ -59,6 +59,7 @@
         .stat-box h3 { color: var(--tu-red); font-size: 24px; margin-bottom: 5px; }
         .stat-box p { font-size: 12px; color: var(--text-sub); }
         
+        /* 💡 สไตล์กล่องข้อมูลส่วนตัว */
         .user-info-box { background: #f9f9f9; padding: 15px; border-radius: 12px; margin-bottom: 20px; text-align: left; border: 1px solid #eee; }
         .user-info-box p { font-size: 14px; margin-bottom: 5px; color: var(--text-main); }
 
@@ -163,6 +164,7 @@
                 <h2 id="displayStuId">รหัสนักศึกษา</h2>
                 <p style="color: var(--text-sub); margin-bottom: 15px; font-size: 13px;">นักศึกษามหาวิทยาลัยธรรมศาสตร์</p>
 
+                <!-- 💡 เพิ่มกล่องแสดงข้อมูลชื่อและเบอร์โทร -->
                 <div class="user-info-box">
                     <p><strong><i class="fa-regular fa-id-card" style="width: 20px;"></i> ชื่อ:</strong> <span id="displayFullName" style="color: var(--text-sub);">ยังไม่ได้ระบุ</span></p>
                     <p style="margin-bottom: 0;"><strong><i class="fa-solid fa-phone" style="width: 20px;"></i> โทร:</strong> <span id="displayPhone" style="color: var(--text-sub);">ยังไม่ได้ระบุ</span></p>
@@ -202,4 +204,380 @@
 
     <!-- Bottom Nav -->
     <div class="bottom-nav">
-        <div class="nav-item active" onclick="switchTab('view-home', this)"><i class="fa-
+        <div class="nav-item active" onclick="switchTab('view-home', this)"><i class="fa-solid fa-house"></i><span>หน้าหลัก</span></div>
+        <div class="nav-item" onclick="switchTab('view-orders', this)"><i class="fa-solid fa-clipboard-list"></i><span>คำสั่งซื้อ</span></div>
+        <div class="nav-item" onclick="switchTab('view-account', this)"><i class="fa-regular fa-user"></i><span>บัญชี</span></div>
+    </div>
+</div>
+
+<!-- Payment Bottom Sheet -->
+<div class="payment-overlay" id="payment-overlay">
+    <div class="payment-sheet">
+        <div class="drag-handle"></div>
+        <div class="timer-badge">
+            <i class="fa-regular fa-clock"></i> ทำรายการภายใน <span id="countdown">03:00</span>
+        </div>
+        <h2 style="font-size: 18px; margin-bottom: 20px;">ชำระเงินผ่านแอปธนาคาร</h2>
+        <div class="qr-box">
+            <img src="https://www.bot.or.th/content/dam/bot/documents/th/our-roles/payment-systems/about-payment-systems/PromptPay-logo.png" alt="PromptPay" class="pp-logo">
+            <div id="loader" class="loader"></div>
+            <img id="qr-image" src="" alt="QR Code">
+            <p id="qr-status" style="margin-top: 15px; font-size: 13px; color: var(--text-sub);">ระบบกำลังสร้างคิวอาร์โค้ด...</p>
+        </div>
+        <div class="summary-row">
+            <span id="summary-name" style="color: var(--text-sub);"></span>
+            <span id="summary-price" style="color: var(--tu-red);"></span>
+        </div>
+        <button class="btn-cancel" onclick="closePayment()">ยกเลิกคำสั่งซื้อ</button>
+    </div>
+</div>
+
+<script type="module">
+    import { initializeApp } from "https://www.gstatic.com/firebasejs/10.8.1/firebase-app.js";
+    import { getAuth, createUserWithEmailAndPassword, signInWithEmailAndPassword, onAuthStateChanged, signOut, sendPasswordResetEmail } from "https://www.gstatic.com/firebasejs/10.8.1/firebase-auth.js";
+    // 💡 เพิ่มนำเข้า doc, setDoc, getDoc สำหรับบันทึกและโหลดข้อมูลโปรไฟล์
+    import { getFirestore, collection, addDoc, getDocs, query, where, serverTimestamp, doc, setDoc, getDoc } from "https://www.gstatic.com/firebasejs/10.8.1/firebase-firestore.js";
+
+    const firebaseConfig = {
+      apiKey: "AIzaSyDQ3VbYMTqPw2kR6EOIpiTYPcWVsa0otKc",
+      authDomain: "tse100.firebaseapp.com",
+      projectId: "tse100",
+      storageBucket: "tse100.firebasestorage.app",
+      messagingSenderId: "257252295457",
+      appId: "1:257252295457:web:7786fc5ac5b94de7b1b460",
+      measurementId: "G-LLWWBWPVYQ"
+    };
+
+    const app = initializeApp(firebaseConfig);
+    const auth = getAuth(app);
+    const db = getFirestore(app);
+
+    window.switchTab = function(viewId, navElement) {
+        document.querySelectorAll('.view-section').forEach(el => el.classList.remove('active'));
+        document.getElementById(viewId).classList.add('active');
+        document.querySelectorAll('.nav-item').forEach(el => el.classList.remove('active'));
+        navElement.classList.add('active');
+        
+        if(viewId === 'view-orders' && auth.currentUser) {
+            const stuId = auth.currentUser.email.split('@')[0];
+            loadOrders(stuId);
+        }
+    }
+
+    async function loadOrders(stuId) {
+        const ordersList = document.getElementById('orders-list');
+        document.getElementById('stat-total-orders').innerText = "0";
+        document.getElementById('stat-total-spent').innerText = "฿0";
+        
+        if(document.getElementById('view-orders').classList.contains('active')) {
+            ordersList.innerHTML = '<div class="loader" style="margin: 20px auto;"></div>';
+        }
+        
+        try {
+            const q = query(collection(db, "orders"), where("stuId", "==", stuId));
+            const querySnapshot = await getDocs(q);
+            const orders = [];
+            let totalSpent = 0;
+            
+            querySnapshot.forEach((doc) => { 
+                const data = doc.data();
+                orders.push(data);
+                totalSpent += parseInt(data.price || 0); 
+            });
+            
+            document.getElementById('stat-total-orders').innerText = orders.length;
+            document.getElementById('stat-total-spent').innerText = `฿${totalSpent}`;
+
+            orders.sort((a,b) => b.createdAt?.toMillis() - a.createdAt?.toMillis());
+
+            if(orders.length === 0) {
+                ordersList.innerHTML = '<p style="text-align:center; color:var(--text-sub); margin-top:20px;">ยังไม่มีประวัติการรับยา</p>';
+                return;
+            }
+
+            let html = '';
+            orders.forEach(order => {
+                const dateOptions = { year: 'numeric', month: 'short', day: 'numeric', hour: '2-digit', minute: '2-digit' };
+                const dateStr = order.createdAt ? new Date(order.createdAt.toDate()).toLocaleDateString('th-TH', dateOptions) : 'เพิ่งสั่งซื้อ';
+                html += `
+                    <div class="order-history-card">
+                        <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 8px;">
+                            <strong style="font-size: 15px;">${order.itemName}</strong>
+                            <span style="color: var(--tu-red); font-weight: 700;">฿${order.price}</span>
+                        </div>
+                        <div style="font-size: 12px; color: var(--text-sub); display: flex; justify-content: space-between;">
+                            <span><i class="fa-regular fa-calendar" style="margin-right: 4px;"></i>${dateStr}</span>
+                            <span style="color: #28a745;"><i class="fa-solid fa-circle-check" style="margin-right: 4px;"></i>รับยาสำเร็จ</span>
+                        </div>
+                    </div>
+                `;
+            });
+            ordersList.innerHTML = html;
+        } catch (error) {
+            console.error("Error loading orders:", error);
+            ordersList.innerHTML = '<p style="text-align:center; color:var(--tu-red);">เกิดข้อผิดพลาดในการดึงข้อมูล</p>';
+        }
+    }
+
+    const BACKEND_URL = 'https://api.peemcn25.dev'; 
+    let timerInterval;
+    let paymentCheckInterval;
+
+    window.openPayment = async function(itemName, itemPrice) {
+        if (!auth.currentUser) {
+            alert("กรุณาเข้าสู่ระบบก่อนทำการสั่งซื้อ");
+            window.switchTab('view-account', document.querySelectorAll('.nav-item')[2]);
+            return;
+        }
+        document.getElementById('summary-name').innerText = itemName;
+        document.getElementById('summary-price').innerText = `฿${itemPrice}.00`;
+        document.getElementById('payment-overlay').style.display = 'flex';
+        
+        const loader = document.getElementById('loader');
+        const qrImg = document.getElementById('qr-image');
+        const statusTxt = document.getElementById('qr-status');
+        
+        loader.style.display = 'block';
+        qrImg.style.display = 'none';
+        statusTxt.innerText = 'ระบบกำลังสร้างคิวอาร์โค้ด...';
+        statusTxt.style.color = 'var(--text-sub)'; 
+
+        startTimer(180); 
+
+        try {
+            const response = await fetch(`${BACKEND_URL}/api/create-qr`, {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ price: itemPrice, itemName: itemName })
+            });
+            const data = await response.json();
+
+            if (data.qrImage) {
+                loader.style.display = 'none';
+                qrImg.src = data.qrImage;
+                qrImg.style.display = 'block';
+                statusTxt.innerText = 'สแกนคิวอาร์โค้ดเพื่อชำระเงินและรับยา';
+                startCheckingPayment(data.chargeId, itemName, itemPrice);
+            } else {
+                throw new Error('QR Error');
+            }
+        } catch (error) {
+            loader.style.display = 'none';
+            statusTxt.innerText = 'เกิดข้อผิดพลาด ไม่สามารถเชื่อมต่อระบบได้';
+        }
+    }
+
+    function startCheckingPayment(chargeId, itemName, itemPrice) {
+        paymentCheckInterval = setInterval(async () => {
+            try {
+                const response = await fetch(`${BACKEND_URL}/api/check-payment/${chargeId}`);
+                const data = await response.json();
+                if (data.status === 'success') {
+                    clearInterval(paymentCheckInterval);
+                    clearInterval(timerInterval);
+                    document.getElementById('qr-image').style.display = 'none';
+                    document.getElementById('qr-status').style.color = '#28a745';
+                    document.getElementById('qr-status').innerText = '✅ ชำระเงินสำเร็จแล้ว!';
+                    
+                    if (auth.currentUser) {
+                        const stuId = auth.currentUser.email.split('@')[0];
+                        try {
+                            await addDoc(collection(db, "orders"), {
+                                stuId: stuId,
+                                itemName: itemName,
+                                price: itemPrice,
+                                chargeId: chargeId,
+                                status: "completed",
+                                createdAt: serverTimestamp() 
+                            });
+                            loadOrders(stuId);
+                        } catch (e) {
+                            console.error("Error saving doc: ", e);
+                        }
+                    }
+                    Swal.fire({
+                        icon: 'success',
+                        title: 'ชำระเงินสำเร็จ!',
+                        text: 'ระบบกำลังสั่งตู้จ่ายยา กรุณารอรับยาด้านล่าง',
+                        timer: 3500,
+                        showConfirmButton: false
+                    }).then(() => {
+                        window.closePayment();
+                        window.switchTab('view-orders', document.querySelectorAll('.nav-item')[1]);
+                    });
+                }
+            } catch (error) {
+                console.error("เช็กสถานะผิดพลาด:", error);
+            }
+        }, 3000); 
+    }
+
+    window.closePayment = function() {
+        document.getElementById('payment-overlay').style.display = 'none';
+        clearInterval(timerInterval);
+        if (paymentCheckInterval) clearInterval(paymentCheckInterval);
+    }
+
+    function startTimer(seconds) {
+        clearInterval(timerInterval);
+        const display = document.getElementById('countdown');
+        let remaining = seconds;
+        timerInterval = setInterval(() => {
+            let m = parseInt(remaining / 60, 10);
+            let s = parseInt(remaining % 60, 10);
+            display.textContent = (m < 10 ? "0" + m : m) + ":" + (s < 10 ? "0" + s : s);
+            if (--remaining < 0) {
+                clearInterval(timerInterval);
+                window.closePayment();
+                alert("หมดเวลาทำรายการ กรุณาสั่งซื้อใหม่อีกครั้ง");
+            }
+        }, 1000);
+    }
+
+    // แจ้งปัญหา
+    document.getElementById('btnReportIssue').addEventListener('click', () => {
+        Swal.fire({
+            icon: 'warning',
+            title: 'แจ้งปัญหาตู้ขัดข้อง',
+            html: 'กรุณาติดต่อ Line OA: <b>@TSE_SmartRx</b><br>หรือ โทร <b>08X-XXX-XXXX</b><br><br><span style="font-size:13px; color:#c51d23;"><i>* โปรดเตรียมภาพสลิปโอนเงินเพื่อขอคืนเงิน</i></span>',
+            confirmButtonColor: 'var(--tu-red)',
+            confirmButtonText: 'รับทราบ'
+        });
+    });
+
+    // 💡 ระบบแก้ไขและบันทึกข้อมูลส่วนตัว (Firebase Firestore)
+    document.getElementById('btnEditProfile').addEventListener('click', async () => {
+        // ดึงค่าที่แสดงอยู่มาใส่ในช่องกรอกให้เลย
+        const currentName = document.getElementById('displayFullName').innerText;
+        const currentPhone = document.getElementById('displayPhone').innerText;
+        const defaultName = currentName === 'ยังไม่ได้ระบุ' ? '' : currentName;
+        const defaultPhone = currentPhone === 'ยังไม่ได้ระบุ' ? '' : currentPhone;
+
+        const { value: formValues } = await Swal.fire({
+            title: 'แก้ไขข้อมูลส่วนตัว',
+            html:
+                `<input id="swal-input1" class="swal2-input" placeholder="ชื่อ-นามสกุล" value="${defaultName}">` +
+                `<input id="swal-input2" class="swal2-input" placeholder="เบอร์โทรศัพท์ (10 หลัก)" value="${defaultPhone}">`,
+            focusConfirm: false,
+            confirmButtonColor: 'var(--tu-red)',
+            confirmButtonText: 'บันทึกข้อมูล',
+            showCancelButton: true,
+            cancelButtonText: 'ยกเลิก',
+            preConfirm: () => {
+                return [
+                    document.getElementById('swal-input1').value.trim(),
+                    document.getElementById('swal-input2').value.trim()
+                ]
+            }
+        });
+
+        if (formValues) {
+            const newName = formValues[0];
+            const newPhone = formValues[1];
+            const stuId = auth.currentUser.email.split('@')[0];
+
+            // 1. บันทึกลง Firestore (Collection: users)
+            try {
+                await setDoc(doc(db, "users", stuId), {
+                    fullName: newName,
+                    phone: newPhone,
+                    updatedAt: serverTimestamp()
+                }, { merge: true }); // merge: true คืออัปเดตเฉพาะฟิลด์ที่ส่งไป
+                
+                // 2. อัปเดตแสดงผลที่หน้าจอทันที
+                document.getElementById('displayFullName').innerText = newName || 'ยังไม่ได้ระบุ';
+                document.getElementById('displayPhone').innerText = newPhone || 'ยังไม่ได้ระบุ';
+                
+                Swal.fire('บันทึกสำเร็จ!', 'อัปเดตข้อมูลของคุณเรียบร้อยแล้ว', 'success');
+            } catch (error) {
+                Swal.fire('ข้อผิดพลาด', 'ไม่สามารถบันทึกข้อมูลได้: ' + error.message, 'error');
+            }
+        }
+    });
+
+    document.getElementById('btnResetPwd').addEventListener('click', () => {
+        if(auth.currentUser) {
+            const email = auth.currentUser.email;
+            sendPasswordResetEmail(auth, email)
+                .then(() => {
+                    Swal.fire('สำเร็จ!', 'ระบบส่งอีเมลสำหรับเปลี่ยนรหัสผ่านไปแล้ว', 'success');
+                })
+                .catch((error) => {
+                    Swal.fire('ข้อผิดพลาด', error.message, 'error');
+                });
+        }
+    });
+
+    const authSection = document.getElementById('auth-section');
+    const profileSection = document.getElementById('profile-section');
+    const stuIdInput = document.getElementById('stuIdInput');
+    const pwdInput = document.getElementById('pwdInput');
+    const displayStuId = document.getElementById('displayStuId');
+    const authLoading = document.getElementById('auth-loading');
+    const ordersLoginWarning = document.getElementById('orders-login-warning');
+    const ordersListContainer = document.getElementById('orders-list-container');
+    const FAKE_DOMAIN = "@tse.tu.ac.th";
+
+    // 💡 เมื่อผู้ใช้ล็อกอิน ให้โหลดข้อมูลส่วนตัวจาก Firebase มาแสดงด้วย
+    onAuthStateChanged(auth, async (user) => {
+        if (user) {
+            const stuId = user.email.split('@')[0];
+            displayStuId.innerText = stuId;
+            authSection.style.display = 'none';
+            profileSection.style.display = 'block';
+            ordersLoginWarning.style.display = 'none';
+            ordersListContainer.style.display = 'block';
+            
+            // โหลดสถิติสั่งซื้อ
+            loadOrders(stuId); 
+
+            // โหลดข้อมูลส่วนตัว (ชื่อ-เบอร์โทร)
+            try {
+                const userDoc = await getDoc(doc(db, "users", stuId));
+                if (userDoc.exists()) {
+                    const userData = userDoc.data();
+                    document.getElementById('displayFullName').innerText = userData.fullName || 'ยังไม่ได้ระบุ';
+                    document.getElementById('displayPhone').innerText = userData.phone || 'ยังไม่ได้ระบุ';
+                } else {
+                    document.getElementById('displayFullName').innerText = 'ยังไม่ได้ระบุ';
+                    document.getElementById('displayPhone').innerText = 'ยังไม่ได้ระบุ';
+                }
+            } catch (error) {
+                console.error("โหลดข้อมูลส่วนตัวไม่สำเร็จ", error);
+            }
+        } else {
+            authSection.style.display = 'block';
+            profileSection.style.display = 'none';
+            ordersLoginWarning.style.display = 'block';
+            ordersListContainer.style.display = 'none';
+        }
+    });
+
+    document.getElementById('btnRegister').addEventListener('click', () => {
+        const id = stuIdInput.value.trim();
+        const pwd = pwdInput.value.trim();
+        if(id.length < 10) return alert('กรุณากรอกรหัสนักศึกษาให้ครบ 10 หลัก');
+        if(pwd.length < 6) return alert('รหัสผ่านต้องมีอย่างน้อย 6 ตัวอักษร');
+        authLoading.style.display = 'block';
+        createUserWithEmailAndPassword(auth, id + FAKE_DOMAIN, pwd)
+            .then(() => { alert("สมัครสมาชิกสำเร็จ!"); stuIdInput.value = ''; pwdInput.value = ''; })
+            .catch((err) => alert(err.code === 'auth/email-already-in-use' ? 'รหัสนักศึกษานี้ถูกสมัครไปแล้ว' : 'ข้อผิดพลาด: ' + err.message))
+            .finally(() => authLoading.style.display = 'none');
+    });
+
+    document.getElementById('btnLogin').addEventListener('click', () => {
+        const id = stuIdInput.value.trim();
+        const pwd = pwdInput.value.trim();
+        if(!id || !pwd) return alert('กรุณากรอกข้อมูลให้ครบถ้วน');
+        authLoading.style.display = 'block';
+        signInWithEmailAndPassword(auth, id + FAKE_DOMAIN, pwd)
+            .then(() => { stuIdInput.value = ''; pwdInput.value = ''; })
+            .catch(() => alert('รหัสนักศึกษาหรือรหัสผ่านไม่ถูกต้อง'))
+            .finally(() => authLoading.style.display = 'none');
+    });
+
+    document.getElementById('btnLogout').addEventListener('click', () => signOut(auth));
+</script>
+
+</body>
+</html>
