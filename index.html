@@ -81,8 +81,6 @@
     <!-- VIEW: Home -->
     <div id="view-home" class="view-section active">
         <div class="product-list" style="margin-top:20px;">
-            
-            <!-- สินค้าที่ 1: พาราเซตามอล -->
             <div class="product-card">
                 <img src="assets/para.jpeg" alt="พาราเซตามอล" style="width: 70px; height: 70px; border-radius: 12px; object-fit: cover;">
                 <div class="prod-info">
@@ -94,8 +92,6 @@
                     </div>
                 </div>
             </div>
-
-            <!-- สินค้าที่ 2: ผงถ่านคาร์บอน -->
             <div class="product-card">
                 <img src="assets/charcoal.jpeg" alt="ผงถ่านคาร์บอน" style="width: 70px; height: 70px; border-radius: 12px; object-fit: cover;">
                 <div class="prod-info">
@@ -107,8 +103,6 @@
                     </div>
                 </div>
             </div>
-
-            <!-- สินค้าที่ 3: พลาสเตอร์ยา -->
             <div class="product-card">
                 <img src="assets/plaster.jpeg" alt="พลาสเตอร์ยา" style="width: 70px; height: 70px; border-radius: 12px; object-fit: cover;">
                 <div class="prod-info">
@@ -120,8 +114,6 @@
                     </div>
                 </div>
             </div>
-
-            <!-- สินค้าที่ 4: ยาดม -->
             <div class="product-card">
                 <img src="assets/inhaler.jpeg" alt="ยาดม" style="width: 70px; height: 70px; border-radius: 12px; object-fit: cover;">
                 <div class="prod-info">
@@ -133,7 +125,6 @@
                     </div>
                 </div>
             </div>
-
         </div>
     </div>
 
@@ -229,6 +220,11 @@
             <div id="loader" class="loader"></div>
             <img id="qr-image" src="" alt="QR Code">
             <p id="qr-status" style="margin-top: 15px; font-size: 13px; color: var(--text-sub);">ระบบกำลังสร้างคิวอาร์โค้ด...</p>
+            
+            <!-- ปุ่มดาวน์โหลด QR Code -->
+            <button id="btn-download-qr" class="btn-secondary" style="display: none; margin-top: 15px; width: 100%; padding: 10px; font-size: 14px; background: #f0f1f4; color: var(--tu-red); border: 1px solid var(--tu-red);" onclick="downloadQR()">
+                <i class="fa-solid fa-download"></i> บันทึกคิวอาร์โค้ดลงเครื่อง
+            </button>
         </div>
         <div class="summary-row">
             <span id="summary-name" style="color: var(--text-sub);"></span>
@@ -348,6 +344,7 @@
         
         loader.style.display = 'block';
         qrImg.style.display = 'none';
+        document.getElementById('btn-download-qr').style.display = 'none'; // ซ่อนปุ่มโหลดตอนแรก
         statusTxt.innerText = 'ระบบกำลังสร้างคิวอาร์โค้ด...';
         statusTxt.style.color = 'var(--text-sub)'; 
 
@@ -365,6 +362,7 @@
                 loader.style.display = 'none';
                 qrImg.src = data.qrImage;
                 qrImg.style.display = 'block';
+                document.getElementById('btn-download-qr').style.display = 'block'; // โชว์ปุ่มดาวน์โหลด
                 statusTxt.innerText = 'สแกนคิวอาร์โค้ดเพื่อชำระเงินและรับยา';
                 startCheckingPayment(data.chargeId, itemName, itemPrice);
             } else {
@@ -385,6 +383,7 @@
                     clearInterval(paymentCheckInterval);
                     clearInterval(timerInterval);
                     document.getElementById('qr-image').style.display = 'none';
+                    document.getElementById('btn-download-qr').style.display = 'none';
                     document.getElementById('qr-status').style.color = '#28a745';
                     document.getElementById('qr-status').innerText = '✅ ชำระเงินสำเร็จแล้ว!';
                     
@@ -441,6 +440,42 @@
                 alert("หมดเวลาทำรายการ กรุณาสั่งซื้อใหม่อีกครั้ง");
             }
         }, 1000);
+    }
+
+    // ฟังก์ชันดาวน์โหลด QR Code
+    window.downloadQR = async function() {
+        const qrSrc = document.getElementById('qr-image').src;
+        if (!qrSrc) return;
+        
+        try {
+            const response = await fetch(qrSrc);
+            const blob = await response.blob();
+            const url = window.URL.createObjectURL(blob);
+            
+            const a = document.createElement('a');
+            a.style.display = 'none';
+            a.href = url;
+            a.download = 'TU_SmartRx_QR.png';
+            document.body.appendChild(a);
+            a.click();
+            
+            window.URL.revokeObjectURL(url);
+            
+            Swal.fire({
+                icon: 'success',
+                title: 'บันทึกสำเร็จ',
+                text: 'รูปคิวอาร์โค้ดถูกเซฟลงเครื่องแล้ว',
+                timer: 2000,
+                showConfirmButton: false
+            });
+        } catch (error) {
+            console.error('Download error:', error);
+            Swal.fire({
+                icon: 'error',
+                title: 'บันทึกไม่สำเร็จ',
+                text: 'กรุณากดค้างที่รูปภาพเพื่อบันทึกแทน'
+            });
+        }
     }
 
     document.getElementById('btnReportIssue').addEventListener('click', () => {
