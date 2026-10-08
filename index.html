@@ -22,7 +22,6 @@
         @keyframes fadeIn { from { opacity: 0; } to { opacity: 1; } }
         .product-list { padding: 0 20px 20px; display: flex; flex-direction: column; gap: 15px; }
         .product-card { background: var(--card-bg); border-radius: 16px; padding: 15px; display: flex; gap: 15px; align-items: center; box-shadow: 0 2px 8px rgba(0,0,0,0.02); }
-        .prod-img { width: 70px; height: 70px; background: #fff5f5; border-radius: 12px; display: flex; justify-content: center; align-items: center; font-size: 35px; }
         .prod-info { flex: 1; }
         .prod-info h3 { font-size: 15px; font-weight: 600; margin-bottom: 4px; }
         .price-row { display: flex; justify-content: space-between; align-items: center; }
@@ -59,7 +58,6 @@
         .stat-box h3 { color: var(--tu-red); font-size: 24px; margin-bottom: 5px; }
         .stat-box p { font-size: 12px; color: var(--text-sub); }
         
-        /* 💡 สไตล์กล่องข้อมูลส่วนตัว */
         .user-info-box { background: #f9f9f9; padding: 15px; border-radius: 12px; margin-bottom: 20px; text-align: left; border: 1px solid #eee; }
         .user-info-box p { font-size: 14px; margin-bottom: 5px; color: var(--text-main); }
 
@@ -83,8 +81,10 @@
     <!-- VIEW: Home -->
     <div id="view-home" class="view-section active">
         <div class="product-list" style="margin-top:20px;">
+            
+            <!-- สินค้าที่ 1: พาราเซตามอล -->
             <div class="product-card">
-                <div class="prod-img">💊</div>
+                <img src="assets/para.jpg" alt="พาราเซตามอล" style="width: 70px; height: 70px; border-radius: 12px; object-fit: cover;">
                 <div class="prod-info">
                     <h3>พาราเซตามอล 500mg</h3>
                     <p>แผงละ 10 เม็ด (บรรเทาปวด ลดไข้)</p>
@@ -94,8 +94,10 @@
                     </div>
                 </div>
             </div>
+
+            <!-- สินค้าที่ 2: ผงถ่านคาร์บอน -->
             <div class="product-card">
-                <div class="prod-img">🖤</div>
+                <img src="assets/charcoal.jpg" alt="ผงถ่านคาร์บอน" style="width: 70px; height: 70px; border-radius: 12px; object-fit: cover;">
                 <div class="prod-info">
                     <h3>ผงถ่านคาร์บอน (10 เม็ด)</h3>
                     <p>แก้ท้องเสีย อาหารเป็นพิษ</p>
@@ -105,8 +107,10 @@
                     </div>
                 </div>
             </div>
+
+            <!-- สินค้าที่ 3: พลาสเตอร์ยา -->
             <div class="product-card">
-                <div class="prod-img">🩹</div>
+                <img src="assets/plaster.jpg" alt="พลาสเตอร์ยา" style="width: 70px; height: 70px; border-radius: 12px; object-fit: cover;">
                 <div class="prod-info">
                     <h3>พลาสเตอร์ยา (5 ชิ้น)</h3>
                     <p>ปิดแผล ป้องกันเชื้อโรค</p>
@@ -116,8 +120,10 @@
                     </div>
                 </div>
             </div>
+
+            <!-- สินค้าที่ 4: ยาดม -->
             <div class="product-card">
-                <div class="prod-img">🌿</div>
+                <img src="assets/inhaler.jpg" alt="ยาดม" style="width: 70px; height: 70px; border-radius: 12px; object-fit: cover;">
                 <div class="prod-info">
                     <h3>ยาดมตราโป๊ยเซียน</h3>
                     <p>แก้วิงเวียน หน้ามืด คัดจมูก</p>
@@ -127,6 +133,7 @@
                     </div>
                 </div>
             </div>
+
         </div>
     </div>
 
@@ -164,7 +171,6 @@
                 <h2 id="displayStuId">รหัสนักศึกษา</h2>
                 <p style="color: var(--text-sub); margin-bottom: 15px; font-size: 13px;">นักศึกษามหาวิทยาลัยธรรมศาสตร์</p>
 
-                <!-- 💡 เพิ่มกล่องแสดงข้อมูลชื่อและเบอร์โทร -->
                 <div class="user-info-box">
                     <p><strong><i class="fa-regular fa-id-card" style="width: 20px;"></i> ชื่อ:</strong> <span id="displayFullName" style="color: var(--text-sub);">ยังไม่ได้ระบุ</span></p>
                     <p style="margin-bottom: 0;"><strong><i class="fa-solid fa-phone" style="width: 20px;"></i> โทร:</strong> <span id="displayPhone" style="color: var(--text-sub);">ยังไม่ได้ระบุ</span></p>
@@ -235,7 +241,6 @@
 <script type="module">
     import { initializeApp } from "https://www.gstatic.com/firebasejs/10.8.1/firebase-app.js";
     import { getAuth, createUserWithEmailAndPassword, signInWithEmailAndPassword, onAuthStateChanged, signOut, sendPasswordResetEmail } from "https://www.gstatic.com/firebasejs/10.8.1/firebase-auth.js";
-    // 💡 เพิ่มนำเข้า doc, setDoc, getDoc สำหรับบันทึกและโหลดข้อมูลโปรไฟล์
     import { getFirestore, collection, addDoc, getDocs, query, where, serverTimestamp, doc, setDoc, getDoc } from "https://www.gstatic.com/firebasejs/10.8.1/firebase-firestore.js";
 
     const firebaseConfig = {
@@ -288,7 +293,11 @@
             document.getElementById('stat-total-orders').innerText = orders.length;
             document.getElementById('stat-total-spent').innerText = `฿${totalSpent}`;
 
-            orders.sort((a,b) => b.createdAt?.toMillis() - a.createdAt?.toMillis());
+            orders.sort((a, b) => {
+                const timeA = a.createdAt ? a.createdAt.toMillis() : 0;
+                const timeB = b.createdAt ? b.createdAt.toMillis() : 0;
+                return timeB - timeA;
+            });
 
             if(orders.length === 0) {
                 ordersList.innerHTML = '<p style="text-align:center; color:var(--text-sub); margin-top:20px;">ยังไม่มีประวัติการรับยา</p>';
@@ -434,7 +443,6 @@
         }, 1000);
     }
 
-    // แจ้งปัญหา
     document.getElementById('btnReportIssue').addEventListener('click', () => {
         Swal.fire({
             icon: 'warning',
@@ -445,9 +453,7 @@
         });
     });
 
-    // 💡 ระบบแก้ไขและบันทึกข้อมูลส่วนตัว (Firebase Firestore)
     document.getElementById('btnEditProfile').addEventListener('click', async () => {
-        // ดึงค่าที่แสดงอยู่มาใส่ในช่องกรอกให้เลย
         const currentName = document.getElementById('displayFullName').innerText;
         const currentPhone = document.getElementById('displayPhone').innerText;
         const defaultName = currentName === 'ยังไม่ได้ระบุ' ? '' : currentName;
@@ -476,15 +482,13 @@
             const newPhone = formValues[1];
             const stuId = auth.currentUser.email.split('@')[0];
 
-            // 1. บันทึกลง Firestore (Collection: users)
             try {
                 await setDoc(doc(db, "users", stuId), {
                     fullName: newName,
                     phone: newPhone,
                     updatedAt: serverTimestamp()
-                }, { merge: true }); // merge: true คืออัปเดตเฉพาะฟิลด์ที่ส่งไป
+                }, { merge: true }); 
                 
-                // 2. อัปเดตแสดงผลที่หน้าจอทันที
                 document.getElementById('displayFullName').innerText = newName || 'ยังไม่ได้ระบุ';
                 document.getElementById('displayPhone').innerText = newPhone || 'ยังไม่ได้ระบุ';
                 
@@ -518,7 +522,6 @@
     const ordersListContainer = document.getElementById('orders-list-container');
     const FAKE_DOMAIN = "@tse.tu.ac.th";
 
-    // 💡 เมื่อผู้ใช้ล็อกอิน ให้โหลดข้อมูลส่วนตัวจาก Firebase มาแสดงด้วย
     onAuthStateChanged(auth, async (user) => {
         if (user) {
             const stuId = user.email.split('@')[0];
@@ -528,10 +531,8 @@
             ordersLoginWarning.style.display = 'none';
             ordersListContainer.style.display = 'block';
             
-            // โหลดสถิติสั่งซื้อ
             loadOrders(stuId); 
 
-            // โหลดข้อมูลส่วนตัว (ชื่อ-เบอร์โทร)
             try {
                 const userDoc = await getDoc(doc(db, "users", stuId));
                 if (userDoc.exists()) {
@@ -550,6 +551,9 @@
             profileSection.style.display = 'none';
             ordersLoginWarning.style.display = 'block';
             ordersListContainer.style.display = 'none';
+            
+            document.getElementById('displayFullName').innerText = 'ยังไม่ได้ระบุ';
+            document.getElementById('displayPhone').innerText = 'ยังไม่ได้ระบุ';
         }
     });
 
