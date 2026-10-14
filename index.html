@@ -45,8 +45,11 @@
 
         /* Overlays (Cart & Payment) */
         .overlay-bg { position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.5); z-index: 25; display: none; justify-content: center; align-items: flex-end; }
-        .bottom-sheet { background: var(--card-bg); width: 100%; max-width: 480px; border-radius: 24px 24px 0 0; padding: 20px 20px 40px; animation: slideUp 0.3s ease-out; display: flex; flex-direction: column; max-height: 85vh; }
-        .drag-handle { width: 40px; height: 5px; background: #ddd; border-radius: 3px; margin: 0 auto 15px; }
+        
+        /* [แก้ไขส่วนนี้] เพิ่ม overflow-y: auto เพื่อให้กล่องเลื่อนขึ้นลงได้ในจอมือถือ */
+        .bottom-sheet { background: var(--card-bg); width: 100%; max-width: 480px; border-radius: 24px 24px 0 0; padding: 20px 20px 40px; animation: slideUp 0.3s ease-out; display: flex; flex-direction: column; max-height: 85vh; overflow-y: auto; }
+        
+        .drag-handle { width: 40px; height: 5px; background: #ddd; border-radius: 3px; margin: 0 auto 15px; flex-shrink: 0; }
         @keyframes slideUp { from { transform: translateY(100%); } to { transform: translateY(0); } }
 
         .cart-items-container { overflow-y: auto; flex: 1; margin: 15px 0; }
@@ -64,9 +67,9 @@
         .form-group { margin-bottom: 15px; }
         .form-group input { width: 100%; padding: 14px; border: 1px solid var(--border-color); border-radius: 12px; font-size: 14px; outline: none; }
         .form-group input:focus { border-color: var(--tu-red); }
-        .btn-primary { width: 100%; background: var(--tu-red); color: white; padding: 14px; border: none; border-radius: 12px; font-size: 15px; font-weight: 600; cursor: pointer; margin-bottom: 10px; }
-        .btn-secondary { width: 100%; background: var(--tu-yellow); color: #1d1d1f; padding: 14px; border: none; border-radius: 12px; font-size: 15px; font-weight: 600; cursor: pointer; }
-        .btn-cancel { width: 100%; background: #f0f1f4; color: var(--text-main); padding: 14px; border-radius: 12px; border: none; font-size: 15px; font-weight: 600; margin-top: 10px; cursor: pointer; }
+        .btn-primary { width: 100%; background: var(--tu-red); color: white; padding: 14px; border: none; border-radius: 12px; font-size: 15px; font-weight: 600; cursor: pointer; margin-bottom: 10px; flex-shrink: 0; }
+        .btn-secondary { width: 100%; background: var(--tu-yellow); color: #1d1d1f; padding: 14px; border: none; border-radius: 12px; font-size: 15px; font-weight: 600; cursor: pointer; flex-shrink: 0; }
+        .btn-cancel { width: 100%; background: #f0f1f4; color: var(--text-main); padding: 14px; border-radius: 12px; border: none; font-size: 15px; font-weight: 600; margin-top: 10px; cursor: pointer; flex-shrink: 0; }
         
         .profile-card { background: white; margin: 20px; padding: 30px 20px; border-radius: 16px; text-align: center; box-shadow: 0 4px 15px rgba(0,0,0,0.03); }
         .profile-card i.main-icon { font-size: 60px; color: var(--tu-red); margin-bottom: 15px; }
@@ -80,10 +83,13 @@
         .order-history-card { background: white; padding: 15px; border-radius: 12px; margin-bottom: 12px; box-shadow: 0 2px 8px rgba(0,0,0,0.03); border: 1px solid #f0f1f4; }
         
         .qr-box { background: white; border: 1.5px solid #eee; border-radius: 16px; padding: 20px; text-align: center; width: 100%; margin-bottom: 20px; }
-        .pp-logo { width: 100px; margin-bottom: 15px; }
-        #qr-image { width: 180px; height: 180px; display: none; margin: 0 auto; }
+        
+        /* [แก้ไขส่วนนี้] ล็อกความสูงรูปโลโก้ PromptPay ไม่ให้ขยายเต็มจอกรณีโหลดรูปพัง */
+        .pp-logo { width: 100px; height: auto; max-height: 40px; object-fit: contain; margin-bottom: 15px; }
+        
+        #qr-image { width: 180px; height: 180px; display: none; margin: 0 auto; flex-shrink: 0; }
         .loader { border: 3px solid #f3f3f3; border-top: 3px solid var(--tu-red); border-radius: 50%; width: 40px; height: 40px; animation: spin 1s linear infinite; margin: 40px auto; }
-        .summary-row { width: 100%; display: flex; justify-content: space-between; padding: 15px 0; border-top: 1px dashed #eee; font-size: 15px; font-weight: 600; }
+        .summary-row { width: 100%; display: flex; justify-content: space-between; padding: 15px 0; border-top: 1px dashed #eee; font-size: 15px; font-weight: 600; flex-shrink: 0; }
 
         .admin-card { background: white; border-radius: 16px; padding: 20px; margin-bottom: 15px; box-shadow: 0 2px 8px rgba(0,0,0,0.03); border: 1px solid var(--tu-red); }
         .admin-stock-item { display: flex; justify-content: space-between; align-items: center; padding: 10px 0; border-bottom: 1px dashed #eee; }
@@ -225,7 +231,7 @@
         <div class="drag-handle"></div>
         <h2 style="font-size: 18px; margin-bottom: 5px;">ตะกร้าสินค้าของคุณ</h2>
         <div class="cart-items-container" id="cart-items-container"></div>
-        <div style="display: flex; justify-content: space-between; border-top: 1px dashed #eee; padding-top: 15px; margin-bottom: 15px; font-weight: bold;">
+        <div style="display: flex; justify-content: space-between; border-top: 1px dashed #eee; padding-top: 15px; margin-bottom: 15px; font-weight: bold; flex-shrink: 0;">
             <span>ยอดสุทธิรวม</span>
             <span style="color: var(--tu-red); font-size: 18px;" id="cart-grand-total">฿0</span>
         </div>
@@ -238,11 +244,12 @@
 <div class="overlay-bg" id="payment-modal">
     <div class="bottom-sheet" style="align-items: center;">
         <div class="drag-handle"></div>
-        <div class="timer-badge" style="background: #fff5f5; color: var(--tu-red); padding: 6px 12px; border-radius: 20px; font-size: 13px; font-weight: 600; margin-bottom: 15px;">
+        <div class="timer-badge" style="background: #fff5f5; color: var(--tu-red); padding: 6px 12px; border-radius: 20px; font-size: 13px; font-weight: 600; margin-bottom: 15px; flex-shrink: 0;">
             <i class="fa-regular fa-clock"></i> ทำรายการภายใน <span id="countdown">03:00</span>
         </div>
-        <h2 style="font-size: 18px; margin-bottom: 20px;">ชำระเงินผ่านแอปธนาคาร</h2>
+        <h2 style="font-size: 18px; margin-bottom: 20px; flex-shrink: 0;">ชำระเงินผ่านแอปธนาคาร</h2>
         <div class="qr-box">
+            <!-- โลโก้ PromptPay มี max-height ล็อกไว้แล้วไม่ให้ล้นจอถ้ารูปพัง -->
             <img src="https://www.bot.or.th/content/dam/bot/documents/th/our-roles/payment-systems/about-payment-systems/PromptPay-logo.png" alt="PromptPay" class="pp-logo">
             <div id="loader" class="loader"></div>
             <img id="qr-image" src="" alt="QR Code">
@@ -312,7 +319,6 @@
         inventory.forEach(item => {
             const cartItem = cart.find(c => c.id === item.id);
             const qtyInCart = cartItem ? cartItem.qty : 0;
-            
             const isOutOfStock = (item.stock - qtyInCart) <= 0;
             
             const btnHTML = isOutOfStock 
@@ -623,7 +629,6 @@
         signOut(auth).then(() => { switchTab('view-home', document.querySelector('.nav-item')); });
     });
 
-    // เพิ่ม Event Listener ให้ปุ่ม Report Issue
     const btnReportIssue = document.getElementById('btnReportIssue');
     if (btnReportIssue) {
         btnReportIssue.addEventListener('click', () => {
