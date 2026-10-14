@@ -300,18 +300,27 @@
     function renderProducts() {
         const container = document.getElementById('product-list-container');
         container.innerHTML = '';
+        
         inventory.forEach(item => {
             const cartItem = cart.find(c => c.id === item.id);
             const qtyInCart = cartItem ? cartItem.qty : 0;
+            
+            // เช็กว่าสต๊อกหมด หรือ ลูกค้ากดใส่ตะกร้าจนครบจำนวนสต๊อกที่มีแล้ว
             const isOutOfStock = (item.stock - qtyInCart) <= 0;
             
+            // ปุ่มกด: ถ้าหมดให้ปุ่มเป็นสีเทา ถ้ายังมีให้แสดงปุ่มบวก
             const btnHTML = isOutOfStock 
                 ? `<button class="out-of-stock-btn" disabled>สินค้าหมด</button>`
                 : `<button class="add-btn" onclick="addToCart('${item.id}')"><i class="fa-solid fa-plus"></i></button>`;
 
+            // ป้ายกำกับมุมขวาบน: ถ้ายาหมดโชว์ "หมดชั่วคราว" ถ้ายาเหลือโชว์ "เหลือ X ชิ้น"
+            const badgeHTML = item.stock <= 0 
+                ? `<div class="stock-badge" style="background: rgba(0,0,0,0.6); color: white;">หมดชั่วคราว</div>` 
+                : `<div class="stock-badge" style="background: var(--tu-yellow); color: #000; font-weight: 600;">เหลือ ${item.stock} ชิ้น</div>`;
+
             container.innerHTML += `
                 <div class="product-card" style="opacity: ${item.stock <= 0 ? '0.6' : '1'};">
-                    ${item.stock <= 0 ? '<div class="stock-badge">หมดชั่วคราว</div>' : ''}
+                    ${badgeHTML}
                     <img src="${item.img}" style="width: 70px; height: 70px; border-radius: 12px; object-fit: cover;" onerror="this.src='https://cdn-icons-png.flaticon.com/512/822/822102.png'">
                     <div class="prod-info">
                         <h3>${item.name}</h3>
