@@ -165,9 +165,17 @@
                 <button class="btn-secondary" id="btnResetPwd" style="background: white; border: 1px solid #ddd; margin-bottom: 12px;">
                     <i class="fa-solid fa-key"></i> เปลี่ยนรหัสผ่าน
                 </button>
+                <button class="btn-secondary" id="btnReportIssue" style="background: #fff5f5; color: var(--tu-red); border: 1px solid var(--tu-red); margin-bottom: 25px;">
+                    <i class="fa-solid fa-triangle-exclamation"></i> แจ้งปัญหา / ขอคืนเงิน
+                </button>
+
                 <button class="btn-secondary" id="btnLogout" style="background: #f0f1f4; color: var(--text-main);">
                     ออกจากระบบ
                 </button>
+
+                <p style="font-size: 11px; color: var(--text-sub); margin-top: 25px; text-decoration: underline; cursor: pointer;" onclick="Swal.fire('นโยบายความเป็นส่วนตัว', 'ข้อมูลประวัติการสั่งซื้อและรหัสนักศึกษาของคุณ จะถูกเก็บรักษาเป็นความลับเพื่อใช้สำหรับการให้บริการตู้จ่ายยาอัตโนมัติเท่านั้น', 'info')">
+                    ข้อตกลงและนโยบายความเป็นส่วนตัว
+                </p>
             </div>
         </div>
     </div>
@@ -305,15 +313,12 @@
             const cartItem = cart.find(c => c.id === item.id);
             const qtyInCart = cartItem ? cartItem.qty : 0;
             
-            // เช็กว่าสต๊อกหมด หรือ ลูกค้ากดใส่ตะกร้าจนครบจำนวนสต๊อกที่มีแล้ว
             const isOutOfStock = (item.stock - qtyInCart) <= 0;
             
-            // ปุ่มกด: ถ้าหมดให้ปุ่มเป็นสีเทา ถ้ายังมีให้แสดงปุ่มบวก
             const btnHTML = isOutOfStock 
                 ? `<button class="out-of-stock-btn" disabled>สินค้าหมด</button>`
                 : `<button class="add-btn" onclick="addToCart('${item.id}')"><i class="fa-solid fa-plus"></i></button>`;
 
-            // ป้ายกำกับมุมขวาบน: ถ้ายาหมดโชว์ "หมดชั่วคราว" ถ้ายาเหลือโชว์ "เหลือ X ชิ้น"
             const badgeHTML = item.stock <= 0 
                 ? `<div class="stock-badge" style="background: rgba(0,0,0,0.6); color: white;">หมดชั่วคราว</div>` 
                 : `<div class="stock-badge" style="background: var(--tu-yellow); color: #000; font-weight: 600;">เหลือ ${item.stock} ชิ้น</div>`;
@@ -423,7 +428,7 @@
         let itemsSummary = cart.map(i => `${i.name} (x${i.qty})`).join(', ');
         
         document.getElementById('summary-price').innerText = `฿${totalPrice}.00`;
-        document.getElementById('payment-modal').style.display = 'flex'; // อัปเดต ID แก้ให้แล้ว
+        document.getElementById('payment-modal').style.display = 'flex'; 
         
         const loader = document.getElementById('loader');
         const qrImg = document.getElementById('qr-image');
@@ -527,7 +532,7 @@
     }
 
     window.closePayment = function() {
-        document.getElementById('payment-modal').style.display = 'none'; // อัปเดต ID แก้ให้แล้ว
+        document.getElementById('payment-modal').style.display = 'none'; 
         clearInterval(timerInterval);
         if (paymentCheckInterval) clearInterval(paymentCheckInterval);
     }
@@ -617,6 +622,20 @@
     document.getElementById('btnAdminLogout').addEventListener('click', () => {
         signOut(auth).then(() => { switchTab('view-home', document.querySelector('.nav-item')); });
     });
+
+    // เพิ่ม Event Listener ให้ปุ่ม Report Issue
+    const btnReportIssue = document.getElementById('btnReportIssue');
+    if (btnReportIssue) {
+        btnReportIssue.addEventListener('click', () => {
+            Swal.fire({
+                icon: 'warning',
+                title: 'แจ้งปัญหาตู้ขัดข้อง',
+                html: 'กรุณาติดต่อ Line OA: <b>@TSE_SmartRx</b><br>หรือ โทร <b>08X-XXX-XXXX</b><br><br><span style="font-size:13px; color:#c51d23;"><i>* โปรดเตรียมภาพสลิปโอนเงินเพื่อขอคืนเงิน</i></span>',
+                confirmButtonColor: 'var(--tu-red)',
+                confirmButtonText: 'รับทราบ'
+            });
+        });
+    }
 
     function renderAdminStock() {
         const container = document.getElementById('admin-stock-container');
