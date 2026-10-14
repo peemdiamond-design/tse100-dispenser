@@ -21,10 +21,17 @@
         .view-section.active { display: block; }
         @keyframes fadeIn { from { opacity: 0; } to { opacity: 1; } }
         .product-list { padding: 0 20px 20px; display: flex; flex-direction: column; gap: 15px; }
-        .product-card { background: var(--card-bg); border-radius: 16px; padding: 15px; display: flex; gap: 15px; align-items: center; box-shadow: 0 2px 8px rgba(0,0,0,0.02); }
+        .product-card { background: var(--card-bg); border-radius: 16px; padding: 15px; display: flex; gap: 15px; align-items: flex-start; box-shadow: 0 2px 8px rgba(0,0,0,0.02); }
         .prod-info { flex: 1; }
         .prod-info h3 { font-size: 15px; font-weight: 600; margin-bottom: 4px; }
-        .price-row { display: flex; justify-content: space-between; align-items: center; }
+        
+        /* สไตล์ใหม่สำหรับกล่องข้อมูลยา */
+        .med-details { background: #fdf6f6; border-left: 3px solid var(--tu-red); border-radius: 6px; padding: 10px; margin: 10px 0; }
+        .med-props { font-size: 11px; color: var(--text-main); margin-bottom: 6px; line-height: 1.5; }
+        .med-warn { font-size: 11px; color: var(--tu-red); line-height: 1.5; font-weight: 500; }
+        .med-icon { width: 14px; text-align: center; margin-right: 4px; }
+
+        .price-row { display: flex; justify-content: space-between; align-items: center; margin-top: 10px; }
         .price { font-size: 16px; font-weight: 700; color: var(--tu-red); }
         .add-btn { background: var(--tu-yellow); color: #1a1a1a; border: none; width: 32px; height: 32px; border-radius: 50%; font-size: 16px; font-weight: bold; cursor: pointer; }
         .bottom-nav { position: fixed; bottom: 0; width: 100%; max-width: 480px; background: var(--card-bg); display: flex; justify-content: space-around; padding: 12px 0 20px; border-top: 1px solid #eee; z-index: 10; }
@@ -81,53 +88,79 @@
     <!-- VIEW: Home -->
     <div id="view-home" class="view-section active">
         <div class="product-list" style="margin-top:20px;">
+            
+            <!-- ยา 1: พาราเซตามอล -->
             <div class="product-card">
                 <img src="assets/para.jpeg" alt="พาราเซตามอล" style="width: 70px; height: 70px; border-radius: 12px; object-fit: cover;">
                 <div class="prod-info">
                     <h3>พาราเซตามอล 500mg</h3>
-                    <p>แผงละ 10 เม็ด (บรรเทาปวด ลดไข้)</p>
+                    <p style="font-size: 12px; color: var(--text-sub);">แผงละ 10 เม็ด</p>
+                    <div class="med-details">
+                        <p class="med-props"><i class="fa-solid fa-notes-medical med-icon"></i> <strong>สรรพคุณ:</strong> บรรเทาอาการปวด ลดไข้</p>
+                        <p class="med-warn"><i class="fa-solid fa-triangle-exclamation med-icon"></i> <strong>คำเตือน:</strong> ห้ามใช้ในผู้ที่เป็นโรคตับรุนแรง, ห้ามทานเกินวันละ 8 เม็ด และไม่ควรใช้ติดต่อกันเกิน 5 วัน</p>
+                    </div>
                     <div class="price-row">
                         <span class="price">฿20</span>
                         <button class="add-btn" onclick="openPayment('พาราเซตามอล 500mg', 20)"><i class="fa-solid fa-plus"></i></button>
                     </div>
                 </div>
             </div>
+
+            <!-- ยา 2: ผงถ่านคาร์บอน -->
             <div class="product-card">
                 <img src="assets/charcoal.jpeg" alt="ผงถ่านคาร์บอน" style="width: 70px; height: 70px; border-radius: 12px; object-fit: cover;">
                 <div class="prod-info">
-                    <h3>ผงถ่านคาร์บอน (10 เม็ด)</h3>
-                    <p>แก้ท้องเสีย อาหารเป็นพิษ</p>
+                    <h3>ผงถ่านคาร์บอน (Charcoal)</h3>
+                    <p style="font-size: 12px; color: var(--text-sub);">แผงละ 10 เม็ด</p>
+                    <div class="med-details">
+                        <p class="med-props"><i class="fa-solid fa-notes-medical med-icon"></i> <strong>สรรพคุณ:</strong> ดูดซับสารพิษ บรรเทาอาการท้องเสีย และอาหารเป็นพิษ</p>
+                        <p class="med-warn"><i class="fa-solid fa-triangle-exclamation med-icon"></i> <strong>คำเตือน:</strong> ห้ามทานพร้อมยาอื่น (ควรห่าง 2 ชม.), ห้ามใช้ในผู้ที่มีภาวะลำไส้อุดตัน (อุจจาระอาจมีสีดำหลังทาน)</p>
+                    </div>
                     <div class="price-row">
                         <span class="price">฿25</span>
                         <button class="add-btn" onclick="openPayment('ผงถ่านคาร์บอน', 25)"><i class="fa-solid fa-plus"></i></button>
                     </div>
                 </div>
             </div>
+
+            <!-- ยา 3: พลาสเตอร์ยา -->
             <div class="product-card">
                 <img src="assets/plaster.jpeg" alt="พลาสเตอร์ยา" style="width: 70px; height: 70px; border-radius: 12px; object-fit: cover;">
                 <div class="prod-info">
                     <h3>พลาสเตอร์ยา (5 ชิ้น)</h3>
-                    <p>ปิดแผล ป้องกันเชื้อโรค</p>
+                    <p style="font-size: 12px; color: var(--text-sub);">ป้องกันแผลติดเชื้อ</p>
+                    <div class="med-details">
+                        <p class="med-props"><i class="fa-solid fa-notes-medical med-icon"></i> <strong>สรรพคุณ:</strong> ปกปิดและป้องกันบาดแผลเล็กๆ จากสิ่งสกปรกและเชื้อโรค</p>
+                        <p class="med-warn"><i class="fa-solid fa-triangle-exclamation med-icon"></i> <strong>คำเตือน:</strong> ระวังการแพ้กาวพลาสเตอร์ หากแผลมีอาการบวม แดง หรือเป็นหนอง ควรพบแพทย์ทันที</p>
+                    </div>
                     <div class="price-row">
                         <span class="price">฿15</span>
                         <button class="add-btn" onclick="openPayment('พลาสเตอร์ยา', 15)"><i class="fa-solid fa-plus"></i></button>
                     </div>
                 </div>
             </div>
+
+            <!-- ยา 4: ยาดม -->
             <div class="product-card">
                 <img src="assets/inhaler.jpeg" alt="ยาดม" style="width: 70px; height: 70px; border-radius: 12px; object-fit: cover;">
                 <div class="prod-info">
                     <h3>ยาดมตราโป๊ยเซียน</h3>
-                    <p>แก้วิงเวียน หน้ามืด คัดจมูก</p>
+                    <p style="font-size: 12px; color: var(--text-sub);">1 หลอด</p>
+                    <div class="med-details">
+                        <p class="med-props"><i class="fa-solid fa-notes-medical med-icon"></i> <strong>สรรพคุณ:</strong> บรรเทาอาการวิงเวียนศีรษะ หน้ามืด ตาลาย และคัดจมูก</p>
+                        <p class="med-warn"><i class="fa-solid fa-triangle-exclamation med-icon"></i> <strong>คำเตือน:</strong> ยาใช้ภายนอก ห้ามรับประทาน และหลีกเลี่ยงการสัมผัสบริเวณดวงตาหรือแผลเปิด</p>
+                    </div>
                     <div class="price-row">
                         <span class="price">฿20</span>
                         <button class="add-btn" onclick="openPayment('ยาดม', 20)"><i class="fa-solid fa-plus"></i></button>
                     </div>
                 </div>
             </div>
+
         </div>
     </div>
 
+    <!-- ส่วนที่เหลือเหมือนเดิม ไม่มีการเปลี่ยนแปลง -->
     <!-- VIEW: Orders -->
     <div id="view-orders" class="view-section">
         <div id="orders-login-warning" style="text-align: center; padding: 50px 20px; color: var(--text-sub);">
@@ -344,7 +377,7 @@
         
         loader.style.display = 'block';
         qrImg.style.display = 'none';
-        document.getElementById('btn-download-qr').style.display = 'none'; // ซ่อนปุ่มโหลดตอนแรก
+        document.getElementById('btn-download-qr').style.display = 'none';
         statusTxt.innerText = 'ระบบกำลังสร้างคิวอาร์โค้ด...';
         statusTxt.style.color = 'var(--text-sub)'; 
 
@@ -362,7 +395,7 @@
                 loader.style.display = 'none';
                 qrImg.src = data.qrImage;
                 qrImg.style.display = 'block';
-                document.getElementById('btn-download-qr').style.display = 'block'; // โชว์ปุ่มดาวน์โหลด
+                document.getElementById('btn-download-qr').style.display = 'block';
                 statusTxt.innerText = 'สแกนคิวอาร์โค้ดเพื่อชำระเงินและรับยา';
                 startCheckingPayment(data.chargeId, itemName, itemPrice);
             } else {
@@ -442,7 +475,6 @@
         }, 1000);
     }
 
-    // ฟังก์ชันดาวน์โหลด QR Code
     window.downloadQR = async function() {
         const qrSrc = document.getElementById('qr-image').src;
         if (!qrSrc) return;
