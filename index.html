@@ -8,7 +8,6 @@
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
     <style>
-        /* --- CSS เดิม (ปรับปรุงนิดหน่อยสำหรับ Cart และ Admin) --- */
         :root { --tu-red: #c51d23; --tu-yellow: #f6c026; --bg-color: #f5f6f8; --card-bg: #ffffff; --text-main: #1d1d1f; --text-sub: #86868b; --border-color: #e5e5ea; }
         * { box-sizing: border-box; font-family: 'Prompt', sans-serif; margin: 0; padding: 0; -webkit-tap-highlight-color: transparent; }
         body { background-color: var(--bg-color); color: var(--text-main); }
@@ -69,7 +68,6 @@
         .btn-secondary { width: 100%; background: var(--tu-yellow); color: #1d1d1f; padding: 14px; border: none; border-radius: 12px; font-size: 15px; font-weight: 600; cursor: pointer; }
         .btn-cancel { width: 100%; background: #f0f1f4; color: var(--text-main); padding: 14px; border-radius: 12px; border: none; font-size: 15px; font-weight: 600; margin-top: 10px; cursor: pointer; }
         
-        /* สไตล์สำหรับกล่องประวัติ และ หน้า Profile ของเดิม */
         .profile-card { background: white; margin: 20px; padding: 30px 20px; border-radius: 16px; text-align: center; box-shadow: 0 4px 15px rgba(0,0,0,0.03); }
         .profile-card i.main-icon { font-size: 60px; color: var(--tu-red); margin-bottom: 15px; }
         #auth-loading { text-align: center; color: var(--tu-red); display: none; margin-bottom: 15px; font-size: 14px; }
@@ -81,14 +79,12 @@
         .user-info-box p { font-size: 14px; margin-bottom: 5px; color: var(--text-main); }
         .order-history-card { background: white; padding: 15px; border-radius: 12px; margin-bottom: 12px; box-shadow: 0 2px 8px rgba(0,0,0,0.03); border: 1px solid #f0f1f4; }
         
-        /* สไตล์สำหรับ QR Box (Payment) */
         .qr-box { background: white; border: 1.5px solid #eee; border-radius: 16px; padding: 20px; text-align: center; width: 100%; margin-bottom: 20px; }
         .pp-logo { width: 100px; margin-bottom: 15px; }
         #qr-image { width: 180px; height: 180px; display: none; margin: 0 auto; }
         .loader { border: 3px solid #f3f3f3; border-top: 3px solid var(--tu-red); border-radius: 50%; width: 40px; height: 40px; animation: spin 1s linear infinite; margin: 40px auto; }
         .summary-row { width: 100%; display: flex; justify-content: space-between; padding: 15px 0; border-top: 1px dashed #eee; font-size: 15px; font-weight: 600; }
 
-        /* Admin Styles */
         .admin-card { background: white; border-radius: 16px; padding: 20px; margin-bottom: 15px; box-shadow: 0 2px 8px rgba(0,0,0,0.03); border: 1px solid var(--tu-red); }
         .admin-stock-item { display: flex; justify-content: space-between; align-items: center; padding: 10px 0; border-bottom: 1px dashed #eee; }
     </style>
@@ -106,14 +102,14 @@
         </div>
     </div>
 
-    <!-- VIEW: Home (สร้างยาจาก JavaScript) -->
+    <!-- VIEW: Home -->
     <div id="view-home" class="view-section active">
         <div class="product-list" id="product-list-container">
             <!-- ยาจะถูก Render ตรงนี้ -->
         </div>
     </div>
 
-    <!-- VIEW: Orders (ประวัติคำสั่งซื้อ - ของเดิม) -->
+    <!-- VIEW: Orders -->
     <div id="view-orders" class="view-section">
         <div id="orders-login-warning" style="text-align: center; padding: 50px 20px; color: var(--text-sub);">
             <i class="fa-solid fa-receipt" style="font-size: 50px; color: #ddd; margin-bottom: 15px;"></i>
@@ -126,7 +122,7 @@
         </div>
     </div>
 
-    <!-- VIEW: Account (หน้า Login และ Profile ปกติ) -->
+    <!-- VIEW: Account -->
     <div id="view-account" class="view-section">
         <div id="auth-section" class="auth-container">
             <div class="auth-title">เข้าสู่ระบบนักศึกษา</div>
@@ -176,7 +172,7 @@
         </div>
     </div>
 
-    <!-- VIEW: Admin Dashboard (แสดงเฉพาะรหัส 6910616249) -->
+    <!-- VIEW: Admin Dashboard -->
     <div id="view-admin" class="view-section">
         <div style="padding: 20px;">
             <h2 style="color: var(--tu-red); margin-bottom: 15px;"><i class="fa-solid fa-hammer"></i> โหมดผู้ดูแลระบบ</h2>
@@ -230,7 +226,7 @@
     </div>
 </div>
 
-<!-- Payment Modal (ใช้โค้ด API เดิมของคุณ) -->
+<!-- Payment Modal -->
 <div class="overlay-bg" id="payment-modal">
     <div class="bottom-sheet" style="align-items: center;">
         <div class="drag-handle"></div>
@@ -261,7 +257,6 @@
     import { getAuth, createUserWithEmailAndPassword, signInWithEmailAndPassword, onAuthStateChanged, signOut, sendPasswordResetEmail } from "https://www.gstatic.com/firebasejs/10.8.1/firebase-auth.js";
     import { getFirestore, collection, addDoc, getDocs, query, where, serverTimestamp, doc, setDoc, getDoc } from "https://www.gstatic.com/firebasejs/10.8.1/firebase-firestore.js";
 
-    // 1. Firebase Config (ของคุณ)
     const firebaseConfig = {
       apiKey: "AIzaSyDQ3VbYMTqPw2kR6EOIpiTYPcWVsa0otKc",
       authDomain: "tse100.firebaseapp.com",
@@ -275,9 +270,8 @@
     const auth = getAuth(app);
     const db = getFirestore(app);
     const FAKE_DOMAIN = "@tse.tu.ac.th";
-    const ADMIN_ID = "6910616249"; // กำหนดรหัสแอดมินตามที่คุณแจ้ง!
+    const ADMIN_ID = "6910616249"; 
 
-    // 2. ข้อมูลยาเบื้องต้น (Inventory State) - ปรับรูปภาพได้ที่นี่
     let inventory = [
         { id: 'p1', name: 'พาราเซตามอล 500mg', desc: 'แผงละ 10 เม็ด', price: 20, stock: 10, img: 'assets/para.jpeg', props: 'บรรเทาอาการปวด ลดไข้', warn: 'ห้ามใช้ในผู้ที่เป็นโรคตับรุนแรง' },
         { id: 'p2', name: 'ผงถ่านคาร์บอน', desc: 'แผงละ 10 เม็ด', price: 25, stock: 5, img: 'assets/charcoal.jpeg', props: 'บรรเทาอาการท้องเสีย อาหารเป็นพิษ', warn: 'ทานห่างจากยาอื่น 2 ชม.' },
@@ -286,7 +280,6 @@
     ];
     let cart = [];
 
-    // --- ฟังก์ชันช่วยเหลือ (UI Control) ---
     window.switchTab = function(viewId, navElement) {
         document.querySelectorAll('.view-section').forEach(el => el.classList.remove('active'));
         document.getElementById(viewId).classList.add('active');
@@ -295,7 +288,7 @@
         
         if(viewId === 'view-orders' && auth.currentUser) {
             const stuId = auth.currentUser.email.split('@')[0];
-            if(stuId !== ADMIN_ID) loadOrders(stuId); // ถ้าไม่ใช่แอดมินให้โหลดประวัติ
+            if(stuId !== ADMIN_ID) loadOrders(stuId); 
         }
     }
     window.openCartModal = () => document.getElementById('cart-modal').style.display = 'flex';
@@ -304,7 +297,6 @@
         document.getElementById('payment-modal').style.display = 'none';
     }
 
-    // 3. Render สินค้า (หน้าหลัก)
     function renderProducts() {
         const container = document.getElementById('product-list-container');
         container.innerHTML = '';
@@ -339,7 +331,6 @@
         renderAdminStock();
     }
 
-    // 4. Cart Logic
     window.addToCart = function(id) {
         if (!auth.currentUser) {
             Swal.fire({icon: 'info', title: 'กรุณาเข้าสู่ระบบ', text: 'ต้องล็อกอินก่อนหยิบยาใส่ตะกร้านะครับ'});
@@ -413,7 +404,6 @@
         document.getElementById('cart-grand-total').innerText = `฿${totalPrice}`;
     }
 
-    // 5. Payment Logic (เชื่อม API ของคุณ)
     const BACKEND_URL = 'https://api.peemcn25.dev'; 
     let timerInterval, paymentCheckInterval;
 
@@ -424,7 +414,7 @@
         let itemsSummary = cart.map(i => `${i.name} (x${i.qty})`).join(', ');
         
         document.getElementById('summary-price').innerText = `฿${totalPrice}.00`;
-        document.getElementById('payment-overlay').style.display = 'flex';
+        document.getElementById('payment-modal').style.display = 'flex'; // อัปเดต ID แก้ให้แล้ว
         
         const loader = document.getElementById('loader');
         const qrImg = document.getElementById('qr-image');
@@ -439,7 +429,6 @@
         startTimer(180); 
 
         try {
-            // ส่งชื่อสินค้ารวมๆ ไปให้ API
             const response = await fetch(`${BACKEND_URL}/api/create-qr`, {
                 method: 'POST',
                 headers: { 'Content-Type': 'application/json' },
@@ -460,14 +449,12 @@
         } catch (error) {
             loader.style.display = 'none';
             statusTxt.innerText = 'เกิดข้อผิดพลาด ไม่สามารถเชื่อมต่อระบบได้ (ทดสอบ Admin ไปก่อน)';
-            // ให้แอดมินมีปุ่มจำลองจ่ายเงินถ้า API มีปัญหา
             if(auth.currentUser && auth.currentUser.email.split('@')[0] === ADMIN_ID) {
                 document.getElementById('summary-price').innerHTML += `<br><button class="btn-primary" style="margin-top:10px; background:#28a745;" onclick="simulatePayment('${itemsSummary}', ${totalPrice})">แอดมิน: จำลองจ่ายเงิน</button>`;
             }
         }
     }
 
-    // แอดมินกดข้ามระบบจ่ายเงิน (สำหรับเทส)
     window.simulatePayment = function(itemName, itemPrice) {
         clearInterval(paymentCheckInterval);
         clearInterval(timerInterval);
@@ -496,13 +483,11 @@
         document.getElementById('qr-status').style.color = '#28a745';
         document.getElementById('qr-status').innerText = '✅ ชำระเงินสำเร็จแล้ว!';
         
-        // 1. ตัดสต๊อก
         cart.forEach(cartItem => {
             const prod = inventory.find(p => p.id === cartItem.id);
             if(prod) prod.stock -= cartItem.qty;
         });
 
-        // 2. บันทึกลง Firebase (ประวัติ)
         if (auth.currentUser) {
             const stuId = auth.currentUser.email.split('@')[0];
             try {
@@ -517,13 +502,12 @@
             } catch (e) { console.error("Error saving doc: ", e); }
         }
 
-        // 3. แจ้งเตือน & เคลียร์ตะกร้า
         Swal.fire({
             icon: 'success', title: 'ชำระเงินสำเร็จ!',
             text: 'ระบบกำลังสั่งตู้จ่ายยา กรุณารอรับยาด้านล่าง',
             timer: 3500, showConfirmButton: false
         }).then(() => {
-            cart = []; // เคลียร์ตะกร้า
+            cart = []; 
             updateCartUI();
             renderProducts();
             closePayment();
@@ -531,11 +515,10 @@
                 switchTab('view-orders', document.querySelectorAll('.nav-item')[1]);
             }
         });
-        // ** (ในอนาคต: เขียนโค้ดส่ง MQTT ไปที่บอร์ดตรงนี้) **
     }
 
     window.closePayment = function() {
-        document.getElementById('payment-overlay').style.display = 'none';
+        document.getElementById('payment-modal').style.display = 'none'; // อัปเดต ID แก้ให้แล้ว
         clearInterval(timerInterval);
         if (paymentCheckInterval) clearInterval(paymentCheckInterval);
     }
@@ -556,14 +539,12 @@
         }, 1000);
     }
 
-    // 6. Firebase Auth & Admin Control
     const authLoading = document.getElementById('auth-loading');
 
     onAuthStateChanged(auth, async (user) => {
         if (user) {
             const stuId = user.email.split('@')[0];
             
-            // เช็กว่าเป็น Admin หรือไม่? (ใช้รหัส 6910616249 ที่คุณบอก)
             if (stuId === ADMIN_ID) {
                 document.getElementById('nav-account').style.display = 'none';
                 document.getElementById('nav-admin').style.display = 'flex';
@@ -571,7 +552,6 @@
                 switchTab('view-admin', document.getElementById('nav-admin'));
                 Swal.fire({ toast: true, position: 'top', icon: 'success', title: 'เข้าสู่โหมดแอดมิน', showConfirmButton: false, timer: 1500 });
             } else {
-                // User ปกติ
                 document.getElementById('nav-account').style.display = 'flex';
                 document.getElementById('nav-admin').style.display = 'none';
                 document.getElementById('auth-section').style.display = 'none';
@@ -592,7 +572,6 @@
                 } catch (error) { console.error("โหลดข้อมูลส่วนตัวไม่สำเร็จ", error); }
             }
         } else {
-            // ไม่ได้ล็อกอิน
             document.getElementById('nav-account').style.display = 'flex';
             document.getElementById('nav-admin').style.display = 'none';
             document.getElementById('auth-section').style.display = 'block';
@@ -630,7 +609,6 @@
         signOut(auth).then(() => { switchTab('view-home', document.querySelector('.nav-item')); });
     });
 
-    // 7. Admin Dashboard Functions
     function renderAdminStock() {
         const container = document.getElementById('admin-stock-container');
         if(!container) return;
@@ -665,13 +643,11 @@
             icon: 'warning', showCancelButton: true, confirmButtonText: 'ยืนยันสั่งจ่ายยา'
         }).then((result) => {
             if (result.isConfirmed) {
-                // (โค้ดส่ง MQTT สำหรับแอดมิน)
                 Swal.fire('ส่งคำสั่งแล้ว!', 'สังเกตที่บอร์ดตู้ยา รีเลย์ควรจะทำงาน', 'success');
             }
         })
     }
 
-    // ดึงประวัติเดิมของคุณ
     async function loadOrders(stuId) {
         const ordersList = document.getElementById('orders-list');
         if(document.getElementById('view-orders').classList.contains('active')) ordersList.innerHTML = '<div class="loader"></div>';
@@ -710,7 +686,6 @@
         } catch (error) { console.error(error); }
     }
 
-    // เริ่มทำงาน
     renderProducts();
 
 </script>
