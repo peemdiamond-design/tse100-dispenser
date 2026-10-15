@@ -285,11 +285,11 @@
     const ADMIN_ID = "6910616249"; 
 
     // ==========================================
-    // ตั้งค่า MQTT WebSocket (HiveMQ)
+    // ตั้งค่า MQTT WebSocket (EMQX) - แก้ไขแล้ว!
     // ==========================================
-    const mqttClient = mqtt.connect('wss://broker.hivemq.com:8443/mqtt');
+    const mqttClient = mqtt.connect('wss://broker.emqx.io:8084/mqtt');
     mqttClient.on('connect', () => {
-        console.log("✅ Web App Connected to HiveMQ WebSocket!");
+        console.log("✅ Web App Connected to EMQX WebSocket!");
     });
     // ==========================================
 
