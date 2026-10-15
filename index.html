@@ -86,6 +86,22 @@
 
         .admin-card { background: white; border-radius: 16px; padding: 20px; margin-bottom: 15px; box-shadow: 0 2px 8px rgba(0,0,0,0.03); border: 1px solid var(--tu-red); }
         .admin-stock-item { display: flex; justify-content: space-between; align-items: center; padding: 10px 0; border-bottom: 1px dashed #eee; }
+
+        /* --- [ใหม่] E-Receipt Styles --- */
+        .receipt-modal { display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.6); z-index: 30; justify-content: center; align-items: center; padding: 20px; animation: fadeIn 0.2s ease; }
+        .receipt-paper { background: #fff; width: 100%; max-width: 350px; border-radius: 8px; padding: 25px 20px; position: relative; box-shadow: 0 10px 25px rgba(0,0,0,0.2); }
+        .receipt-paper::before, .receipt-paper::after { content: ""; position: absolute; left: 0; right: 0; height: 10px; background-size: 20px 20px; }
+        .receipt-paper::before { top: -5px; background-image: radial-gradient(circle at 10px 0, transparent 10px, #fff 11px); }
+        .receipt-paper::after { bottom: -5px; background-image: radial-gradient(circle at 10px 10px, transparent 10px, #fff 11px); }
+        .receipt-header { text-align: center; border-bottom: 1px dashed #ccc; padding-bottom: 15px; margin-bottom: 15px; }
+        .receipt-logo { width: 50px; margin-bottom: 10px; }
+        .receipt-title { font-size: 16px; font-weight: 700; color: #333; }
+        .receipt-info { font-size: 12px; color: #666; margin-bottom: 5px; }
+        .receipt-body { font-size: 13px; color: #333; margin-bottom: 15px; }
+        .receipt-row { display: flex; justify-content: space-between; margin-bottom: 8px; }
+        .receipt-total { border-top: 1px dashed #ccc; padding-top: 10px; font-size: 16px; font-weight: 700; display: flex; justify-content: space-between; margin-top: 10px; color: var(--tu-red); }
+        .receipt-footer { text-align: center; border-top: 1px dashed #ccc; padding-top: 15px; font-size: 11px; color: #888; margin-top: 15px; }
+        .btn-close-receipt { width: 100%; background: #1d1d1f; color: white; padding: 12px; border: none; border-radius: 8px; font-size: 14px; font-weight: 600; cursor: pointer; margin-top: 20px; }
     </style>
 </head>
 <body>
@@ -103,7 +119,6 @@
 
     <!-- VIEW: Home -->
     <div id="view-home" class="view-section active">
-        <!-- โชว์ Loader ตอนรอโหลดข้อมูลจาก Firebase -->
         <div id="loading-inventory" style="text-align:center; margin-top:50px;">
             <div class="loader"></div>
             <p style="color:var(--text-sub); font-size:14px; margin-top:10px;">กำลังโหลดสต๊อกยาแบบเรียลไทม์...</p>
@@ -263,12 +278,41 @@
     </div>
 </div>
 
+<!-- [ใหม่] E-Receipt Modal -->
+<div class="receipt-modal" id="receipt-modal">
+    <div class="receipt-paper" id="receipt-content">
+        <div class="receipt-header">
+            <img src="assets/images.png" class="receipt-logo" onerror="this.src='https://upload.wikimedia.org/wikipedia/th/thumb/3/30/Thammasat_University_logo.svg/1200px-Thammasat_University_logo.svg.png'">
+            <div class="receipt-title">TU Smart Rx</div>
+            <div class="receipt-info">ใบเสร็จรับเงิน / Tax Invoice</div>
+            <div class="receipt-info" id="receipt-date">วันที่: --/--/----</div>
+            <div class="receipt-info" id="receipt-ref">Ref: -----------</div>
+        </div>
+        <div class="receipt-body">
+            <div class="receipt-row" style="font-weight: 600; color: #888; border-bottom: 1px solid #eee; padding-bottom: 5px;">
+                <span>รายการสินค้า</span>
+                <span>จำนวนเงิน</span>
+            </div>
+            <div id="receipt-items-list" style="margin-top: 10px;">
+                <!-- รายการยาจะถูกใส่ตรงนี้ -->
+            </div>
+            <div class="receipt-total">
+                <span>ยอดสุทธิรวม</span>
+                <span id="receipt-grand-total">฿0.00</span>
+            </div>
+        </div>
+        <div class="receipt-footer">
+            <p>ขอบคุณที่ใช้บริการตู้จ่ายยาอัตโนมัติ</p>
+            <p>คณะวิศวกรรมศาสตร์ มหาวิทยาลัยธรรมศาสตร์</p>
+        </div>
+        <button class="btn-close-receipt" onclick="closeReceipt()">ปิดใบเสร็จ</button>
+    </div>
+</div>
+
 <!-- ================= FIREBASE & APP LOGIC ================= -->
 <script type="module">
     import { initializeApp } from "https://www.gstatic.com/firebasejs/10.8.1/firebase-app.js";
     import { getAuth, createUserWithEmailAndPassword, signInWithEmailAndPassword, onAuthStateChanged, signOut, sendPasswordResetEmail } from "https://www.gstatic.com/firebasejs/10.8.1/firebase-auth.js";
-    
-    // [เพิ่ม] import onSnapshot และ updateDoc สำหรับระบบสต๊อก Real-time
     import { getFirestore, collection, addDoc, getDocs, query, where, serverTimestamp, doc, setDoc, getDoc, onSnapshot, updateDoc } from "https://www.gstatic.com/firebasejs/10.8.1/firebase-firestore.js";
 
     const firebaseConfig = {
@@ -286,44 +330,33 @@
     const FAKE_DOMAIN = "@tse.tu.ac.th";
     const ADMIN_ID = "6910616249"; 
 
-    // ตั้งค่า MQTT WebSocket (EMQX)
     const mqttClient = mqtt.connect('wss://broker.emqx.io:8084/mqtt');
     mqttClient.on('connect', () => {
         console.log("✅ Web App Connected to EMQX WebSocket!");
     });
 
-    // ==========================================
-    // [ใหม่] ระบบดึงข้อมูลสต๊อกยาจาก Firebase (Real-time)
-    // ==========================================
-    let inventory = []; // เปลี่ยนเป็นอาร์เรย์ว่าง เพื่อรอข้อมูลจาก Firebase
+    let inventory = []; 
     let cart = [];
 
     const invRef = collection(db, "inventory");
     
-    // onSnapshot คือพระเอกที่คอยเฝ้าดูความเปลี่ยนแปลงของฐานข้อมูลตลอดเวลา
     onSnapshot(invRef, (snapshot) => {
         if (snapshot.empty) {
-            // ถ้าตารางว่างเปล่า ให้สร้างข้อมูลเริ่มต้นอัตโนมัติ
             initializeDefaultInventory();
         } else {
             inventory = [];
             snapshot.forEach(doc => {
                 inventory.push({ id: doc.id, ...doc.data() });
             });
-            // เรียงลำดับ id ให้ยาเรียงกันสวยๆ (p1, p2, p3...)
             inventory.sort((a, b) => a.id.localeCompare(b.id));
             
-            // ปิดไอคอนโหลด และอัปเดตหน้าจอทันที
             document.getElementById('loading-inventory').style.display = 'none';
             renderProducts();
-            
-            // ถ้าแอดมินหรือลูกค้าแก้จำนวนในตะกร้าค้างไว้ ก็จะอัปเดตไปด้วย
             updateCartUI(); 
         }
     });
 
     async function initializeDefaultInventory() {
-        console.log("กำลังสร้างฐานข้อมูลสต๊อกยาเริ่มต้น...");
         const defaultItems = [
             { id: 'p1', name: 'พาราเซตามอล 500mg', desc: 'แผงละ 10 เม็ด', price: 20, stock: 10, img: 'assets/para.jpeg', props: 'บรรเทาอาการปวด ลดไข้', warn: 'ห้ามใช้ในผู้ที่เป็นโรคตับรุนแรง' },
             { id: 'p2', name: 'ผงถ่านคาร์บอน', desc: 'แผงละ 10 เม็ด', price: 25, stock: 5, img: 'assets/charcoal.jpeg', props: 'บรรเทาอาการท้องเสีย อาหารเป็นพิษ', warn: 'ทานห่างจากยาอื่น 2 ชม.' },
@@ -335,7 +368,6 @@
             await setDoc(doc(db, "inventory", item.id), item);
         }
     }
-    // ==========================================
 
     window.switchTab = function(viewId, navElement) {
         document.querySelectorAll('.view-section').forEach(el => el.classList.remove('active'));
@@ -417,7 +449,6 @@
             const product = inventory.find(p => p.id === id);
             let newQty = cart[cartIndex].qty + delta;
             
-            // เช็กสต๊อกล่าสุดก่อนเพิ่ม
             if (newQty > product.stock) {
                 Swal.fire({ toast: true, position: 'top', icon: 'error', title: 'สต๊อกมีไม่พอ', showConfirmButton: false, timer: 1500 });
                 return;
@@ -472,7 +503,6 @@
     let timerInterval, paymentCheckInterval;
 
     window.proceedToPayment = async function() {
-        // [ระบบป้องกัน] Double Check: ตรวจสอบสต๊อกอีกรอบก่อนอนุญาตให้จ่ายเงิน
         for (let item of cart) {
             const liveProd = inventory.find(p => p.id === item.id);
             if (!liveProd || liveProd.stock < item.qty) {
@@ -521,7 +551,6 @@
                 document.getElementById('btn-download-qr').style.display = 'block';
                 statusTxt.innerText = 'สแกนคิวอาร์โค้ดเพื่อชำระเงินและรับยา';
                 
-                // ส่งคำสั่งไปที่ตู้
                 mqttClient.publish("tse100/dispense", "PAYMENT_PENDING");
 
                 startCheckingPayment(data.chargeId, itemsSummary, totalPrice);
@@ -565,13 +594,11 @@
         document.getElementById('qr-status').style.color = '#28a745';
         document.getElementById('qr-status').innerText = '✅ ชำระเงินสำเร็จแล้ว!';
         
-        // [เพิ่ม] หักสต๊อกออกจากฐานข้อมูล Firebase โดยตรง
         for (const cartItem of cart) {
             const prod = inventory.find(p => p.id === cartItem.id);
             if(prod) {
                 let newStock = prod.stock - cartItem.qty;
                 if (newStock < 0) newStock = 0;
-                // อัปเดตขึ้น Firebase (เดี๋ยว onSnapshot จะดึงกลับมาโชว์ที่หน้าจอเอง)
                 await updateDoc(doc(db, "inventory", cartItem.id), { stock: newStock });
             }
         }
@@ -590,7 +617,6 @@
             } catch (e) { console.error("Error saving doc: ", e); }
         }
 
-        // ส่งคำสั่งไปที่ตู้จ่ายยา
         mqttClient.publish("tse100/dispense", "PAYMENT_SUCCESS");
 
         Swal.fire({
@@ -730,26 +756,13 @@
         });
     }
 
-    // [แก้ไข] เมื่อแอดมินกดเปลี่ยนสต๊อก ให้ส่งข้อมูลขึ้น Firebase เลย
     window.adminAdjustStock = async function(id, delta) {
         const prod = inventory.find(p => p.id === id);
         if(prod) {
             let newStock = prod.stock + delta;
             if(newStock < 0) newStock = 0;
-            // อัปเดตข้อมูลขึ้นฐานข้อมูล 
             await updateDoc(doc(db, "inventory", id), { stock: newStock });
-            // เราไม่ต้องสั่ง renderProducts() ตรงนี้แล้ว เพราะ onSnapshot จะดึงข้อมูลกลับมารันหน้าจอให้เอง!
         }
-    }
-
-    window.forceUpdateStock = function() {
-        Swal.fire({
-            icon: 'info',
-            title: 'สต๊อกเป็นแบบเรียลไทม์แล้ว!',
-            text: 'ระบบดึงข้อมูลจาก Firebase อัตโนมัติ ลูกค้าเห็นตัวเลขที่ถูกต้องเสมอ',
-            timer: 2500,
-            showConfirmButton: false
-        });
     }
 
     window.testDispense = function() {
@@ -765,6 +778,7 @@
         })
     }
 
+    // [อัปเดต] โหลดออเดอร์และปุ่มใบเสร็จ
     async function loadOrders(stuId) {
         const ordersList = document.getElementById('orders-list');
         if(document.getElementById('view-orders').classList.contains('active')) ordersList.innerHTML = '<div class="loader"></div>';
@@ -775,7 +789,9 @@
             const orders = []; let totalSpent = 0;
             
             querySnapshot.forEach((doc) => { 
-                const data = doc.data(); orders.push(data); totalSpent += parseInt(data.price || 0); 
+                const data = doc.data(); 
+                orders.push({id: doc.id, ...data}); 
+                totalSpent += parseInt(data.price || 0); 
             });
             
             document.getElementById('stat-total-orders').innerText = orders.length;
@@ -789,18 +805,48 @@
             }
             let html = '';
             orders.forEach(order => {
-                const dateStr = order.createdAt ? new Date(order.createdAt.toDate()).toLocaleDateString('th-TH') : 'เพิ่งสั่งซื้อ';
+                const dateObj = order.createdAt ? new Date(order.createdAt.toDate()) : new Date();
+                const dateStr = dateObj.toLocaleDateString('th-TH');
+                const timeStr = dateObj.toLocaleTimeString('th-TH', { hour: '2-digit', minute: '2-digit' });
+                
+                const safeItemName = order.itemName ? order.itemName.replace(/'/g, "\\'") : "สินค้าทั่วไป";
+                
                 html += `<div class="order-history-card">
                             <div style="display: flex; justify-content: space-between; margin-bottom: 8px;">
-                                <strong>${order.itemName}</strong> <span style="color: var(--tu-red);">฿${order.price}</span>
+                                <strong>${order.itemName}</strong> <span style="color: var(--tu-red); font-weight:bold;">฿${order.price}</span>
                             </div>
-                            <div style="font-size: 12px; color: var(--text-sub); display: flex; justify-content: space-between;">
-                                <span>${dateStr}</span> <span style="color: #28a745;">รับยาสำเร็จ</span>
+                            <div style="font-size: 12px; color: var(--text-sub); display: flex; justify-content: space-between; align-items:center;">
+                                <span><i class="fa-regular fa-clock"></i> ${dateStr} ${timeStr}</span> 
+                                <span style="color: #28a745; font-weight:500;">รับยาสำเร็จ</span>
                             </div>
+                            <!-- ปุ่มดูใบเสร็จ -->
+                            <button class="btn-secondary" style="width: 100%; margin-top: 10px; padding: 8px; font-size: 12px; background: #f5f6f8; color: #1d1d1f;" 
+                                onclick="showReceipt('${order.chargeId || order.id}', '${dateStr} ${timeStr}', '${safeItemName}', ${order.price})">
+                                <i class="fa-solid fa-receipt"></i> ดูใบเสร็จ
+                            </button>
                         </div>`;
             });
             ordersList.innerHTML = html;
         } catch (error) { console.error(error); }
+    }
+
+    // [ใหม่] ฟังก์ชันแสดง Popup ใบเสร็จ
+    window.showReceipt = function(ref, dateTime, items, price) {
+        document.getElementById('receipt-ref').innerText = `Ref: ${ref}`;
+        document.getElementById('receipt-date').innerText = `วันที่: ${dateTime}`;
+        document.getElementById('receipt-items-list').innerHTML = `
+            <div class="receipt-row">
+                <span style="flex: 1; padding-right: 10px;">${items}</span>
+                <span>฿${price}.00</span>
+            </div>
+        `;
+        document.getElementById('receipt-grand-total').innerText = `฿${price}.00`;
+        document.getElementById('receipt-modal').style.display = 'flex';
+    }
+
+    // [ใหม่] ฟังก์ชันปิด Popup ใบเสร็จ
+    window.closeReceipt = function() {
+        document.getElementById('receipt-modal').style.display = 'none';
     }
 
 </script>
