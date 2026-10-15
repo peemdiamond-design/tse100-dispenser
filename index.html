@@ -6,6 +6,8 @@
     <title>TU Smart Rx | สั่งยาสามัญประจำบ้าน</title>
     <link href="https://fonts.googleapis.com/css2?family=Prompt:wght@300;400;500;600;700&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <!-- นำเข้าไลบรารี MQTT สำหรับสั่งการตู้ฮาร์ดแวร์ -->
+    <script src="https://unpkg.com/mqtt/dist/mqtt.min.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
     <style>
         :root { --tu-red: #c51d23; --tu-yellow: #f6c026; --bg-color: #f5f6f8; --card-bg: #ffffff; --text-main: #1d1d1f; --text-sub: #86868b; --border-color: #e5e5ea; }
@@ -38,17 +40,12 @@
         .out-of-stock-btn { background: #e5e5ea; color: #86868b; width: auto; padding: 0 12px; border-radius: 16px; font-size: 12px; height: 32px; cursor: not-allowed; border: none; font-weight: bold; }
         .stock-badge { position: absolute; top: 10px; right: 10px; background: rgba(0,0,0,0.6); color: white; padding: 2px 8px; border-radius: 10px; font-size: 10px; }
 
-        /* Floating Cart */
         .cart-floating-bar { position: fixed; bottom: 80px; left: 50%; transform: translateX(-50%); width: 90%; max-width: 440px; background: var(--tu-red); color: white; padding: 15px 20px; border-radius: 100px; display: none; justify-content: space-between; align-items: center; z-index: 15; box-shadow: 0 4px 15px rgba(197, 29, 35, 0.3); cursor: pointer; animation: slideUpCart 0.3s ease; }
         .cart-floating-bar .cart-count { background: white; color: var(--tu-red); width: 24px; height: 24px; border-radius: 50%; display: flex; align-items: center; justify-content: center; font-size: 14px; font-weight: bold; }
         @keyframes slideUpCart { from { transform: translate(-50%, 100px); opacity: 0; } to { transform: translate(-50%, 0); opacity: 1; } }
 
-        /* Overlays (Cart & Payment) */
         .overlay-bg { position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.5); z-index: 25; display: none; justify-content: center; align-items: flex-end; }
-        
-        /* [แก้ไขส่วนนี้] เพิ่ม overflow-y: auto เพื่อให้กล่องเลื่อนขึ้นลงได้ในจอมือถือ */
         .bottom-sheet { background: var(--card-bg); width: 100%; max-width: 480px; border-radius: 24px 24px 0 0; padding: 20px 20px 40px; animation: slideUp 0.3s ease-out; display: flex; flex-direction: column; max-height: 85vh; overflow-y: auto; }
-        
         .drag-handle { width: 40px; height: 5px; background: #ddd; border-radius: 3px; margin: 0 auto 15px; flex-shrink: 0; }
         @keyframes slideUp { from { transform: translateY(100%); } to { transform: translateY(0); } }
 
@@ -83,10 +80,7 @@
         .order-history-card { background: white; padding: 15px; border-radius: 12px; margin-bottom: 12px; box-shadow: 0 2px 8px rgba(0,0,0,0.03); border: 1px solid #f0f1f4; }
         
         .qr-box { background: white; border: 1.5px solid #eee; border-radius: 16px; padding: 20px; text-align: center; width: 100%; margin-bottom: 20px; }
-        
-        /* [แก้ไขส่วนนี้] ล็อกความสูงรูปโลโก้ PromptPay ไม่ให้ขยายเต็มจอกรณีโหลดรูปพัง */
         .pp-logo { width: 100px; height: auto; max-height: 40px; object-fit: contain; margin-bottom: 15px; }
-        
         #qr-image { width: 180px; height: 180px; display: none; margin: 0 auto; flex-shrink: 0; }
         .loader { border: 3px solid #f3f3f3; border-top: 3px solid var(--tu-red); border-radius: 50%; width: 40px; height: 40px; animation: spin 1s linear infinite; margin: 40px auto; }
         .summary-row { width: 100%; display: flex; justify-content: space-between; padding: 15px 0; border-top: 1px dashed #eee; font-size: 15px; font-weight: 600; flex-shrink: 0; }
@@ -200,6 +194,10 @@
                 <div id="admin-stock-container">
                     <!-- สต๊อกแอดมิน -->
                 </div>
+                <!-- ปุ่มรีเฟรชอัปเดตสต๊อกไปหน้าลูกค้า -->
+                <button class="btn-primary" style="margin-top: 15px; background: var(--tu-yellow); color: #1d1d1f;" onclick="forceUpdateStock()">
+                    <i class="fa-solid fa-arrows-rotate"></i> อัปเดตสต๊อกไปหน้าลูกค้า
+                </button>
             </div>
             <button class="btn-secondary" id="btnAdminLogout" style="background: #f0f1f4;">ออกจากระบบ Admin</button>
         </div>
@@ -249,7 +247,6 @@
         </div>
         <h2 style="font-size: 18px; margin-bottom: 20px; flex-shrink: 0;">ชำระเงินผ่านแอปธนาคาร</h2>
         <div class="qr-box">
-            <!-- โลโก้ PromptPay มี max-height ล็อกไว้แล้วไม่ให้ล้นจอถ้ารูปพัง -->
             <img src="https://www.bot.or.th/content/dam/bot/documents/th/our-roles/payment-systems/about-payment-systems/PromptPay-logo.png" alt="PromptPay" class="pp-logo">
             <div id="loader" class="loader"></div>
             <img id="qr-image" src="" alt="QR Code">
@@ -286,6 +283,15 @@
     const db = getFirestore(app);
     const FAKE_DOMAIN = "@tse.tu.ac.th";
     const ADMIN_ID = "6910616249"; 
+
+    // ==========================================
+    // ตั้งค่า MQTT WebSocket (HiveMQ)
+    // ==========================================
+    const mqttClient = mqtt.connect('wss://broker.hivemq.com:8443/mqtt');
+    mqttClient.on('connect', () => {
+        console.log("✅ Web App Connected to HiveMQ WebSocket!");
+    });
+    // ==========================================
 
     let inventory = [
         { id: 'p1', name: 'พาราเซตามอล 500mg', desc: 'แผงละ 10 เม็ด', price: 20, stock: 10, img: 'assets/para.jpeg', props: 'บรรเทาอาการปวด ลดไข้', warn: 'ห้ามใช้ในผู้ที่เป็นโรคตับรุนแรง' },
@@ -462,6 +468,10 @@
                 qrImg.style.display = 'block';
                 document.getElementById('btn-download-qr').style.display = 'block';
                 statusTxt.innerText = 'สแกนคิวอาร์โค้ดเพื่อชำระเงินและรับยา';
+                
+                // ส่งคำสั่งไปที่หน้าจอ ESP32 ว่า "กำลังรอชำระเงิน"
+                mqttClient.publish("tse100/dispense", "PAYMENT_PENDING");
+
                 startCheckingPayment(data.chargeId, itemsSummary, totalPrice);
             } else {
                 throw new Error('QR Error');
@@ -521,6 +531,9 @@
                 });
             } catch (e) { console.error("Error saving doc: ", e); }
         }
+
+        // ส่งคำสั่งไปที่ตู้จ่ายยาว่า "ชำระเงินสำเร็จแล้ว ปล่อยยาได้!"
+        mqttClient.publish("tse100/dispense", "PAYMENT_SUCCESS");
 
         Swal.fire({
             icon: 'success', title: 'ชำระเงินสำเร็จ!',
@@ -669,6 +682,17 @@
         }
     }
 
+    window.forceUpdateStock = function() {
+        renderProducts();
+        Swal.fire({
+            icon: 'success',
+            title: 'อัปเดตสต๊อกสำเร็จ!',
+            text: 'ข้อมูลสต๊อกล่าสุดแสดงให้ลูกค้าเห็นแล้ว',
+            timer: 2000,
+            showConfirmButton: false
+        });
+    }
+
     window.testDispense = function() {
         Swal.fire({
             title: 'สั่งทดสอบมอเตอร์ตู้ยา',
@@ -676,6 +700,8 @@
             icon: 'warning', showCancelButton: true, confirmButtonText: 'ยืนยันสั่งจ่ายยา'
         }).then((result) => {
             if (result.isConfirmed) {
+                // ส่งคำสั่งผ่าน MQTT เพื่อให้ตู้ของจริงทำงานตอนทดสอบ
+                mqttClient.publish("tse100/dispense", "PAYMENT_SUCCESS");
                 Swal.fire('ส่งคำสั่งแล้ว!', 'สังเกตที่บอร์ดตู้ยา รีเลย์ควรจะทำงาน', 'success');
             }
         })
