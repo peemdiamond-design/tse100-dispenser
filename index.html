@@ -6,7 +6,6 @@
     <title>TU Smart Rx | สั่งยาสามัญประจำบ้าน</title>
     <link href="https://fonts.googleapis.com/css2?family=Prompt:wght@300;400;500;600;700&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
-    <!-- นำเข้าไลบรารี MQTT สำหรับสั่งการตู้ฮาร์ดแวร์ -->
     <script src="https://unpkg.com/mqtt/dist/mqtt.min.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
     <style>
@@ -104,6 +103,11 @@
 
     <!-- VIEW: Home -->
     <div id="view-home" class="view-section active">
+        <!-- โชว์ Loader ตอนรอโหลดข้อมูลจาก Firebase -->
+        <div id="loading-inventory" style="text-align:center; margin-top:50px;">
+            <div class="loader"></div>
+            <p style="color:var(--text-sub); font-size:14px; margin-top:10px;">กำลังโหลดสต๊อกยาแบบเรียลไทม์...</p>
+        </div>
         <div class="product-list" id="product-list-container">
             <!-- ยาจะถูก Render ตรงนี้ -->
         </div>
@@ -190,14 +194,10 @@
                 <button class="btn-primary" style="background: #1d1d1f;" onclick="testDispense()"><i class="fa-solid fa-gear"></i> ทดสอบจ่ายยา</button>
             </div>
             <div class="admin-card">
-                <h3 style="margin-bottom: 15px;">จัดการสต๊อกสินค้า (Inventory)</h3>
+                <h3 style="margin-bottom: 15px;">จัดการสต๊อกสินค้า (Real-time DB)</h3>
                 <div id="admin-stock-container">
                     <!-- สต๊อกแอดมิน -->
                 </div>
-                <!-- ปุ่มรีเฟรชอัปเดตสต๊อกไปหน้าลูกค้า -->
-                <button class="btn-primary" style="margin-top: 15px; background: var(--tu-yellow); color: #1d1d1f;" onclick="forceUpdateStock()">
-                    <i class="fa-solid fa-arrows-rotate"></i> อัปเดตสต๊อกไปหน้าลูกค้า
-                </button>
             </div>
             <button class="btn-secondary" id="btnAdminLogout" style="background: #f0f1f4;">ออกจากระบบ Admin</button>
         </div>
@@ -267,7 +267,9 @@
 <script type="module">
     import { initializeApp } from "https://www.gstatic.com/firebasejs/10.8.1/firebase-app.js";
     import { getAuth, createUserWithEmailAndPassword, signInWithEmailAndPassword, onAuthStateChanged, signOut, sendPasswordResetEmail } from "https://www.gstatic.com/firebasejs/10.8.1/firebase-auth.js";
-    import { getFirestore, collection, addDoc, getDocs, query, where, serverTimestamp, doc, setDoc, getDoc } from "https://www.gstatic.com/firebasejs/10.8.1/firebase-firestore.js";
+    
+    // [เพิ่ม] import onSnapshot และ updateDoc สำหรับระบบสต๊อก Real-time
+    import { getFirestore, collection, addDoc, getDocs, query, where, serverTimestamp, doc, setDoc, getDoc, onSnapshot, updateDoc } from "https://www.gstatic.com/firebasejs/10.8.1/firebase-firestore.js";
 
     const firebaseConfig = {
       apiKey: "AIzaSyDQ3VbYMTqPw2kR6EOIpiTYPcWVsa0otKc",
@@ -284,22 +286,56 @@
     const FAKE_DOMAIN = "@tse.tu.ac.th";
     const ADMIN_ID = "6910616249"; 
 
-    // ==========================================
-    // ตั้งค่า MQTT WebSocket (EMQX) - แก้ไขแล้ว!
-    // ==========================================
+    // ตั้งค่า MQTT WebSocket (EMQX)
     const mqttClient = mqtt.connect('wss://broker.emqx.io:8084/mqtt');
     mqttClient.on('connect', () => {
         console.log("✅ Web App Connected to EMQX WebSocket!");
     });
-    // ==========================================
 
-    let inventory = [
-        { id: 'p1', name: 'พาราเซตามอล 500mg', desc: 'แผงละ 10 เม็ด', price: 20, stock: 10, img: 'assets/para.jpeg', props: 'บรรเทาอาการปวด ลดไข้', warn: 'ห้ามใช้ในผู้ที่เป็นโรคตับรุนแรง' },
-        { id: 'p2', name: 'ผงถ่านคาร์บอน', desc: 'แผงละ 10 เม็ด', price: 25, stock: 5, img: 'assets/charcoal.jpeg', props: 'บรรเทาอาการท้องเสีย อาหารเป็นพิษ', warn: 'ทานห่างจากยาอื่น 2 ชม.' },
-        { id: 'p3', name: 'พลาสเตอร์ยา (5 ชิ้น)', desc: 'ป้องกันแผลติดเชื้อ', price: 15, stock: 15, img: 'assets/plaster.jpeg', props: 'ปกปิดและป้องกันบาดแผล', warn: 'ระวังการแพ้กาวพลาสเตอร์' },
-        { id: 'p4', name: 'ยาดมตราโป๊ยเซียน', desc: '1 หลอด', price: 20, stock: 20, img: 'assets/inhaler.jpeg', props: 'บรรเทาอาการวิงเวียนศีรษะ', warn: 'ยาใช้ภายนอก ห้ามรับประทาน' }
-    ];
+    // ==========================================
+    // [ใหม่] ระบบดึงข้อมูลสต๊อกยาจาก Firebase (Real-time)
+    // ==========================================
+    let inventory = []; // เปลี่ยนเป็นอาร์เรย์ว่าง เพื่อรอข้อมูลจาก Firebase
     let cart = [];
+
+    const invRef = collection(db, "inventory");
+    
+    // onSnapshot คือพระเอกที่คอยเฝ้าดูความเปลี่ยนแปลงของฐานข้อมูลตลอดเวลา
+    onSnapshot(invRef, (snapshot) => {
+        if (snapshot.empty) {
+            // ถ้าตารางว่างเปล่า ให้สร้างข้อมูลเริ่มต้นอัตโนมัติ
+            initializeDefaultInventory();
+        } else {
+            inventory = [];
+            snapshot.forEach(doc => {
+                inventory.push({ id: doc.id, ...doc.data() });
+            });
+            // เรียงลำดับ id ให้ยาเรียงกันสวยๆ (p1, p2, p3...)
+            inventory.sort((a, b) => a.id.localeCompare(b.id));
+            
+            // ปิดไอคอนโหลด และอัปเดตหน้าจอทันที
+            document.getElementById('loading-inventory').style.display = 'none';
+            renderProducts();
+            
+            // ถ้าแอดมินหรือลูกค้าแก้จำนวนในตะกร้าค้างไว้ ก็จะอัปเดตไปด้วย
+            updateCartUI(); 
+        }
+    });
+
+    async function initializeDefaultInventory() {
+        console.log("กำลังสร้างฐานข้อมูลสต๊อกยาเริ่มต้น...");
+        const defaultItems = [
+            { id: 'p1', name: 'พาราเซตามอล 500mg', desc: 'แผงละ 10 เม็ด', price: 20, stock: 10, img: 'assets/para.jpeg', props: 'บรรเทาอาการปวด ลดไข้', warn: 'ห้ามใช้ในผู้ที่เป็นโรคตับรุนแรง' },
+            { id: 'p2', name: 'ผงถ่านคาร์บอน', desc: 'แผงละ 10 เม็ด', price: 25, stock: 5, img: 'assets/charcoal.jpeg', props: 'บรรเทาอาการท้องเสีย อาหารเป็นพิษ', warn: 'ทานห่างจากยาอื่น 2 ชม.' },
+            { id: 'p3', name: 'พลาสเตอร์ยา (5 ชิ้น)', desc: 'ป้องกันแผลติดเชื้อ', price: 15, stock: 15, img: 'assets/plaster.jpeg', props: 'ปกปิดและป้องกันบาดแผล', warn: 'ระวังการแพ้กาวพลาสเตอร์' },
+            { id: 'p4', name: 'ยาดมตราโป๊ยเซียน', desc: '1 หลอด', price: 20, stock: 20, img: 'assets/inhaler.jpeg', props: 'บรรเทาอาการวิงเวียนศีรษะ', warn: 'ยาใช้ภายนอก ห้ามรับประทาน' }
+        ];
+        
+        for (const item of defaultItems) {
+            await setDoc(doc(db, "inventory", item.id), item);
+        }
+    }
+    // ==========================================
 
     window.switchTab = function(viewId, navElement) {
         document.querySelectorAll('.view-section').forEach(el => el.classList.remove('active'));
@@ -380,6 +416,8 @@
         if (cartIndex > -1) {
             const product = inventory.find(p => p.id === id);
             let newQty = cart[cartIndex].qty + delta;
+            
+            // เช็กสต๊อกล่าสุดก่อนเพิ่ม
             if (newQty > product.stock) {
                 Swal.fire({ toast: true, position: 'top', icon: 'error', title: 'สต๊อกมีไม่พอ', showConfirmButton: false, timer: 1500 });
                 return;
@@ -434,6 +472,20 @@
     let timerInterval, paymentCheckInterval;
 
     window.proceedToPayment = async function() {
+        // [ระบบป้องกัน] Double Check: ตรวจสอบสต๊อกอีกรอบก่อนอนุญาตให้จ่ายเงิน
+        for (let item of cart) {
+            const liveProd = inventory.find(p => p.id === item.id);
+            if (!liveProd || liveProd.stock < item.qty) {
+                Swal.fire({
+                    icon: 'error',
+                    title: 'ขออภัย สินค้าหมด',
+                    text: `สินค้า ${item.name} ถูกซื้อไปเมื่อสักครู่ (เหลือ ${liveProd ? liveProd.stock : 0} ชิ้น) กรุณาปรับจำนวนในตะกร้าใหม่ครับ`
+                });
+                closeModals();
+                return;
+            }
+        }
+
         document.getElementById('cart-modal').style.display = 'none';
         
         let totalPrice = cart.reduce((sum, item) => sum + (item.price * item.qty), 0);
@@ -469,7 +521,7 @@
                 document.getElementById('btn-download-qr').style.display = 'block';
                 statusTxt.innerText = 'สแกนคิวอาร์โค้ดเพื่อชำระเงินและรับยา';
                 
-                // ส่งคำสั่งไปที่หน้าจอ ESP32 ว่า "กำลังรอชำระเงิน"
+                // ส่งคำสั่งไปที่ตู้
                 mqttClient.publish("tse100/dispense", "PAYMENT_PENDING");
 
                 startCheckingPayment(data.chargeId, itemsSummary, totalPrice);
@@ -513,10 +565,16 @@
         document.getElementById('qr-status').style.color = '#28a745';
         document.getElementById('qr-status').innerText = '✅ ชำระเงินสำเร็จแล้ว!';
         
-        cart.forEach(cartItem => {
+        // [เพิ่ม] หักสต๊อกออกจากฐานข้อมูล Firebase โดยตรง
+        for (const cartItem of cart) {
             const prod = inventory.find(p => p.id === cartItem.id);
-            if(prod) prod.stock -= cartItem.qty;
-        });
+            if(prod) {
+                let newStock = prod.stock - cartItem.qty;
+                if (newStock < 0) newStock = 0;
+                // อัปเดตขึ้น Firebase (เดี๋ยว onSnapshot จะดึงกลับมาโชว์ที่หน้าจอเอง)
+                await updateDoc(doc(db, "inventory", cartItem.id), { stock: newStock });
+            }
+        }
 
         if (auth.currentUser) {
             const stuId = auth.currentUser.email.split('@')[0];
@@ -532,7 +590,7 @@
             } catch (e) { console.error("Error saving doc: ", e); }
         }
 
-        // ส่งคำสั่งไปที่ตู้จ่ายยาว่า "ชำระเงินสำเร็จแล้ว ปล่อยยาได้!"
+        // ส่งคำสั่งไปที่ตู้จ่ายยา
         mqttClient.publish("tse100/dispense", "PAYMENT_SUCCESS");
 
         Swal.fire({
@@ -542,7 +600,6 @@
         }).then(() => {
             cart = []; 
             updateCartUI();
-            renderProducts();
             closePayment();
             if(auth.currentUser.email.split('@')[0] !== ADMIN_ID) {
                 switchTab('view-orders', document.querySelectorAll('.nav-item')[1]);
@@ -673,22 +730,24 @@
         });
     }
 
-    window.adminAdjustStock = function(id, delta) {
+    // [แก้ไข] เมื่อแอดมินกดเปลี่ยนสต๊อก ให้ส่งข้อมูลขึ้น Firebase เลย
+    window.adminAdjustStock = async function(id, delta) {
         const prod = inventory.find(p => p.id === id);
         if(prod) {
-            prod.stock += delta;
-            if(prod.stock < 0) prod.stock = 0;
-            renderProducts(); 
+            let newStock = prod.stock + delta;
+            if(newStock < 0) newStock = 0;
+            // อัปเดตข้อมูลขึ้นฐานข้อมูล 
+            await updateDoc(doc(db, "inventory", id), { stock: newStock });
+            // เราไม่ต้องสั่ง renderProducts() ตรงนี้แล้ว เพราะ onSnapshot จะดึงข้อมูลกลับมารันหน้าจอให้เอง!
         }
     }
 
     window.forceUpdateStock = function() {
-        renderProducts();
         Swal.fire({
-            icon: 'success',
-            title: 'อัปเดตสต๊อกสำเร็จ!',
-            text: 'ข้อมูลสต๊อกล่าสุดแสดงให้ลูกค้าเห็นแล้ว',
-            timer: 2000,
+            icon: 'info',
+            title: 'สต๊อกเป็นแบบเรียลไทม์แล้ว!',
+            text: 'ระบบดึงข้อมูลจาก Firebase อัตโนมัติ ลูกค้าเห็นตัวเลขที่ถูกต้องเสมอ',
+            timer: 2500,
             showConfirmButton: false
         });
     }
@@ -700,7 +759,6 @@
             icon: 'warning', showCancelButton: true, confirmButtonText: 'ยืนยันสั่งจ่ายยา'
         }).then((result) => {
             if (result.isConfirmed) {
-                // ส่งคำสั่งผ่าน MQTT เพื่อให้ตู้ของจริงทำงานตอนทดสอบ
                 mqttClient.publish("tse100/dispense", "PAYMENT_SUCCESS");
                 Swal.fire('ส่งคำสั่งแล้ว!', 'สังเกตที่บอร์ดตู้ยา รีเลย์ควรจะทำงาน', 'success');
             }
@@ -744,8 +802,6 @@
             ordersList.innerHTML = html;
         } catch (error) { console.error(error); }
     }
-
-    renderProducts();
 
 </script>
 
