@@ -42,7 +42,6 @@
         .cart-floating-bar { position: fixed; bottom: 80px; left: 50%; transform: translateX(-50%); width: 90%; max-width: 440px; background: var(--tu-red); color: white; padding: 15px 20px; border-radius: 100px; display: none; justify-content: space-between; align-items: center; z-index: 15; box-shadow: 0 4px 15px rgba(197, 29, 35, 0.3); cursor: pointer; animation: slideUpCart 0.3s ease; transition: transform 0.2s; }
         .cart-floating-bar .cart-count { background: white; color: var(--tu-red); width: 24px; height: 24px; border-radius: 50%; display: flex; align-items: center; justify-content: center; font-size: 14px; font-weight: bold; }
         @keyframes slideUpCart { from { transform: translate(-50%, 100px); opacity: 0; } to { transform: translate(-50%, 0); opacity: 1; } }
-        /* --- แอนิเมชันตะกร้า Bop --- */
         @keyframes bop { 0% { transform: translate(-50%, 0) scale(1); } 50% { transform: translate(-50%, 0) scale(1.08); } 100% { transform: translate(-50%, 0) scale(1); } }
         .bop-anim { animation: bop 0.3s ease !important; }
 
@@ -86,10 +85,22 @@
         .loader { border: 3px solid #f3f3f3; border-top: 3px solid var(--tu-red); border-radius: 50%; width: 40px; height: 40px; animation: spin 1s linear infinite; margin: 40px auto; }
         .summary-row { width: 100%; display: flex; justify-content: space-between; padding: 15px 0; border-top: 1px dashed #eee; font-size: 15px; font-weight: 600; flex-shrink: 0; }
 
-        .admin-card { background: white; border-radius: 16px; padding: 20px; margin-bottom: 15px; box-shadow: 0 2px 8px rgba(0,0,0,0.03); border: 1px solid var(--tu-red); }
-        .admin-stock-item { display: flex; justify-content: space-between; align-items: center; padding: 10px 0; border-bottom: 1px dashed #eee; }
+        /* --- [อัปเดต] Admin Styles --- */
+        .admin-card { background: white; border-radius: 16px; padding: 20px; margin-bottom: 15px; box-shadow: 0 2px 8px rgba(0,0,0,0.03); border: 1px solid #eee; }
+        .admin-stock-item { display: flex; flex-direction: column; padding: 12px 0; border-bottom: 1px dashed #eee; }
+        .admin-stock-row-1 { display: flex; justify-content: space-between; align-items: center; margin-bottom: 8px; }
+        .admin-stock-row-2 { display: flex; justify-content: space-between; align-items: center; }
+        
+        .price-input { width: 60px; padding: 4px 8px; border: 1px solid #ddd; border-radius: 6px; text-align: center; font-size: 14px; outline: none; }
+        .price-input:focus { border-color: var(--tu-red); }
+        
+        .low-stock-alert { border-left: 4px solid #c51d23 !important; background-color: #fff5f5 !important; padding: 10px !important; border-radius: 8px; }
+        
+        .badge-status { padding: 4px 10px; border-radius: 20px; font-size: 12px; font-weight: 600; display: inline-flex; align-items: center; gap: 5px; }
+        .status-online { background: #d4edda; color: #155724; }
+        .status-offline { background: #f8d7da; color: #721c24; }
+        .status-dot { width: 8px; height: 8px; border-radius: 50%; background: currentColor; }
 
-        /* E-Receipt Styles */
         .receipt-modal { display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.6); z-index: 30; justify-content: center; align-items: center; padding: 20px; animation: fadeIn 0.2s ease; }
         .receipt-paper { background: #fff; width: 100%; max-width: 350px; border-radius: 8px; padding: 25px 20px; position: relative; box-shadow: 0 10px 25px rgba(0,0,0,0.2); }
         .receipt-paper::before, .receipt-paper::after { content: ""; position: absolute; left: 0; right: 0; height: 10px; background-size: 20px 20px; }
@@ -105,7 +116,6 @@
         .receipt-footer { text-align: center; border-top: 1px dashed #ccc; padding-top: 15px; font-size: 11px; color: #888; margin-top: 15px; }
         .btn-close-receipt { width: 100%; background: #1d1d1f; color: white; padding: 12px; border: none; border-radius: 8px; font-size: 14px; font-weight: 600; cursor: pointer; margin-top: 20px; }
         
-        /* Consent Checkbox */
         .consent-box { margin-bottom: 15px; display: flex; align-items: flex-start; gap: 10px; background: #fff5f5; padding: 12px; border-radius: 8px; border: 1px solid #ffd0d0; flex-shrink: 0; }
         .consent-box input[type="checkbox"] { margin-top: 3px; accent-color: var(--tu-red); width: 18px; height: 18px; cursor: pointer; }
         .consent-box label { font-size: 12px; color: var(--tu-red); cursor: pointer; line-height: 1.4; font-weight: 500; }
@@ -130,10 +140,7 @@
             <div class="loader"></div>
             <p style="color:var(--text-sub); font-size:14px; margin-top:10px;">กำลังโหลดสต๊อกยาแบบเรียลไทม์...</p>
         </div>
-        
-        <div class="product-list" id="product-list-container">
-            <!-- ยาจะถูก Render ตรงนี้ -->
-        </div>
+        <div class="product-list" id="product-list-container"></div>
     </div>
 
     <!-- VIEW: Orders -->
@@ -189,34 +196,56 @@
                 <button class="btn-primary" id="btnEditProfile" style="background: #1d1d1f; margin-bottom: 12px;">
                     <i class="fa-solid fa-pen-to-square"></i> แก้ไขข้อมูลส่วนตัว
                 </button>
-                <button class="btn-secondary" id="btnResetPwd" style="background: white; border: 1px solid #ddd; margin-bottom: 12px;">
-                    <i class="fa-solid fa-key"></i> เปลี่ยนรหัสผ่าน
-                </button>
-                <button class="btn-secondary" id="btnReportIssue" style="background: #fff5f5; color: var(--tu-red); border: 1px solid var(--tu-red); margin-bottom: 25px;">
-                    <i class="fa-solid fa-triangle-exclamation"></i> แจ้งปัญหา / ขอคืนเงิน
-                </button>
-
-                <button class="btn-secondary" id="btnLogout" style="background: #f0f1f4; color: var(--text-main);">
-                    ออกจากระบบ
-                </button>
+                <button class="btn-secondary" id="btnLogout" style="background: #f0f1f4; color: var(--text-main);">ออกจากระบบ</button>
             </div>
         </div>
     </div>
 
     <!-- VIEW: Admin Dashboard -->
     <div id="view-admin" class="view-section">
-        <div style="padding: 20px;">
-            <h2 style="color: var(--tu-red); margin-bottom: 15px;"><i class="fa-solid fa-hammer"></i> โหมดผู้ดูแลระบบ</h2>
-            <div class="admin-card">
-                <h3 style="margin-bottom: 15px;">ทดสอบฮาร์ดแวร์ตู้ยา</h3>
-                <p style="font-size: 12px; color: var(--text-sub); margin-bottom: 15px;">จำลองส่งคำสั่ง PAYMENT_SUCCESS ไปที่ตู้</p>
-                <button class="btn-primary" style="background: #1d1d1f;" onclick="testDispense()"><i class="fa-solid fa-gear"></i> ทดสอบจ่ายยา</button>
+        <div style="padding: 20px; background: #fafafa; min-height: 100vh;">
+            
+            <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px;">
+                <h2 style="color: var(--tu-red); margin: 0;"><i class="fa-solid fa-hammer"></i> โหมดผู้ดูแล</h2>
+                <div id="mqtt-status-badge" class="badge-status status-offline">
+                    <div class="status-dot"></div> <span id="mqtt-status-text">Offline</span>
+                </div>
             </div>
-            <div class="admin-card">
-                <h3 style="margin-bottom: 15px;">จัดการสต๊อกสินค้า (Real-time DB)</h3>
+
+            <!-- [ใหม่] Sales Dashboard -->
+            <div class="stats-container" style="margin-bottom: 15px;">
+                <div class="stat-box" style="background: #fff; border-color: #eee; box-shadow: 0 2px 8px rgba(0,0,0,0.02);">
+                    <p style="color: var(--text-sub); font-size: 11px;">ยอดขายวันนี้</p>
+                    <h3 id="admin-today-sales" style="color: #28a745;">฿0</h3>
+                </div>
+                <div class="stat-box" style="background: #fff; border-color: #eee; box-shadow: 0 2px 8px rgba(0,0,0,0.02);">
+                    <p style="color: var(--text-sub); font-size: 11px;">ยอดขายรวมทั้งหมด</p>
+                    <h3 id="admin-total-sales" style="color: var(--tu-red);">฿0</h3>
+                </div>
+            </div>
+
+            <div class="admin-card" style="border-top: 3px solid var(--tu-red);">
+                <h3 style="margin-bottom: 15px; font-size: 15px;"><i class="fa-solid fa-box"></i> จัดการสต๊อก & ราคา</h3>
                 <div id="admin-stock-container"></div>
             </div>
-            <button class="btn-secondary" id="btnAdminLogout" style="background: #f0f1f4;">ออกจากระบบ Admin</button>
+
+            <!-- [ใหม่] Hardware Test -->
+            <div class="admin-card">
+                <h3 style="margin-bottom: 10px; font-size: 15px;"><i class="fa-solid fa-microchip"></i> ทดสอบฮาร์ดแวร์ตู้ยา</h3>
+                <button class="btn-primary" style="background: #1d1d1f; margin-bottom: 0;" onclick="testDispense()">
+                    <i class="fa-solid fa-gear"></i> ส่งคำสั่งทดสอบมอเตอร์จ่ายยา
+                </button>
+            </div>
+
+            <!-- [ใหม่] All Orders List -->
+            <div class="admin-card">
+                <h3 style="margin-bottom: 15px; font-size: 15px;"><i class="fa-solid fa-list"></i> ประวัติการซื้อทั้งหมด</h3>
+                <div id="admin-all-orders-list" style="max-height: 300px; overflow-y: auto;">
+                    <div class="loader" id="admin-orders-loader"></div>
+                </div>
+            </div>
+
+            <button class="btn-secondary" id="btnAdminLogout" style="background: #e5e5ea; color: #333; margin-top: 10px;">ออกจากระบบ Admin</button>
         </div>
     </div>
 
@@ -240,7 +269,6 @@
 
 <!-- ================= MODALS ================= -->
 
-<!-- Cart Modal -->
 <div class="overlay-bg" id="cart-modal">
     <div class="bottom-sheet">
         <div class="drag-handle"></div>
@@ -252,7 +280,6 @@
             <span style="color: var(--tu-red); font-size: 18px;" id="cart-grand-total">฿0</span>
         </div>
         
-        <!-- [ใหม่] Security: กล่องกดยืนยันข้อตกลง -->
         <div class="consent-box">
             <input type="checkbox" id="consent-check">
             <label for="consent-check">ข้าพเจ้าได้อ่านคำเตือนของยาทุกรายการ และยืนยันว่าไม่มีประวัติแพ้ยาเหล่านี้</label>
@@ -263,7 +290,6 @@
     </div>
 </div>
 
-<!-- Payment Modal -->
 <div class="overlay-bg" id="payment-modal">
     <div class="bottom-sheet" style="align-items: center;">
         <div class="drag-handle"></div>
@@ -285,7 +311,6 @@
     </div>
 </div>
 
-<!-- E-Receipt Modal -->
 <div class="receipt-modal" id="receipt-modal">
     <div class="receipt-paper" id="receipt-content">
         <div class="receipt-header">
@@ -318,7 +343,7 @@
 <script type="module">
     import { initializeApp } from "https://www.gstatic.com/firebasejs/10.8.1/firebase-app.js";
     import { getAuth, createUserWithEmailAndPassword, signInWithEmailAndPassword, onAuthStateChanged, signOut } from "https://www.gstatic.com/firebasejs/10.8.1/firebase-auth.js";
-    import { getFirestore, collection, addDoc, getDocs, query, where, serverTimestamp, doc, setDoc, getDoc, onSnapshot, updateDoc } from "https://www.gstatic.com/firebasejs/10.8.1/firebase-firestore.js";
+    import { getFirestore, collection, addDoc, getDocs, query, where, serverTimestamp, doc, setDoc, getDoc, onSnapshot, updateDoc, orderBy } from "https://www.gstatic.com/firebasejs/10.8.1/firebase-firestore.js";
 
     const firebaseConfig = {
       apiKey: "AIzaSyDQ3VbYMTqPw2kR6EOIpiTYPcWVsa0otKc",
@@ -335,7 +360,23 @@
     const FAKE_DOMAIN = "@tse.tu.ac.th";
     const ADMIN_ID = "6910616249"; 
 
+    // --- [อัปเดต] MQTT Status Monitor ---
     const mqttClient = mqtt.connect('wss://broker.emqx.io:8084/mqtt');
+    const mqttBadge = document.getElementById('mqtt-status-badge');
+    const mqttText = document.getElementById('mqtt-status-text');
+    
+    mqttClient.on('connect', () => {
+        mqttBadge.className = 'badge-status status-online';
+        mqttText.innerText = 'ระบบ Online';
+    });
+    mqttClient.on('offline', () => {
+        mqttBadge.className = 'badge-status status-offline';
+        mqttText.innerText = 'ระบบ Offline';
+    });
+    mqttClient.on('error', () => {
+        mqttBadge.className = 'badge-status status-offline';
+        mqttText.innerText = 'ขาดการเชื่อมต่อ';
+    });
     
     let inventory = []; 
     let cart = [];
@@ -375,14 +416,15 @@
         document.querySelectorAll('.nav-item').forEach(el => el.classList.remove('active'));
         if(navElement) navElement.classList.add('active');
         
-        if(viewId === 'view-orders' && auth.currentUser) {
+        if(auth.currentUser) {
             const stuId = auth.currentUser.email.split('@')[0];
-            if(stuId !== ADMIN_ID) loadOrders(stuId); 
+            if(viewId === 'view-orders' && stuId !== ADMIN_ID) loadOrders(stuId); 
+            if(viewId === 'view-admin' && stuId === ADMIN_ID) loadAdminDashboard();
         }
     }
     
     window.openCartModal = () => {
-        document.getElementById('consent-check').checked = false; // เคลียร์ Checkbox ทุกครั้งที่เปิด
+        document.getElementById('consent-check').checked = false;
         document.getElementById('cart-modal').style.display = 'flex';
     }
     window.closeModals = () => {
@@ -393,11 +435,7 @@
     function renderProducts() {
         const container = document.getElementById('product-list-container');
         container.innerHTML = '';
-        
-        if (inventory.length === 0) {
-            container.innerHTML = '<p style="text-align:center; color:#888; padding: 30px;">ไม่มีรายการยาในระบบ</p>';
-            return;
-        }
+        if (inventory.length === 0) return;
         
         inventory.forEach(item => {
             const cartItem = cart.find(c => c.id === item.id);
@@ -442,20 +480,16 @@
         }
         const product = inventory.find(p => p.id === id);
         const cartItem = cart.find(c => c.id === id);
-        if (cartItem) {
-            cartItem.qty += 1;
-        } else {
-            cart.push({ ...product, qty: 1 });
-        }
+        if (cartItem) cartItem.qty += 1;
+        else cart.push({ ...product, qty: 1 });
+        
         updateCartUI();
         renderProducts();
 
-        // --- แอนิเมชันตะกร้าเด้ง (Bop) เมื่อหยิบของ ---
         const floatBar = document.getElementById('cart-floating-bar');
         floatBar.classList.remove('bop-anim');
-        void floatBar.offsetWidth; // รีเซ็ตการทำงาน CSS ให้อนิเมชันเล่นซ้ำได้
+        void floatBar.offsetWidth; 
         floatBar.classList.add('bop-anim');
-
         Swal.fire({ toast: true, position: 'top', icon: 'success', title: 'เพิ่มลงตะกร้าแล้ว', showConfirmButton: false, timer: 1000 });
     }
 
@@ -464,11 +498,7 @@
         if (cartIndex > -1) {
             const product = inventory.find(p => p.id === id);
             let newQty = cart[cartIndex].qty + delta;
-            
-            if (newQty > product.stock) {
-                Swal.fire({ toast: true, position: 'top', icon: 'error', title: 'สต๊อกมีไม่พอ', showConfirmButton: false, timer: 1500 });
-                return;
-            }
+            if (newQty > product.stock) return Swal.fire({ toast: true, position: 'top', icon: 'error', title: 'สต๊อกมีไม่พอ', showConfirmButton: false, timer: 1500 });
             if (newQty <= 0) cart.splice(cartIndex, 1);
             else cart[cartIndex].qty = newQty;
             updateCartUI();
@@ -519,15 +549,9 @@
     let timerInterval, paymentCheckInterval;
 
     window.proceedToPayment = async function() {
-        // --- Security: ตรวจสอบการกดยอมรับข้อตกลง (Consent) ---
         const consent = document.getElementById('consent-check').checked;
         if(!consent) {
-            Swal.fire({
-                icon: 'warning', 
-                title: 'กรุณายืนยันข้อตกลง', 
-                text: 'โปรดติ๊กถูกในช่องยืนยันว่าคุณไม่มีประวัติแพ้ยา ก่อนดำเนินการชำระเงินครับ',
-                confirmButtonColor: 'var(--tu-red)'
-            });
+            Swal.fire({icon: 'warning', title: 'กรุณายืนยันข้อตกลง', text: 'โปรดติ๊กถูกในช่องยืนยันว่าคุณไม่มีประวัติแพ้ยา', confirmButtonColor: 'var(--tu-red)'});
             return;
         }
 
@@ -554,7 +578,6 @@
         loader.style.display = 'block';
         qrImg.style.display = 'none';
         statusTxt.innerText = 'ระบบกำลังสร้างคิวอาร์โค้ด...';
-        statusTxt.style.color = 'var(--text-sub)'; 
 
         startTimer(180); 
 
@@ -573,12 +596,10 @@
                 statusTxt.innerText = 'สแกนคิวอาร์โค้ดเพื่อชำระเงินและรับยา';
                 mqttClient.publish("tse100/dispense", "PAYMENT_PENDING");
                 startCheckingPayment(data.chargeId, itemsSummary, totalPrice);
-            } else {
-                throw new Error('QR Error');
-            }
+            } else throw new Error();
         } catch (error) {
             loader.style.display = 'none';
-            statusTxt.innerText = 'เกิดข้อผิดพลาด ไม่สามารถเชื่อมต่อระบบได้ (ทดสอบ Admin ไปก่อน)';
+            statusTxt.innerText = 'เกิดข้อผิดพลาด ไม่สามารถเชื่อมต่อระบบได้';
             if(auth.currentUser && auth.currentUser.email.split('@')[0] === ADMIN_ID) {
                 document.getElementById('summary-price').innerHTML += `<br><button class="btn-primary" style="margin-top:10px; background:#28a745;" onclick="simulatePayment('${itemsSummary}', ${totalPrice})">แอดมิน: จำลองจ่ายเงิน</button>`;
             }
@@ -593,15 +614,11 @@
             let m = parseInt(remaining / 60, 10);
             let s = parseInt(remaining % 60, 10);
             display.textContent = (m < 10 ? "0" + m : m) + ":" + (s < 10 ? "0" + s : s);
-            
             if (--remaining < 0) {
                 clearInterval(timerInterval);
                 closePayment();
-                // --- Security: เคลียร์ตะกร้าทิ้งเมื่อหมดเวลาเพื่อกันการกั๊กสต๊อก ---
-                cart = []; 
-                updateCartUI();
-                renderProducts();
-                Swal.fire({icon: 'error', title: 'หมดเวลาทำรายการ', text: 'ตะกร้าสินค้าของคุณถูกล้างแล้ว กรุณาทำรายการใหม่อีกครั้งครับ', confirmButtonColor: 'var(--tu-red)'});
+                cart = []; updateCartUI(); renderProducts();
+                Swal.fire({icon: 'error', title: 'หมดเวลาทำรายการ', text: 'ตะกร้าสินค้าถูกล้างแล้ว กรุณาทำรายการใหม่', confirmButtonColor: 'var(--tu-red)'});
             }
         }, 1000);
     }
@@ -618,8 +635,7 @@
                 const response = await fetch(`${BACKEND_URL}/api/check-payment/${chargeId}`);
                 const data = await response.json();
                 if (data.status === 'success') {
-                    clearInterval(paymentCheckInterval);
-                    clearInterval(timerInterval);
+                    clearInterval(paymentCheckInterval); clearInterval(timerInterval);
                     processSuccessfulOrder(chargeId, itemName, itemPrice);
                 }
             } catch (error) {}
@@ -651,18 +667,9 @@
         }
 
         mqttClient.publish("tse100/dispense", "PAYMENT_SUCCESS");
-
-        Swal.fire({
-            icon: 'success', title: 'ชำระเงินสำเร็จ!',
-            text: 'ระบบกำลังสั่งตู้จ่ายยา กรุณารอรับยาด้านล่าง',
-            timer: 3500, showConfirmButton: false
-        }).then(() => {
-            cart = []; 
-            updateCartUI();
-            closePayment();
-            if(auth.currentUser.email.split('@')[0] !== ADMIN_ID) {
-                switchTab('view-orders', document.querySelectorAll('.nav-item')[1]);
-            }
+        Swal.fire({ icon: 'success', title: 'ชำระเงินสำเร็จ!', text: 'ระบบกำลังสั่งตู้จ่ายยา กรุณารอรับยาด้านล่าง', timer: 3500, showConfirmButton: false }).then(() => {
+            cart = []; updateCartUI(); closePayment();
+            if(auth.currentUser.email.split('@')[0] !== ADMIN_ID) switchTab('view-orders', document.querySelectorAll('.nav-item')[1]);
         });
     }
 
@@ -680,6 +687,7 @@
                 document.getElementById('nav-admin').style.display = 'flex';
                 document.getElementById('auth-section').style.display = 'none';
                 switchTab('view-admin', document.getElementById('nav-admin'));
+                loadAdminDashboard();
             } else {
                 document.getElementById('nav-account').style.display = 'flex';
                 document.getElementById('nav-admin').style.display = 'none';
@@ -704,8 +712,7 @@
         const id = document.getElementById('stuIdInput').value.trim();
         const pwd = document.getElementById('pwdInput').value.trim();
         if(!id || !pwd) return alert('กรุณากรอกข้อมูลให้ครบถ้วน');
-        signInWithEmailAndPassword(auth, id + FAKE_DOMAIN, pwd)
-            .catch(() => alert('รหัสนักศึกษาหรือรหัสผ่านไม่ถูกต้อง'));
+        signInWithEmailAndPassword(auth, id + FAKE_DOMAIN, pwd).catch(() => alert('รหัสนักศึกษาหรือรหัสผ่านไม่ถูกต้อง'));
     });
 
     document.getElementById('btnRegister').addEventListener('click', () => {
@@ -713,9 +720,7 @@
         const pwd = document.getElementById('pwdInput').value.trim();
         if(id.length < 10) return alert('กรุณากรอกรหัสนักศึกษาให้ครบ 10 หลัก');
         if(pwd.length < 6) return alert('รหัสผ่านต้องมีอย่างน้อย 6 ตัวอักษร');
-        createUserWithEmailAndPassword(auth, id + FAKE_DOMAIN, pwd)
-            .then(() => alert("สมัครสมาชิกสำเร็จ!"))
-            .catch((err) => alert('ข้อผิดพลาด: ' + err.message));
+        createUserWithEmailAndPassword(auth, id + FAKE_DOMAIN, pwd).then(() => alert("สมัครสมาชิกสำเร็จ!")).catch((err) => alert('ข้อผิดพลาด: ' + err.message));
     });
 
     document.getElementById('btnLogout').addEventListener('click', () => signOut(auth));
@@ -723,18 +728,31 @@
         signOut(auth).then(() => { switchTab('view-home', document.querySelector('.nav-item')); });
     });
 
+    // --- [อัปเดต] Admin Stock & Price Management ---
     function renderAdminStock() {
         const container = document.getElementById('admin-stock-container');
         if(!container) return;
         container.innerHTML = '';
         inventory.forEach(item => {
+            // เช็กเตือนสต๊อกเหลือน้อย
+            const isLowStock = item.stock < 3;
+            const cardClass = isLowStock ? 'admin-stock-item low-stock-alert' : 'admin-stock-item';
+            
             container.innerHTML += `
-                <div class="admin-stock-item">
-                    <span style="font-size:14px; font-weight:500;">${item.name}</span>
-                    <div class="qty-controls" style="background:#fff; border:1px solid #eee;">
-                        <button class="qty-btn" onclick="adminAdjustStock('${item.id}', -1)">-</button>
-                        <span style="font-size:14px; width:30px; text-align:center;">${item.stock}</span>
-                        <button class="qty-btn" onclick="adminAdjustStock('${item.id}', 1)">+</button>
+                <div class="${cardClass}">
+                    <div class="admin-stock-row-1">
+                        <span style="font-size:14px; font-weight:600; color: ${isLowStock ? '#c51d23' : '#333'}">${item.name}</span>
+                        ${isLowStock ? '<span style="font-size:10px; color:white; background:#c51d23; padding:2px 6px; border-radius:10px;">ใกล้หมด!</span>' : ''}
+                    </div>
+                    <div class="admin-stock-row-2">
+                        <div style="font-size:12px; color:var(--text-sub); display:flex; align-items:center; gap:5px;">
+                            ราคา: ฿<input type="number" class="price-input" value="${item.price}" onchange="adminUpdatePrice('${item.id}', this.value)">
+                        </div>
+                        <div class="qty-controls" style="background:#fff; border:1px solid #ddd;">
+                            <button class="qty-btn" onclick="adminAdjustStock('${item.id}', -1)">-</button>
+                            <span style="font-size:14px; width:30px; text-align:center;">${item.stock}</span>
+                            <button class="qty-btn" onclick="adminAdjustStock('${item.id}', 1)">+</button>
+                        </div>
                     </div>
                 </div>
             `;
@@ -749,10 +767,79 @@
             await updateDoc(doc(db, "inventory", id), { stock: newStock });
         }
     }
+    
+    // [ใหม่] ฟังก์ชันแก้ราคายาของแอดมิน
+    window.adminUpdatePrice = async function(id, newPrice) {
+        const priceNum = parseInt(newPrice);
+        if(priceNum >= 0) {
+            await updateDoc(doc(db, "inventory", id), { price: priceNum });
+            Swal.fire({ toast: true, position: 'top', icon: 'success', title: 'อัปเดตราคาสำเร็จ', showConfirmButton: false, timer: 1500 });
+        }
+    }
+
+    // --- [ใหม่] Admin Dashboard Data Load ---
+    async function loadAdminDashboard() {
+        try {
+            const ordersList = document.getElementById('admin-all-orders-list');
+            const q = query(collection(db, "orders"));
+            const querySnapshot = await getDocs(q);
+            
+            const allOrders = [];
+            let totalSales = 0;
+            let todaySales = 0;
+            const todayStr = new Date().toLocaleDateString('th-TH');
+
+            querySnapshot.forEach((doc) => { 
+                const data = doc.data(); 
+                allOrders.push({id: doc.id, ...data}); 
+                const price = parseInt(data.price || 0);
+                totalSales += price;
+                
+                if (data.createdAt) {
+                    const orderDateStr = new Date(data.createdAt.toDate()).toLocaleDateString('th-TH');
+                    if (orderDateStr === todayStr) todaySales += price;
+                }
+            });
+
+            document.getElementById('admin-total-sales').innerText = `฿${totalSales.toLocaleString()}`;
+            document.getElementById('admin-today-sales').innerText = `฿${todaySales.toLocaleString()}`;
+
+            allOrders.sort((a, b) => { return (b.createdAt ? b.createdAt.toMillis() : 0) - (a.createdAt ? a.createdAt.toMillis() : 0); });
+
+            if(allOrders.length === 0) {
+                ordersList.innerHTML = '<p style="text-align:center; color:var(--text-sub); font-size:13px; margin:20px 0;">ยังไม่มีรายการสั่งซื้อในระบบ</p>';
+                return;
+            }
+
+            let html = '';
+            allOrders.forEach(order => {
+                const dateObj = order.createdAt ? new Date(order.createdAt.toDate()) : new Date();
+                const dateStr = dateObj.toLocaleDateString('th-TH');
+                const timeStr = dateObj.toLocaleTimeString('th-TH', { hour: '2-digit', minute: '2-digit' });
+                const safeItemName = order.itemName ? order.itemName.replace(/'/g, "\\'") : "สินค้าทั่วไป";
+                
+                html += `
+                    <div style="padding: 12px 0; border-bottom: 1px solid #f0f1f4;">
+                        <div style="display:flex; justify-content:space-between; margin-bottom:4px;">
+                            <span style="font-weight:600; font-size:13px;">${order.itemName}</span>
+                            <span style="color:var(--tu-red); font-weight:600;">฿${order.price}</span>
+                        </div>
+                        <div style="display:flex; justify-content:space-between; align-items:center; font-size:11px; color:var(--text-sub);">
+                            <span><i class="fa-regular fa-user"></i> ${order.stuId}</span>
+                            <span>${dateStr} ${timeStr}</span>
+                        </div>
+                    </div>`;
+            });
+            ordersList.innerHTML = html;
+
+        } catch (error) { 
+            console.error("โหลดข้อมูลแอดมินล้มเหลว", error); 
+        }
+    }
 
     window.testDispense = function() {
         mqttClient.publish("tse100/dispense", "PAYMENT_SUCCESS");
-        Swal.fire('ส่งคำสั่งแล้ว!', 'สั่งทดสอบมอเตอร์ตู้ยา', 'success');
+        Swal.fire({ toast: true, position: 'top', icon: 'success', title: 'ส่งสัญญาณไปที่ตู้แล้ว', showConfirmButton: false, timer: 1500 });
     }
 
     async function loadOrders(stuId) {
@@ -811,10 +898,7 @@
         document.getElementById('receipt-grand-total').innerText = `฿${price}.00`;
         document.getElementById('receipt-modal').style.display = 'flex';
     }
-
-    window.closeReceipt = function() {
-        document.getElementById('receipt-modal').style.display = 'none';
-    }
+    window.closeReceipt = () => document.getElementById('receipt-modal').style.display = 'none';
 </script>
 </body>
 </html>
