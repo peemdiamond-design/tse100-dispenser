@@ -22,14 +22,7 @@
         .view-section.active { display: block; }
         @keyframes fadeIn { from { opacity: 0; } to { opacity: 1; } }
         
-        /* --- [ใหม่] UX: Filters & Categories --- */
-        .symptom-select { width: calc(100% - 40px); margin: 15px 20px 0; padding: 12px; border-radius: 12px; border: 1px solid #ddd; outline: none; font-size: 14px; background: white; color: var(--text-main); box-shadow: 0 2px 5px rgba(0,0,0,0.02); }
-        .filter-container { display: flex; gap: 10px; overflow-x: auto; padding: 15px 20px 0; scrollbar-width: none; }
-        .filter-container::-webkit-scrollbar { display: none; }
-        .filter-chip { padding: 6px 14px; background: white; border: 1px solid #ddd; border-radius: 20px; font-size: 12px; white-space: nowrap; cursor: pointer; transition: 0.2s; font-weight: 500; }
-        .filter-chip.active { background: var(--tu-red); color: white; border-color: var(--tu-red); }
-
-        .product-list { padding: 0 20px 20px; display: flex; flex-direction: column; gap: 15px; margin-top: 15px; }
+        .product-list { padding: 0 20px 20px; display: flex; flex-direction: column; gap: 15px; margin-top: 20px; }
         .product-card { background: var(--card-bg); border-radius: 16px; padding: 15px; display: flex; gap: 15px; align-items: flex-start; box-shadow: 0 2px 8px rgba(0,0,0,0.02); position: relative; }
         .prod-info { flex: 1; }
         .prod-info h3 { font-size: 15px; font-weight: 600; margin-bottom: 4px; }
@@ -49,7 +42,7 @@
         .cart-floating-bar { position: fixed; bottom: 80px; left: 50%; transform: translateX(-50%); width: 90%; max-width: 440px; background: var(--tu-red); color: white; padding: 15px 20px; border-radius: 100px; display: none; justify-content: space-between; align-items: center; z-index: 15; box-shadow: 0 4px 15px rgba(197, 29, 35, 0.3); cursor: pointer; animation: slideUpCart 0.3s ease; transition: transform 0.2s; }
         .cart-floating-bar .cart-count { background: white; color: var(--tu-red); width: 24px; height: 24px; border-radius: 50%; display: flex; align-items: center; justify-content: center; font-size: 14px; font-weight: bold; }
         @keyframes slideUpCart { from { transform: translate(-50%, 100px); opacity: 0; } to { transform: translate(-50%, 0); opacity: 1; } }
-        /* --- [ใหม่] แอนิเมชันตอนหยิบใส่ตะกร้า (Bop) --- */
+        /* --- แอนิเมชันตะกร้า Bop --- */
         @keyframes bop { 0% { transform: translate(-50%, 0) scale(1); } 50% { transform: translate(-50%, 0) scale(1.08); } 100% { transform: translate(-50%, 0) scale(1); } }
         .bop-anim { animation: bop 0.3s ease !important; }
 
@@ -133,23 +126,6 @@
 
     <!-- VIEW: Home -->
     <div id="view-home" class="view-section active">
-        
-        <!-- [ใหม่] UX: ระบบตัวกรองยา -->
-        <select id="symptom-filter" class="symptom-select" onchange="applyFilters()">
-            <option value="">👨‍⚕️ ค้นหายาตามอาการ (ทั้งหมด)</option>
-            <option value="ปวด">🤕 บรรเทาปวด / ลดไข้</option>
-            <option value="ท้องเสีย">🤢 ท้องเสีย / อาหารเป็นพิษ</option>
-            <option value="แผล">🩹 อุปกรณ์ทำแผล</option>
-            <option value="วิงเวียน">😵 วิงเวียนศีรษะ</option>
-        </select>
-
-        <div class="filter-container" id="category-filters">
-            <div class="filter-chip active" onclick="setCategory('', this)">ทั้งหมด</div>
-            <div class="filter-chip" onclick="setCategory('ยาสามัญ', this)">ยาสามัญ</div>
-            <div class="filter-chip" onclick="setCategory('อุปกรณ์', this)">อุปกรณ์ทำแผล</div>
-            <div class="filter-chip" onclick="setCategory('ยาดมยาทา', this)">ยาดม/ยาทา</div>
-        </div>
-
         <div id="loading-inventory" style="text-align:center; margin-top:50px;">
             <div class="loader"></div>
             <p style="color:var(--text-sub); font-size:14px; margin-top:10px;">กำลังโหลดสต๊อกยาแบบเรียลไทม์...</p>
@@ -363,10 +339,6 @@
     
     let inventory = []; 
     let cart = [];
-    
-    // [ใหม่] ตัวแปรสำหรับ Filter
-    let currentCategory = '';
-    let currentSymptom = '';
 
     const invRef = collection(db, "inventory");
     
@@ -386,28 +358,15 @@
     });
 
     async function initializeDefaultInventory() {
-        // [อัปเดต] เพิ่มฟิลด์ category และ symptoms สำหรับการค้นหา
         const defaultItems = [
-            { id: 'p1', name: 'พาราเซตามอล 500mg', desc: 'แผงละ 10 เม็ด', price: 20, stock: 10, img: 'assets/para.jpeg', props: 'บรรเทาอาการปวด ลดไข้', warn: 'ห้ามใช้ในผู้ที่เป็นโรคตับรุนแรง', category: 'ยาสามัญ', symptoms: ['ปวด', 'ไข้'] },
-            { id: 'p2', name: 'ผงถ่านคาร์บอน', desc: 'แผงละ 10 เม็ด', price: 25, stock: 5, img: 'assets/charcoal.jpeg', props: 'บรรเทาอาการท้องเสีย อาหารเป็นพิษ', warn: 'ทานห่างจากยาอื่น 2 ชม.', category: 'ยาสามัญ', symptoms: ['ท้องเสีย'] },
-            { id: 'p3', name: 'พลาสเตอร์ยา (5 ชิ้น)', desc: 'ป้องกันแผลติดเชื้อ', price: 15, stock: 15, img: 'assets/plaster.jpeg', props: 'ปกปิดและป้องกันบาดแผล', warn: 'ระวังการแพ้กาวพลาสเตอร์', category: 'อุปกรณ์', symptoms: ['แผล'] },
-            { id: 'p4', name: 'ยาดมตราโป๊ยเซียน', desc: '1 หลอด', price: 20, stock: 20, img: 'assets/inhaler.jpeg', props: 'บรรเทาอาการวิงเวียนศีรษะ', warn: 'ยาใช้ภายนอก ห้ามรับประทาน', category: 'ยาดมยาทา', symptoms: ['วิงเวียน'] }
+            { id: 'p1', name: 'พาราเซตามอล 500mg', desc: 'แผงละ 10 เม็ด', price: 20, stock: 10, img: 'assets/para.jpeg', props: 'บรรเทาอาการปวด ลดไข้', warn: 'ห้ามใช้ในผู้ที่เป็นโรคตับรุนแรง' },
+            { id: 'p2', name: 'ผงถ่านคาร์บอน', desc: 'แผงละ 10 เม็ด', price: 25, stock: 5, img: 'assets/charcoal.jpeg', props: 'บรรเทาอาการท้องเสีย อาหารเป็นพิษ', warn: 'ทานห่างจากยาอื่น 2 ชม.' },
+            { id: 'p3', name: 'พลาสเตอร์ยา (5 ชิ้น)', desc: 'ป้องกันแผลติดเชื้อ', price: 15, stock: 15, img: 'assets/plaster.jpeg', props: 'ปกปิดและป้องกันบาดแผล', warn: 'ระวังการแพ้กาวพลาสเตอร์' },
+            { id: 'p4', name: 'ยาดมตราโป๊ยเซียน', desc: '1 หลอด', price: 20, stock: 20, img: 'assets/inhaler.jpeg', props: 'บรรเทาอาการวิงเวียนศีรษะ', warn: 'ยาใช้ภายนอก ห้ามรับประทาน' }
         ];
         for (const item of defaultItems) {
             await setDoc(doc(db, "inventory", item.id), item);
         }
-    }
-
-    // --- [ใหม่] ฟังก์ชันจัดหมวดหมู่และค้นหายา ---
-    window.setCategory = function(cat, element) {
-        currentCategory = cat;
-        document.querySelectorAll('.filter-chip').forEach(el => el.classList.remove('active'));
-        element.classList.add('active');
-        renderProducts();
-    }
-    window.applyFilters = function() {
-        currentSymptom = document.getElementById('symptom-filter').value;
-        renderProducts();
     }
 
     window.switchTab = function(viewId, navElement) {
@@ -435,27 +394,12 @@
         const container = document.getElementById('product-list-container');
         container.innerHTML = '';
         
-        // กรองข้อมูล (Filter) ก่อนนำมาแสดง
-        let filteredInventory = inventory.filter(item => {
-            let matchCat = currentCategory === '' || item.category === currentCategory;
-            // เช็กอาการ (เผื่อฐานข้อมูลเก่าไม่มีฟิลด์ symptoms ให้ fallback ไปเช็กคำใน props แทน)
-            let matchSymp = currentSymptom === '';
-            if (!matchSymp) {
-                if (item.symptoms) {
-                    matchSymp = item.symptoms.includes(currentSymptom);
-                } else if (item.props) {
-                    matchSymp = item.props.includes(currentSymptom);
-                }
-            }
-            return matchCat && matchSymp;
-        });
-
-        if (filteredInventory.length === 0) {
-            container.innerHTML = '<p style="text-align:center; color:#888; padding: 30px;">ไม่พบรายการยาที่ตรงกับเงื่อนไข</p>';
+        if (inventory.length === 0) {
+            container.innerHTML = '<p style="text-align:center; color:#888; padding: 30px;">ไม่มีรายการยาในระบบ</p>';
             return;
         }
         
-        filteredInventory.forEach(item => {
+        inventory.forEach(item => {
             const cartItem = cart.find(c => c.id === item.id);
             const qtyInCart = cartItem ? cartItem.qty : 0;
             const isOutOfStock = (item.stock - qtyInCart) <= 0;
@@ -506,7 +450,7 @@
         updateCartUI();
         renderProducts();
 
-        // --- [ใหม่] UX: แอนิเมชันตะกร้าเด้ง (Bop) เมื่อหยิบของ ---
+        // --- แอนิเมชันตะกร้าเด้ง (Bop) เมื่อหยิบของ ---
         const floatBar = document.getElementById('cart-floating-bar');
         floatBar.classList.remove('bop-anim');
         void floatBar.offsetWidth; // รีเซ็ตการทำงาน CSS ให้อนิเมชันเล่นซ้ำได้
@@ -575,7 +519,7 @@
     let timerInterval, paymentCheckInterval;
 
     window.proceedToPayment = async function() {
-        // --- [ใหม่] Security: ตรวจสอบการกดยอมรับข้อตกลง (Consent) ---
+        // --- Security: ตรวจสอบการกดยอมรับข้อตกลง (Consent) ---
         const consent = document.getElementById('consent-check').checked;
         if(!consent) {
             Swal.fire({
@@ -653,7 +597,7 @@
             if (--remaining < 0) {
                 clearInterval(timerInterval);
                 closePayment();
-                // --- [ใหม่] Security: เคลียร์ตะกร้าทิ้งเมื่อหมดเวลาเพื่อกันการกั๊กสต๊อก ---
+                // --- Security: เคลียร์ตะกร้าทิ้งเมื่อหมดเวลาเพื่อกันการกั๊กสต๊อก ---
                 cart = []; 
                 updateCartUI();
                 renderProducts();
@@ -661,10 +605,6 @@
             }
         }, 1000);
     }
-
-    // ----------------------------------------------------
-    // โค้ดส่วนที่เหลือ (ตรวจสอบจ่ายเงิน, Admin, Auth) ทำงานเหมือนเดิม 100%
-    // ----------------------------------------------------
     
     window.simulatePayment = function(itemName, itemPrice) {
         clearInterval(paymentCheckInterval);
