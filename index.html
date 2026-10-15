@@ -4,6 +4,8 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
     <title>TU Smart Rx | สั่งยาสามัญประจำบ้าน</title>
+    <!-- [ใหม่] เชื่อมไฟล์ manifest เพื่อทำ PWA (แอปมือถือ) -->
+    <link rel="manifest" href="manifest.json">
     <link href="https://fonts.googleapis.com/css2?family=Prompt:wght@300;400;500;600;700&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     <script src="https://unpkg.com/mqtt/dist/mqtt.min.js"></script>
@@ -85,22 +87,20 @@
         .loader { border: 3px solid #f3f3f3; border-top: 3px solid var(--tu-red); border-radius: 50%; width: 40px; height: 40px; animation: spin 1s linear infinite; margin: 40px auto; }
         .summary-row { width: 100%; display: flex; justify-content: space-between; padding: 15px 0; border-top: 1px dashed #eee; font-size: 15px; font-weight: 600; flex-shrink: 0; }
 
-        /* --- [อัปเดต] Admin Styles --- */
+        /* Admin Styles */
         .admin-card { background: white; border-radius: 16px; padding: 20px; margin-bottom: 15px; box-shadow: 0 2px 8px rgba(0,0,0,0.03); border: 1px solid #eee; }
         .admin-stock-item { display: flex; flex-direction: column; padding: 12px 0; border-bottom: 1px dashed #eee; }
         .admin-stock-row-1 { display: flex; justify-content: space-between; align-items: center; margin-bottom: 8px; }
         .admin-stock-row-2 { display: flex; justify-content: space-between; align-items: center; }
-        
         .price-input { width: 60px; padding: 4px 8px; border: 1px solid #ddd; border-radius: 6px; text-align: center; font-size: 14px; outline: none; }
         .price-input:focus { border-color: var(--tu-red); }
-        
         .low-stock-alert { border-left: 4px solid #c51d23 !important; background-color: #fff5f5 !important; padding: 10px !important; border-radius: 8px; }
-        
         .badge-status { padding: 4px 10px; border-radius: 20px; font-size: 12px; font-weight: 600; display: inline-flex; align-items: center; gap: 5px; }
         .status-online { background: #d4edda; color: #155724; }
         .status-offline { background: #f8d7da; color: #721c24; }
         .status-dot { width: 8px; height: 8px; border-radius: 50%; background: currentColor; }
 
+        /* E-Receipt Styles */
         .receipt-modal { display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.6); z-index: 30; justify-content: center; align-items: center; padding: 20px; animation: fadeIn 0.2s ease; }
         .receipt-paper { background: #fff; width: 100%; max-width: 350px; border-radius: 8px; padding: 25px 20px; position: relative; box-shadow: 0 10px 25px rgba(0,0,0,0.2); }
         .receipt-paper::before, .receipt-paper::after { content: ""; position: absolute; left: 0; right: 0; height: 10px; background-size: 20px 20px; }
@@ -193,6 +193,11 @@
                     </div>
                 </div>
 
+                <!-- [ใหม่] ปุ่มสำหรับโหลดหน้าเว็บให้เป็น PWA -->
+                <button class="btn-secondary" id="btnInstallApp" style="display: none; background: #e8f5e9; color: #2e7d32; border: 1px solid #2e7d32; margin-bottom: 12px;">
+                    <i class="fa-solid fa-mobile-screen"></i> ติดตั้งแอปลงหน้าจอมือถือ
+                </button>
+
                 <button class="btn-primary" id="btnEditProfile" style="background: #1d1d1f; margin-bottom: 12px;">
                     <i class="fa-solid fa-pen-to-square"></i> แก้ไขข้อมูลส่วนตัว
                 </button>
@@ -212,7 +217,6 @@
                 </div>
             </div>
 
-            <!-- [ใหม่] Sales Dashboard -->
             <div class="stats-container" style="margin-bottom: 15px;">
                 <div class="stat-box" style="background: #fff; border-color: #eee; box-shadow: 0 2px 8px rgba(0,0,0,0.02);">
                     <p style="color: var(--text-sub); font-size: 11px;">ยอดขายวันนี้</p>
@@ -229,7 +233,6 @@
                 <div id="admin-stock-container"></div>
             </div>
 
-            <!-- [ใหม่] Hardware Test -->
             <div class="admin-card">
                 <h3 style="margin-bottom: 10px; font-size: 15px;"><i class="fa-solid fa-microchip"></i> ทดสอบฮาร์ดแวร์ตู้ยา</h3>
                 <button class="btn-primary" style="background: #1d1d1f; margin-bottom: 0;" onclick="testDispense()">
@@ -237,9 +240,14 @@
                 </button>
             </div>
 
-            <!-- [ใหม่] All Orders List -->
             <div class="admin-card">
-                <h3 style="margin-bottom: 15px; font-size: 15px;"><i class="fa-solid fa-list"></i> ประวัติการซื้อทั้งหมด</h3>
+                <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 15px;">
+                    <h3 style="margin: 0; font-size: 15px;"><i class="fa-solid fa-list"></i> ประวัติการซื้อทั้งหมด</h3>
+                    <!-- [ใหม่] ปุ่มโหลดรายงาน Excel (CSV) -->
+                    <button class="btn-primary" style="background: #28a745; margin: 0; font-size: 12px; padding: 8px 12px; width: auto;" onclick="exportOrdersCSV()">
+                        <i class="fa-solid fa-file-excel"></i> โหลดรายงาน
+                    </button>
+                </div>
                 <div id="admin-all-orders-list" style="max-height: 300px; overflow-y: auto;">
                     <div class="loader" id="admin-orders-loader"></div>
                 </div>
@@ -343,7 +351,27 @@
 <script type="module">
     import { initializeApp } from "https://www.gstatic.com/firebasejs/10.8.1/firebase-app.js";
     import { getAuth, createUserWithEmailAndPassword, signInWithEmailAndPassword, onAuthStateChanged, signOut } from "https://www.gstatic.com/firebasejs/10.8.1/firebase-auth.js";
-    import { getFirestore, collection, addDoc, getDocs, query, where, serverTimestamp, doc, setDoc, getDoc, onSnapshot, updateDoc, orderBy } from "https://www.gstatic.com/firebasejs/10.8.1/firebase-firestore.js";
+    import { getFirestore, collection, addDoc, getDocs, query, where, serverTimestamp, doc, setDoc, getDoc, onSnapshot, updateDoc } from "https://www.gstatic.com/firebasejs/10.8.1/firebase-firestore.js";
+
+    // --- [ใหม่] ระบบ PWA Install Prompt ---
+    let deferredPrompt;
+    window.addEventListener('beforeinstallprompt', (e) => {
+        e.preventDefault();
+        deferredPrompt = e;
+        const installBtn = document.getElementById('btnInstallApp');
+        if (installBtn) installBtn.style.display = 'block';
+    });
+
+    document.getElementById('btnInstallApp').addEventListener('click', async () => {
+        if (deferredPrompt) {
+            deferredPrompt.prompt();
+            const { outcome } = await deferredPrompt.userChoice;
+            if (outcome === 'accepted') {
+                document.getElementById('btnInstallApp').style.display = 'none';
+            }
+            deferredPrompt = null;
+        }
+    });
 
     const firebaseConfig = {
       apiKey: "AIzaSyDQ3VbYMTqPw2kR6EOIpiTYPcWVsa0otKc",
@@ -360,7 +388,6 @@
     const FAKE_DOMAIN = "@tse.tu.ac.th";
     const ADMIN_ID = "6910616249"; 
 
-    // --- [อัปเดต] MQTT Status Monitor ---
     const mqttClient = mqtt.connect('wss://broker.emqx.io:8084/mqtt');
     const mqttBadge = document.getElementById('mqtt-status-badge');
     const mqttText = document.getElementById('mqtt-status-text');
@@ -380,6 +407,7 @@
     
     let inventory = []; 
     let cart = [];
+    let adminGlobalOrdersData = []; // [ใหม่] ตัวแปรเก็บข้อมูลสำหรับส่งออก CSV
 
     const invRef = collection(db, "inventory");
     
@@ -728,13 +756,11 @@
         signOut(auth).then(() => { switchTab('view-home', document.querySelector('.nav-item')); });
     });
 
-    // --- [อัปเดต] Admin Stock & Price Management ---
     function renderAdminStock() {
         const container = document.getElementById('admin-stock-container');
         if(!container) return;
         container.innerHTML = '';
         inventory.forEach(item => {
-            // เช็กเตือนสต๊อกเหลือน้อย
             const isLowStock = item.stock < 3;
             const cardClass = isLowStock ? 'admin-stock-item low-stock-alert' : 'admin-stock-item';
             
@@ -768,7 +794,6 @@
         }
     }
     
-    // [ใหม่] ฟังก์ชันแก้ราคายาของแอดมิน
     window.adminUpdatePrice = async function(id, newPrice) {
         const priceNum = parseInt(newPrice);
         if(priceNum >= 0) {
@@ -777,7 +802,6 @@
         }
     }
 
-    // --- [ใหม่] Admin Dashboard Data Load ---
     async function loadAdminDashboard() {
         try {
             const ordersList = document.getElementById('admin-all-orders-list');
@@ -801,6 +825,9 @@
                 }
             });
 
+            // บันทึกตัวแปรสำหรับการ Export CSV
+            adminGlobalOrdersData = allOrders;
+
             document.getElementById('admin-total-sales').innerText = `฿${totalSales.toLocaleString()}`;
             document.getElementById('admin-today-sales').innerText = `฿${todaySales.toLocaleString()}`;
 
@@ -816,7 +843,6 @@
                 const dateObj = order.createdAt ? new Date(order.createdAt.toDate()) : new Date();
                 const dateStr = dateObj.toLocaleDateString('th-TH');
                 const timeStr = dateObj.toLocaleTimeString('th-TH', { hour: '2-digit', minute: '2-digit' });
-                const safeItemName = order.itemName ? order.itemName.replace(/'/g, "\\'") : "สินค้าทั่วไป";
                 
                 html += `
                     <div style="padding: 12px 0; border-bottom: 1px solid #f0f1f4;">
@@ -835,6 +861,31 @@
         } catch (error) { 
             console.error("โหลดข้อมูลแอดมินล้มเหลว", error); 
         }
+    }
+
+    // --- [ใหม่] ฟังก์ชันดาวน์โหลด CSV ---
+    window.exportOrdersCSV = function() {
+        if(adminGlobalOrdersData.length === 0) return Swal.fire('ไม่มีข้อมูล', 'ยังไม่มีประวัติการซื้อขายให้ดาวน์โหลด', 'info');
+        
+        let csvContent = "data:text/csv;charset=utf-8,\uFEFF"; // ใส่ BOM เพื่อให้อ่านภาษาไทยใน Excel ได้
+        csvContent += "วันที่,เวลา,รหัสนักศึกษา,รายการสินค้า,ราคา(บาท)\n";
+        
+        adminGlobalOrdersData.forEach(o => {
+            let dateObj = o.createdAt ? new Date(o.createdAt.toDate()) : new Date();
+            let dateStr = dateObj.toLocaleDateString('th-TH');
+            let timeStr = dateObj.toLocaleTimeString('th-TH', { hour: '2-digit', minute: '2-digit' });
+            let safeName = o.itemName ? o.itemName.replace(/,/g, " ") : "ไม่มีชื่อ"; // ป้องกันลูกน้ำในชื่อยา
+            
+            csvContent += `${dateStr},${timeStr},${o.stuId},${safeName},${o.price}\n`;
+        });
+
+        const encodedUri = encodeURI(csvContent);
+        const link = document.createElement("a");
+        link.setAttribute("href", encodedUri);
+        link.setAttribute("download", "tu_smart_rx_sales_report.csv");
+        document.body.appendChild(link);
+        link.click();
+        document.body.removeChild(link);
     }
 
     window.testDispense = function() {
