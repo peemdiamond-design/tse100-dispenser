@@ -9,13 +9,13 @@
   "orientation": "portrait",
   "icons": [
     {
-      "src": "assets/app-icon.jpg",  <-- แก้บรรทัดนี้
+      "src": "assets/app-icon.png",  <-- แก้บรรทัดนี้
       "sizes": "192x192",
       "type": "image/png",
       "purpose": "any maskable"
     },
     {
-      "src": "assets/app-icon.jpg",  <-- และแก้บรรทัดนี้
+      "src": "assets/app-icon.png",  <-- และแก้บรรทัดนี้
       "sizes": "512x512",
       "type": "image/png",
       "purpose": "any maskable"
