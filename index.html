@@ -193,7 +193,6 @@
                     </div>
                 </div>
 
-                <!-- [ใหม่] ปุ่มสำหรับโหลดหน้าเว็บให้เป็น PWA -->
                 <button class="btn-secondary" id="btnInstallApp" style="display: none; background: #e8f5e9; color: #2e7d32; border: 1px solid #2e7d32; margin-bottom: 12px;">
                     <i class="fa-solid fa-mobile-screen"></i> ติดตั้งแอปลงหน้าจอมือถือ
                 </button>
@@ -201,7 +200,21 @@
                 <button class="btn-primary" id="btnEditProfile" style="background: #1d1d1f; margin-bottom: 12px;">
                     <i class="fa-solid fa-pen-to-square"></i> แก้ไขข้อมูลส่วนตัว
                 </button>
+                
+                <!-- [ปุ่มที่ขอกลับมา] -->
+                <button class="btn-secondary" id="btnResetPwd" style="background: white; border: 1px solid #ddd; margin-bottom: 12px;">
+                    <i class="fa-solid fa-key"></i> เปลี่ยนรหัสผ่าน
+                </button>
+                <button class="btn-secondary" id="btnReportIssue" style="background: #fff5f5; color: var(--tu-red); border: 1px solid var(--tu-red); margin-bottom: 25px;">
+                    <i class="fa-solid fa-triangle-exclamation"></i> แจ้งปัญหา / ขอคืนเงิน
+                </button>
+
                 <button class="btn-secondary" id="btnLogout" style="background: #f0f1f4; color: var(--text-main);">ออกจากระบบ</button>
+
+                <!-- [ข้อความนโยบายที่ขอกลับมา] -->
+                <p style="font-size: 11px; color: var(--text-sub); margin-top: 25px; text-decoration: underline; cursor: pointer;" onclick="Swal.fire('นโยบายความเป็นส่วนตัว', 'ข้อมูลประวัติการสั่งซื้อและรหัสนักศึกษาของคุณ จะถูกเก็บรักษาเป็นความลับเพื่อใช้สำหรับการให้บริการตู้จ่ายยาอัตโนมัติเท่านั้น', 'info')">
+                    ข้อตกลงและนโยบายความเป็นส่วนตัว
+                </p>
             </div>
         </div>
     </div>
@@ -243,7 +256,6 @@
             <div class="admin-card">
                 <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 15px;">
                     <h3 style="margin: 0; font-size: 15px;"><i class="fa-solid fa-list"></i> ประวัติการซื้อทั้งหมด</h3>
-                    <!-- [ใหม่] ปุ่มโหลดรายงาน Excel (CSV) -->
                     <button class="btn-primary" style="background: #28a745; margin: 0; font-size: 12px; padding: 8px 12px; width: auto;" onclick="exportOrdersCSV()">
                         <i class="fa-solid fa-file-excel"></i> โหลดรายงาน
                     </button>
@@ -353,7 +365,6 @@
     import { getAuth, createUserWithEmailAndPassword, signInWithEmailAndPassword, onAuthStateChanged, signOut } from "https://www.gstatic.com/firebasejs/10.8.1/firebase-auth.js";
     import { getFirestore, collection, addDoc, getDocs, query, where, serverTimestamp, doc, setDoc, getDoc, onSnapshot, updateDoc } from "https://www.gstatic.com/firebasejs/10.8.1/firebase-firestore.js";
 
-    // --- [ใหม่] ระบบ PWA Install Prompt ---
     let deferredPrompt;
     window.addEventListener('beforeinstallprompt', (e) => {
         e.preventDefault();
@@ -372,6 +383,20 @@
             deferredPrompt = null;
         }
     });
+
+    // --- [ฟังก์ชันปุ่มแจ้งปัญหา กลับมาแล้ว] ---
+    const btnReportIssue = document.getElementById('btnReportIssue');
+    if (btnReportIssue) {
+        btnReportIssue.addEventListener('click', () => {
+            Swal.fire({
+                icon: 'warning',
+                title: 'แจ้งปัญหาตู้ขัดข้อง',
+                html: 'กรุณาติดต่อ Line OA: <b>@TSE_SmartRx</b><br>หรือ โทร <b>08X-XXX-XXXX</b><br><br><span style="font-size:13px; color:#c51d23;"><i>* โปรดเตรียมภาพสลิปโอนเงินเพื่อขอคืนเงิน</i></span>',
+                confirmButtonColor: 'var(--tu-red)',
+                confirmButtonText: 'รับทราบ'
+            });
+        });
+    }
 
     const firebaseConfig = {
       apiKey: "AIzaSyDQ3VbYMTqPw2kR6EOIpiTYPcWVsa0otKc",
@@ -407,7 +432,7 @@
     
     let inventory = []; 
     let cart = [];
-    let adminGlobalOrdersData = []; // [ใหม่] ตัวแปรเก็บข้อมูลสำหรับส่งออก CSV
+    let adminGlobalOrdersData = [];
 
     const invRef = collection(db, "inventory");
     
@@ -825,7 +850,6 @@
                 }
             });
 
-            // บันทึกตัวแปรสำหรับการ Export CSV
             adminGlobalOrdersData = allOrders;
 
             document.getElementById('admin-total-sales').innerText = `฿${totalSales.toLocaleString()}`;
@@ -863,18 +887,17 @@
         }
     }
 
-    // --- [ใหม่] ฟังก์ชันดาวน์โหลด CSV ---
     window.exportOrdersCSV = function() {
         if(adminGlobalOrdersData.length === 0) return Swal.fire('ไม่มีข้อมูล', 'ยังไม่มีประวัติการซื้อขายให้ดาวน์โหลด', 'info');
         
-        let csvContent = "data:text/csv;charset=utf-8,\uFEFF"; // ใส่ BOM เพื่อให้อ่านภาษาไทยใน Excel ได้
+        let csvContent = "data:text/csv;charset=utf-8,\uFEFF"; 
         csvContent += "วันที่,เวลา,รหัสนักศึกษา,รายการสินค้า,ราคา(บาท)\n";
         
         adminGlobalOrdersData.forEach(o => {
             let dateObj = o.createdAt ? new Date(o.createdAt.toDate()) : new Date();
             let dateStr = dateObj.toLocaleDateString('th-TH');
             let timeStr = dateObj.toLocaleTimeString('th-TH', { hour: '2-digit', minute: '2-digit' });
-            let safeName = o.itemName ? o.itemName.replace(/,/g, " ") : "ไม่มีชื่อ"; // ป้องกันลูกน้ำในชื่อยา
+            let safeName = o.itemName ? o.itemName.replace(/,/g, " ") : "ไม่มีชื่อ";
             
             csvContent += `${dateStr},${timeStr},${o.stuId},${safeName},${o.price}\n`;
         });
