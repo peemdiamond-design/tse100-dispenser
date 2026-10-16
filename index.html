@@ -23,7 +23,6 @@
         .location-text h1 { font-size: 16px; font-weight: 700; color: var(--tu-red); }
         .location-text p { font-size: 12px; color: var(--text-sub); display: flex; align-items: center; gap: 4px; }
         
-        /* 🌍 ปุ่มสลับภาษา */
         .lang-toggle-btn { background: #f0f1f4; border: 1px solid #ddd; border-radius: 20px; padding: 4px 10px; font-size: 18px; cursor: pointer; transition: transform 0.2s; display: flex; align-items: center; justify-content: center; }
         .lang-toggle-btn:active { transform: scale(0.9); }
 
@@ -155,7 +154,6 @@
                 <p><i class="fa-solid fa-location-dot" style="color: var(--tu-red);"></i> <span data-i18n="app_loc">อาคารเรียนรวม 1 (ตึกวิศวะฯ)</span></p>
             </div>
         </div>
-        <!-- 🌍 ปุ่มสลับภาษา -->
         <button class="lang-toggle-btn" onclick="toggleLanguage()" id="langBtn">🇹🇭</button>
     </div>
 
@@ -413,7 +411,7 @@
     import { getAuth, createUserWithEmailAndPassword, signInWithEmailAndPassword, onAuthStateChanged, signOut, updatePassword } from "https://www.gstatic.com/firebasejs/10.8.1/firebase-auth.js";
     import { getFirestore, collection, addDoc, getDocs, query, where, serverTimestamp, doc, setDoc, getDoc, onSnapshot, updateDoc } from "https://www.gstatic.com/firebasejs/10.8.1/firebase-firestore.js";
 
-    // 🌍 [อัปเดต] ระบบพจนานุกรมแปลภาษา
+    // 🌍 ระบบพจนานุกรมแปลภาษา (อัปเดตครอบคลุมทุกส่วน)
     const dict = {
         th: {
             app_title: "ตู้จ่ายยาอัตโนมัติ TSE", app_loc: "อาคารเรียนรวม 1 (ตึกวิศวะฯ)",
@@ -441,7 +439,11 @@
             props: "สรรพคุณ:", warn: "คำเตือน:", out_of_stock: "สินค้าหมด", left: "เหลือ", pcs: "ชิ้น",
             swal_added: "เพิ่มลงตะกร้าแล้ว", swal_stock_err: "สต๊อกมีไม่พอ", swal_consent: "กรุณายืนยันข้อตกลง", swal_consent_desc: "โปรดติ๊กถูกในช่องยืนยันว่าคุณไม่มีประวัติแพ้ยา", swal_timeout: "หมดเวลาทำรายการ", swal_timeout_desc: "ตะกร้าสินค้าถูกล้างแล้ว กรุณาทำรายการใหม่",
             swal_pay_success: "จ่ายยาสำเร็จ!", swal_pay_desc: "กรุณารับยาที่ช่องรับสินค้าด้านล่างครับ",
-            rcpt_success: "รับยาสำเร็จ", btn_view_rcpt: "ดูใบเสร็จ"
+            rcpt_success: "รับยาสำเร็จ", btn_view_rcpt: "ดูใบเสร็จ",
+            swal_err: "ข้อผิดพลาด", swal_save_success: "บันทึกข้อมูลสำเร็จ", swal_pwd_success: "เปลี่ยนรหัสผ่านสำเร็จ!",
+            swal_edit_title: "แก้ไขข้อมูลส่วนตัว", swal_ph_name: "ชื่อ-นามสกุล", swal_ph_phone: "เบอร์โทรศัพท์",
+            swal_btn_save: "บันทึก", swal_btn_cancel: "ยกเลิก",
+            swal_pwd_title: "เปลี่ยนรหัสผ่านใหม่", swal_pwd_ph: "ใส่รหัสผ่านใหม่อย่างน้อย 6 ตัวอักษร", swal_btn_confirm: "ยืนยันการเปลี่ยน"
         },
         en: {
             app_title: "TSE Smart Pharmacy", app_loc: "LC1 Building (Engineering)",
@@ -469,7 +471,11 @@
             props: "Indications:", warn: "Warning:", out_of_stock: "Out of Stock", left: "Left", pcs: "pcs",
             swal_added: "Added to cart", swal_stock_err: "Not enough stock", swal_consent: "Please accept terms", swal_consent_desc: "Please check the box confirming you have no allergies.", swal_timeout: "Time Expired", swal_timeout_desc: "Your cart has been cleared. Please try again.",
             swal_pay_success: "Dispensed Successfully!", swal_pay_desc: "Please pick up your medicine below.",
-            rcpt_success: "Dispensed", btn_view_rcpt: "View Receipt"
+            rcpt_success: "Dispensed", btn_view_rcpt: "View Receipt",
+            swal_err: "Error", swal_save_success: "Saved Successfully", swal_pwd_success: "Password Changed!",
+            swal_edit_title: "Edit Profile", swal_ph_name: "Full Name", swal_ph_phone: "Phone Number",
+            swal_btn_save: "Save", swal_btn_cancel: "Cancel",
+            swal_pwd_title: "Change Password", swal_pwd_ph: "Enter at least 6 characters", swal_btn_confirm: "Confirm Change"
         }
     };
 
@@ -496,7 +502,7 @@
         document.getElementById('pwdInput').placeholder = t('ph_pwd');
         
         let mqttTxt = document.getElementById('mqtt-status-text').innerText;
-        if(mqttTxt.includes("Online")) document.getElementById('mqtt-status-text').innerText = t('admin_online');
+        if(mqttTxt === "ระบบ Online" || mqttTxt === "System Online") document.getElementById('mqtt-status-text').innerText = t('admin_online');
         else document.getElementById('mqtt-status-text').innerText = t('admin_offline');
 
         renderProducts();
@@ -507,12 +513,10 @@
         }
     }
 
-    // เรียกใช้ตอนโหลดหน้า
     document.addEventListener("DOMContentLoaded", applyLanguage);
 
     let deferredPrompt;
     const installBtn = document.getElementById('btnInstallApp');
-
     const isIOS = /iPad|iPhone|iPod/.test(navigator.userAgent) && !window.MSStream;
     const isStandalone = window.matchMedia('(display-mode: standalone)').matches || window.navigator.standalone === true;
 
@@ -613,7 +617,6 @@
         }
     });
 
-    // 💊 [อัปเดต] เพิ่มข้อมูลภาษาอังกฤษลงฐานข้อมูลสต๊อก
     async function initializeDefaultInventory() {
         const defaultItems = [
             { id: 'p1', name: 'พาราเซตามอล 500mg', nameEn: 'Paracetamol 500mg', desc: 'แผงละ 10 เม็ด', descEn: '10 tablets/pack', price: 20, stock: 10, img: 'assets/para.jpeg', props: 'บรรเทาอาการปวด ลดไข้', propsEn: 'Relieves pain and reduces fever', warn: 'ห้ามใช้ในผู้ที่เป็นโรคตับรุนแรง', warnEn: 'Do not use if you have severe liver disease' },
@@ -658,7 +661,6 @@
             const qtyInCart = cartItem ? cartItem.qty : 0;
             const isOutOfStock = (item.stock - qtyInCart) <= 0;
             
-            // ใช้ภาษาที่เลือก ถ้าไม่มีให้ใช้ภาษาไทยเป็นหลัก
             let pName = currentLang === 'en' && item.nameEn ? item.nameEn : item.name;
             let pDesc = currentLang === 'en' && item.descEn ? item.descEn : item.desc;
             let pProps = currentLang === 'en' && item.propsEn ? item.propsEn : item.props;
@@ -791,7 +793,7 @@
         document.getElementById('cart-modal').style.display = 'none';
         let totalPrice = cart.reduce((sum, item) => sum + (item.price * item.qty), 0);
         let itemsSummary = cart.map(i => `${currentLang==='en' && i.nameEn ? i.nameEn : i.name} (x${i.qty})`).join(', ');
-        let systemItemName = cart.map(i => `${i.name} (x${i.qty})`).join(', '); // ส่งชื่อไทยไปเก็บ Database เสมอ เพื่อความสม่ำเสมอ
+        let systemItemName = cart.map(i => `${i.name} (x${i.qty})`).join(', '); 
         
         document.getElementById('summary-price').innerText = `฿${totalPrice}.00`;
         document.getElementById('payment-ui').style.display = 'block';
@@ -974,16 +976,16 @@
     document.getElementById('btnLogin').addEventListener('click', () => {
         const id = document.getElementById('stuIdInput').value.trim();
         const pwd = document.getElementById('pwdInput').value.trim();
-        if(!id || !pwd) return alert('กรุณากรอกข้อมูลให้ครบถ้วน');
-        signInWithEmailAndPassword(auth, id + FAKE_DOMAIN, pwd).catch(() => alert('รหัสนักศึกษาหรือรหัสผ่านไม่ถูกต้อง'));
+        if(!id || !pwd) return alert(currentLang === 'th' ? 'กรุณากรอกข้อมูลให้ครบถ้วน' : 'Please fill all fields');
+        signInWithEmailAndPassword(auth, id + FAKE_DOMAIN, pwd).catch(() => alert(currentLang === 'th' ? 'รหัสนักศึกษาหรือรหัสผ่านไม่ถูกต้อง' : 'Invalid Student ID or Password'));
     });
 
     document.getElementById('btnRegister').addEventListener('click', () => {
         const id = document.getElementById('stuIdInput').value.trim();
         const pwd = document.getElementById('pwdInput').value.trim();
-        if(id.length < 10) return alert('กรุณากรอกรหัสนักศึกษาให้ครบ 10 หลัก');
-        if(pwd.length < 6) return alert('รหัสผ่านต้องมีอย่างน้อย 6 ตัวอักษร');
-        createUserWithEmailAndPassword(auth, id + FAKE_DOMAIN, pwd).then(() => alert("สมัครสมาชิกสำเร็จ!")).catch((err) => alert('ข้อผิดพลาด: ' + err.message));
+        if(id.length < 10) return alert(currentLang === 'th' ? 'กรุณากรอกรหัสนักศึกษาให้ครบ 10 หลัก' : 'Student ID must be 10 digits');
+        if(pwd.length < 6) return alert(currentLang === 'th' ? 'รหัสผ่านต้องมีอย่างน้อย 6 ตัวอักษร' : 'Password must be at least 6 characters');
+        createUserWithEmailAndPassword(auth, id + FAKE_DOMAIN, pwd).then(() => alert(currentLang === 'th' ? 'สมัครสมาชิกสำเร็จ!' : 'Registered successfully!')).catch((err) => alert(t('swal_err') + ': ' + err.message));
     });
 
     document.getElementById('btnLogout').addEventListener('click', () => signOut(auth));
@@ -1002,14 +1004,14 @@
         if (currentPhone === t('unspec')) currentPhone = '';
 
         const { value: formValues } = await Swal.fire({
-            title: currentLang === 'th' ? 'แก้ไขข้อมูลส่วนตัว' : 'Edit Profile',
+            title: t('swal_edit_title'),
             html:
-                `<input id="swal-input-name" class="swal2-input" placeholder="${currentLang === 'th' ? 'ชื่อ-นามสกุล' : 'Full Name'}" value="${currentName}">` +
-                `<input id="swal-input-phone" type="number" class="swal2-input" placeholder="${currentLang === 'th' ? 'เบอร์โทรศัพท์' : 'Phone Number'}" value="${currentPhone}">`,
+                `<input id="swal-input-name" class="swal2-input" placeholder="${t('swal_ph_name')}" value="${currentName}">` +
+                `<input id="swal-input-phone" type="number" class="swal2-input" placeholder="${t('swal_ph_phone')}" value="${currentPhone}">`,
             focusConfirm: false,
             showCancelButton: true,
-            confirmButtonText: currentLang === 'th' ? 'บันทึก' : 'Save',
-            cancelButtonText: currentLang === 'th' ? 'ยกเลิก' : 'Cancel',
+            confirmButtonText: t('swal_btn_save'),
+            cancelButtonText: t('swal_btn_cancel'),
             confirmButtonColor: 'var(--tu-red)',
             preConfirm: () => {
                 return [
@@ -1025,9 +1027,9 @@
                 await setDoc(doc(db, "users", stuId), { fullName, phone }, { merge: true });
                 document.getElementById('displayFullName').innerText = fullName || t('unspec');
                 document.getElementById('displayPhone').innerText = phone || t('unspec');
-                Swal.fire({icon: 'success', title: currentLang === 'th' ? 'บันทึกข้อมูลสำเร็จ' : 'Saved!', showConfirmButton: false, timer: 1500});
+                Swal.fire({icon: 'success', title: t('swal_save_success'), showConfirmButton: false, timer: 1500});
             } catch(e) {
-                Swal.fire('Error', 'ไม่สามารถบันทึกข้อมูลได้', 'error');
+                Swal.fire(t('swal_err'), '', 'error');
             }
         }
     });
@@ -1036,26 +1038,26 @@
         if (!auth.currentUser) return;
         
         const { value: newPassword } = await Swal.fire({
-            title: currentLang === 'th' ? 'เปลี่ยนรหัสผ่านใหม่' : 'Change Password',
+            title: t('swal_pwd_title'),
             input: 'password',
-            inputPlaceholder: currentLang === 'th' ? 'ใส่รหัสผ่านใหม่อย่างน้อย 6 ตัวอักษร' : 'Enter at least 6 chars',
+            inputPlaceholder: t('swal_pwd_ph'),
             showCancelButton: true,
-            confirmButtonText: currentLang === 'th' ? 'ยืนยัน' : 'Confirm',
-            cancelButtonText: currentLang === 'th' ? 'ยกเลิก' : 'Cancel',
+            confirmButtonText: t('swal_btn_confirm'),
+            cancelButtonText: t('swal_btn_cancel'),
             confirmButtonColor: 'var(--tu-red)',
             inputValidator: (value) => {
-                if (!value || value.length < 6) return currentLang === 'th' ? 'ต้องมีอย่างน้อย 6 ตัวอักษร' : 'Minimum 6 characters';
+                if (!value || value.length < 6) return t('swal_pwd_ph');
             }
         });
 
         if (newPassword) {
             updatePassword(auth.currentUser, newPassword).then(() => {
-                Swal.fire({icon: 'success', title: currentLang === 'th' ? 'สำเร็จ!' : 'Success!', showConfirmButton: false, timer: 1500});
+                Swal.fire({icon: 'success', title: t('swal_pwd_success'), showConfirmButton: false, timer: 1500});
             }).catch((error) => {
                 if (error.code === 'auth/requires-recent-login') {
-                    Swal.fire('Error', currentLang === 'th' ? 'กรุณาล็อกเอาท์และเข้าสู่ระบบใหม่' : 'Please re-login to change password', 'error');
+                    Swal.fire(t('swal_err'), currentLang === 'th' ? 'กรุณาล็อกเอาท์และเข้าสู่ระบบใหม่' : 'Please re-login to change password', 'error');
                 } else {
-                    Swal.fire('Error', error.message, 'error');
+                    Swal.fire(t('swal_err'), error.message, 'error');
                 }
             });
         }
@@ -1144,7 +1146,6 @@
                 const dateStr = currentLang === 'en' ? dateObj.toLocaleDateString('en-GB') : dateObj.toLocaleDateString('th-TH');
                 const timeStr = dateObj.toLocaleTimeString(currentLang === 'en' ? 'en-GB' : 'th-TH', { hour: '2-digit', minute: '2-digit' });
                 
-                // สำหรับหน้าแอดมิน โชว์ชื่อไทยตรงๆ เลยก็ได้ หรือจะใช้ translation logic
                 html += `
                     <div style="padding: 12px 0; border-bottom: 1px solid #f0f1f4;">
                         <div style="display:flex; justify-content:space-between; margin-bottom:4px;">
@@ -1163,9 +1164,9 @@
     }
 
     window.exportOrdersCSV = function() {
-        if(adminGlobalOrdersData.length === 0) return Swal.fire('ไม่มีข้อมูล', '', 'info');
+        if(adminGlobalOrdersData.length === 0) return Swal.fire(currentLang === 'th' ? 'ไม่มีข้อมูล' : 'No Data', '', 'info');
         let csvContent = "data:text/csv;charset=utf-8,\uFEFF"; 
-        csvContent += "วันที่,เวลา,รหัสนักศึกษา,รายการสินค้า,ราคา(บาท)\n";
+        csvContent += currentLang === 'th' ? "วันที่,เวลา,รหัสนักศึกษา,รายการสินค้า,ราคา(บาท)\n" : "Date,Time,StudentID,Items,Price(THB)\n";
         adminGlobalOrdersData.forEach(o => {
             let dateObj = o.createdAt ? new Date(o.createdAt.toDate()) : new Date();
             let dateStr = dateObj.toLocaleDateString('th-TH');
@@ -1211,7 +1212,6 @@
                 const dateStr = currentLang === 'en' ? dateObj.toLocaleDateString('en-GB') : dateObj.toLocaleDateString('th-TH');
                 const timeStr = dateObj.toLocaleTimeString(currentLang === 'en' ? 'en-GB' : 'th-TH', { hour: '2-digit', minute: '2-digit' });
                 
-                // แปลงชื่อสินค้าให้เป็นภาษาอังกฤษในหน้าประวัติ (ถ้ามี)
                 let translatedItemName = order.itemName;
                 if(currentLang === 'en') {
                     translatedItemName = translatedItemName.replace('พาราเซตามอล 500mg', 'Paracetamol 500mg')
