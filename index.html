@@ -5,12 +5,8 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
     <title>TU Smart Rx | สั่งยาสามัญประจำบ้าน</title>
     
-    <!-- เชื่อมไฟล์ manifest เพื่อทำ PWA (แอปมือถือ) -->
     <link rel="manifest" href="manifest.json">
-    
-    <!-- รองรับไอคอนสำหรับ iOS -->
     <link rel="apple-touch-icon" href="assets/app-icon.png">
-    
     <link href="https://fonts.googleapis.com/css2?family=Prompt:wght@300;400;500;600;700&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     <script src="https://unpkg.com/mqtt/dist/mqtt.min.js"></script>
@@ -21,25 +17,16 @@
         body { background-color: var(--bg-color); color: var(--text-main); }
         .app-container { width: 100%; max-width: 480px; margin: 0 auto; background: var(--bg-color); min-height: 100vh; position: relative; padding-bottom: 130px; box-shadow: 0 0 20px rgba(0,0,0,0.05); overflow-x: hidden; }
         
-        /* 📱 iOS Liquid Glass: แถบ Header ด้านบน */
-        .header { 
-            background: rgba(255, 255, 255, 0.75); 
-            backdrop-filter: blur(20px) saturate(180%); 
-            -webkit-backdrop-filter: blur(20px) saturate(180%); 
-            padding: 15px 20px; 
-            position: sticky; 
-            top: 0; 
-            z-index: 10; 
-            border-bottom: 1px solid rgba(0,0,0,0.05); 
-            display: flex; 
-            align-items: center; 
-            justify-content: space-between; 
-        }
-
+        .header { background: rgba(255, 255, 255, 0.75); backdrop-filter: blur(20px) saturate(180%); -webkit-backdrop-filter: blur(20px) saturate(180%); padding: 15px 20px; position: sticky; top: 0; z-index: 10; border-bottom: 1px solid rgba(0,0,0,0.05); display: flex; align-items: center; justify-content: space-between; }
         .location-info { display: flex; align-items: center; gap: 12px; }
         .tu-logo { width: 45px; height: 45px; object-fit: contain; }
         .location-text h1 { font-size: 16px; font-weight: 700; color: var(--tu-red); }
         .location-text p { font-size: 12px; color: var(--text-sub); display: flex; align-items: center; gap: 4px; }
+        
+        /* 🌍 ปุ่มสลับภาษา */
+        .lang-toggle-btn { background: #f0f1f4; border: 1px solid #ddd; border-radius: 20px; padding: 4px 10px; font-size: 18px; cursor: pointer; transition: transform 0.2s; display: flex; align-items: center; justify-content: center; }
+        .lang-toggle-btn:active { transform: scale(0.9); }
+
         .view-section { display: none; animation: fadeIn 0.3s ease; }
         .view-section.active { display: block; }
         @keyframes fadeIn { from { opacity: 0; } to { opacity: 1; } }
@@ -61,63 +48,15 @@
         .out-of-stock-btn { background: #e5e5ea; color: #86868b; width: auto; padding: 0 12px; border-radius: 16px; font-size: 12px; height: 32px; cursor: not-allowed; border: none; font-weight: bold; }
         .stock-badge { position: absolute; top: 10px; right: 10px; background: rgba(0,0,0,0.6); color: white; padding: 2px 8px; border-radius: 10px; font-size: 10px; }
 
-        /* แถบตะกร้าลอยตัว */
-        .cart-floating-bar { 
-            position: fixed; 
-            bottom: calc(85px + env(safe-area-inset-bottom)); 
-            left: 50%; 
-            transform: translateX(-50%); 
-            width: 90%; 
-            max-width: 440px; 
-            background: rgba(197, 29, 35, 0.85); 
-            backdrop-filter: blur(15px) saturate(180%); 
-            -webkit-backdrop-filter: blur(15px) saturate(180%); 
-            color: white; 
-            padding: 15px 20px; 
-            border-radius: 100px; 
-            display: none; 
-            justify-content: space-between; 
-            align-items: center; 
-            z-index: 15; 
-            box-shadow: 0 8px 25px rgba(197, 29, 35, 0.3); 
-            cursor: pointer; 
-            animation: slideUpCart 0.4s cubic-bezier(0.32, 0.72, 0, 1.2); 
-            transition: transform 0.2s; 
-        }
+        .cart-floating-bar { position: fixed; bottom: calc(85px + env(safe-area-inset-bottom)); left: 50%; transform: translateX(-50%); width: 90%; max-width: 440px; background: rgba(197, 29, 35, 0.85); backdrop-filter: blur(15px) saturate(180%); -webkit-backdrop-filter: blur(15px) saturate(180%); color: white; padding: 15px 20px; border-radius: 100px; display: none; justify-content: space-between; align-items: center; z-index: 15; box-shadow: 0 8px 25px rgba(197, 29, 35, 0.3); cursor: pointer; animation: slideUpCart 0.4s cubic-bezier(0.32, 0.72, 0, 1.2); transition: transform 0.2s; }
         .cart-floating-bar .cart-count { background: white; color: var(--tu-red); width: 24px; height: 24px; border-radius: 50%; display: flex; align-items: center; justify-content: center; font-size: 14px; font-weight: bold; }
         @keyframes slideUpCart { from { transform: translate(-50%, 100px); opacity: 0; } to { transform: translate(-50%, 0); opacity: 1; } }
         @keyframes bop { 0% { transform: translate(-50%, 0) scale(1); } 50% { transform: translate(-50%, 0) scale(1.08); } 100% { transform: translate(-50%, 0) scale(1); } }
         .bop-anim { animation: bop 0.3s ease !important; }
 
-        /* พื้นหลังดำเบลอตอนเปิดหน้าต่าง */
-        .overlay-bg { 
-            position: fixed; 
-            top: 0; 
-            left: 0; 
-            width: 100%; 
-            height: 100%; 
-            background: rgba(0,0,0,0.3); 
-            backdrop-filter: blur(5px); 
-            -webkit-backdrop-filter: blur(5px); 
-            z-index: 25; 
-            display: none; 
-            justify-content: center; 
-            align-items: flex-end; 
-        }
+        .overlay-bg { position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.3); backdrop-filter: blur(5px); -webkit-backdrop-filter: blur(5px); z-index: 25; display: none; justify-content: center; align-items: flex-end; }
         
-        /* Spring Animation: หน้าต่างเด้งขึ้นมา */
-        .bottom-sheet { 
-            background: var(--card-bg); 
-            width: 100%; 
-            max-width: 480px; 
-            border-radius: 24px 24px 0 0; 
-            padding: 20px 20px 40px; 
-            animation: slideUpSpring 0.5s cubic-bezier(0.32, 0.72, 0, 1); 
-            display: flex; 
-            flex-direction: column; 
-            max-height: 85vh; 
-            overflow-y: auto; 
-        }
+        .bottom-sheet { background: var(--card-bg); width: 100%; max-width: 480px; border-radius: 24px 24px 0 0; padding: 20px 20px 40px; animation: slideUpSpring 0.5s cubic-bezier(0.32, 0.72, 0, 1); display: flex; flex-direction: column; max-height: 85vh; overflow-y: auto; }
         .drag-handle { width: 40px; height: 5px; background: #ddd; border-radius: 3px; margin: 0 auto 15px; flex-shrink: 0; }
         @keyframes slideUpSpring { from { transform: translateY(100%); } to { transform: translateY(0); } }
 
@@ -127,21 +66,7 @@
         .qty-btn { background: none; border: none; font-size: 16px; color: var(--tu-red); font-weight: bold; cursor: pointer; padding: 0 5px; transition: transform 0.1s; }
         .qty-btn:active { transform: scale(0.8); }
 
-        /* แถบเมนูด้านล่าง (Bottom Nav) */
-        .bottom-nav { 
-            position: fixed; 
-            bottom: 0; 
-            width: 100%; 
-            max-width: 480px; 
-            background: rgba(255, 255, 255, 0.85); 
-            backdrop-filter: blur(20px) saturate(180%); 
-            -webkit-backdrop-filter: blur(20px) saturate(180%); 
-            display: flex; 
-            justify-content: space-around; 
-            padding: 12px 0 calc(20px + env(safe-area-inset-bottom)); 
-            border-top: 1px solid rgba(0,0,0,0.05); 
-            z-index: 10; 
-        }
+        .bottom-nav { position: fixed; bottom: 0; width: 100%; max-width: 480px; background: rgba(255, 255, 255, 0.85); backdrop-filter: blur(20px) saturate(180%); -webkit-backdrop-filter: blur(20px) saturate(180%); display: flex; justify-content: space-around; padding: 12px 0 calc(20px + env(safe-area-inset-bottom)); border-top: 1px solid rgba(0,0,0,0.05); z-index: 10; }
         .nav-item { display: flex; flex-direction: column; align-items: center; gap: 4px; color: var(--text-sub); font-size: 10px; cursor: pointer; flex: 1; transition: all 0.2s; }
         .nav-item.active { color: var(--tu-red); transform: scale(1.05); }
         .nav-item i { font-size: 20px; margin-bottom: 2px; transition: transform 0.2s; }
@@ -208,50 +133,14 @@
         .consent-box input[type="checkbox"] { margin-top: 3px; accent-color: var(--tu-red); width: 18px; height: 18px; cursor: pointer; }
         .consent-box label { font-size: 12px; color: var(--tu-red); cursor: pointer; line-height: 1.4; font-weight: 500; }
 
-        /* ⚙️ แอนิเมชัน Hardware Sync (เฟืองหมุนตอนรอตู้ทำงาน) */
-        .sync-container {
-            display: none;
-            flex-direction: column;
-            align-items: center;
-            justify-content: center;
-            padding: 30px 15px;
-            text-align: center;
-            animation: fadeIn 0.3s ease;
-        }
-        .gear-icon {
-            font-size: 50px;
-            color: var(--tu-red);
-            animation: spinGear 2s linear infinite;
-            margin-bottom: 15px;
-        }
-        .gear-icon-small {
-            font-size: 30px;
-            color: var(--tu-yellow);
-            position: absolute;
-            top: 25px;
-            right: 35%;
-            animation: spinGearReverse 1.5s linear infinite;
-        }
+        .sync-container { display: none; flex-direction: column; align-items: center; justify-content: center; padding: 30px 15px; text-align: center; animation: fadeIn 0.3s ease; }
+        .gear-icon { font-size: 50px; color: var(--tu-red); animation: spinGear 2s linear infinite; margin-bottom: 15px; }
+        .gear-icon-small { font-size: 30px; color: var(--tu-yellow); position: absolute; top: 25px; right: 35%; animation: spinGearReverse 1.5s linear infinite; }
         @keyframes spinGear { 100% { transform: rotate(360deg); } }
         @keyframes spinGearReverse { 100% { transform: rotate(-360deg); } }
         
-        /* Progress Bar สมมติโหลดการทำงานตู้ */
-        .hardware-progress-bar {
-            width: 80%;
-            height: 6px;
-            background: #eee;
-            border-radius: 4px;
-            margin: 15px auto;
-            overflow: hidden;
-            position: relative;
-        }
-        .hardware-progress-fill {
-            position: absolute;
-            top: 0; left: 0; height: 100%;
-            background: var(--tu-red);
-            width: 0%;
-            animation: loadHardware 2.5s ease-in-out forwards;
-        }
+        .hardware-progress-bar { width: 80%; height: 6px; background: #eee; border-radius: 4px; margin: 15px auto; overflow: hidden; position: relative; }
+        .hardware-progress-fill { position: absolute; top: 0; left: 0; height: 100%; background: var(--tu-red); width: 0%; animation: loadHardware 2.5s ease-in-out forwards; }
         @keyframes loadHardware { 0% { width: 0%; } 50% { width: 60%; } 100% { width: 100%; } }
     </style>
 </head>
@@ -262,17 +151,19 @@
         <div class="location-info">
             <img src="assets/images.png" alt="TU Logo" class="tu-logo" onerror="this.src='https://upload.wikimedia.org/wikipedia/th/thumb/3/30/Thammasat_University_logo.svg/1200px-Thammasat_University_logo.svg.png'">
             <div class="location-text">
-                <h1>ตู้จ่ายยาอัตโนมัติ TSE</h1>
-                <p><i class="fa-solid fa-location-dot" style="color: var(--tu-red);"></i> อาคารเรียนรวม 1 (ตึกวิศวะฯ)</p>
+                <h1 data-i18n="app_title">ตู้จ่ายยาอัตโนมัติ TSE</h1>
+                <p><i class="fa-solid fa-location-dot" style="color: var(--tu-red);"></i> <span data-i18n="app_loc">อาคารเรียนรวม 1 (ตึกวิศวะฯ)</span></p>
             </div>
         </div>
+        <!-- 🌍 ปุ่มสลับภาษา -->
+        <button class="lang-toggle-btn" onclick="toggleLanguage()" id="langBtn">🇹🇭</button>
     </div>
 
     <!-- VIEW: Home -->
     <div id="view-home" class="view-section active">
         <div id="loading-inventory" style="text-align:center; margin-top:50px;">
             <div class="loader"></div>
-            <p style="color:var(--text-sub); font-size:14px; margin-top:10px;">กำลังโหลดสต๊อกยาแบบเรียลไทม์...</p>
+            <p style="color:var(--text-sub); font-size:14px; margin-top:10px;" data-i18n="loading_stock">กำลังโหลดสต๊อกยาแบบเรียลไทม์...</p>
         </div>
         <div class="product-list" id="product-list-container"></div>
     </div>
@@ -281,11 +172,11 @@
     <div id="view-orders" class="view-section">
         <div id="orders-login-warning" style="text-align: center; padding: 50px 20px; color: var(--text-sub);">
             <i class="fa-solid fa-receipt" style="font-size: 50px; color: #ddd; margin-bottom: 15px;"></i>
-            <h3>ประวัติคำสั่งซื้อ</h3>
-            <p>กรุณาเข้าสู่ระบบเพื่อดูข้อมูล</p>
+            <h3 data-i18n="order_history">ประวัติคำสั่งซื้อ</h3>
+            <p data-i18n="pls_login">กรุณาเข้าสู่ระบบเพื่อดูข้อมูล</p>
         </div>
         <div id="orders-list-container" style="display: none; padding: 20px;">
-            <h3 style="margin-bottom: 15px; color: var(--tu-red);">ประวัติการรับยาของคุณ</h3>
+            <h3 style="margin-bottom: 15px; color: var(--tu-red);" data-i18n="your_orders">ประวัติการรับยาของคุณ</h3>
             <div id="orders-list"></div>
         </div>
     </div>
@@ -293,57 +184,57 @@
     <!-- VIEW: Account -->
     <div id="view-account" class="view-section">
         <div id="auth-section" class="auth-container">
-            <div class="auth-title">เข้าสู่ระบบนักศึกษา</div>
-            <p id="auth-loading">กำลังประมวลผล...</p>
+            <div class="auth-title" data-i18n="student_login">เข้าสู่ระบบนักศึกษา</div>
+            <p id="auth-loading" data-i18n="auth_loading">กำลังประมวลผล...</p>
             <div class="form-group">
                 <input type="number" id="stuIdInput" placeholder="เลขทะเบียนนักศึกษา (10 หลัก)">
             </div>
             <div class="form-group">
                 <input type="password" id="pwdInput" placeholder="รหัสผ่าน">
             </div>
-            <button class="btn-primary" id="btnLogin">เข้าสู่ระบบ</button>
-            <button class="btn-secondary" id="btnRegister">สมัครสมาชิกใหม่</button>
+            <button class="btn-primary" id="btnLogin" data-i18n="btn_login">เข้าสู่ระบบ</button>
+            <button class="btn-secondary" id="btnRegister" data-i18n="btn_reg">สมัครสมาชิกใหม่</button>
         </div>
         
         <div id="profile-section" style="display: none;">
             <div class="profile-card">
                 <i class="fa-solid fa-circle-user main-icon"></i>
-                <h2 id="displayStuId">รหัสนักศึกษา</h2>
-                <p style="color: var(--text-sub); margin-bottom: 15px; font-size: 13px;">นักศึกษามหาวิทยาลัยธรรมศาสตร์</p>
+                <h2 id="displayStuId" data-i18n="stu_id_title">รหัสนักศึกษา</h2>
+                <p style="color: var(--text-sub); margin-bottom: 15px; font-size: 13px;" data-i18n="stu_subtitle">นักศึกษามหาวิทยาลัยธรรมศาสตร์</p>
 
                 <div class="user-info-box">
-                    <p><strong><i class="fa-regular fa-id-card" style="width: 20px;"></i> ชื่อ:</strong> <span id="displayFullName" style="color: var(--text-sub);">ยังไม่ได้ระบุ</span></p>
-                    <p style="margin-bottom: 0;"><strong><i class="fa-solid fa-phone" style="width: 20px;"></i> โทร:</strong> <span id="displayPhone" style="color: var(--text-sub);">ยังไม่ได้ระบุ</span></p>
+                    <p><strong><i class="fa-regular fa-id-card" style="width: 20px;"></i> <span data-i18n="lbl_name">ชื่อ:</span></strong> <span id="displayFullName" style="color: var(--text-sub);"></span></p>
+                    <p style="margin-bottom: 0;"><strong><i class="fa-solid fa-phone" style="width: 20px;"></i> <span data-i18n="lbl_phone">โทร:</span></strong> <span id="displayPhone" style="color: var(--text-sub);"></span></p>
                 </div>
 
                 <div class="stats-container">
                     <div class="stat-box">
                         <h3 id="stat-total-orders">0</h3>
-                        <p>จำนวนครั้งที่รับยา</p>
+                        <p data-i18n="stat_orders">จำนวนครั้งที่รับยา</p>
                     </div>
                     <div class="stat-box">
                         <h3 id="stat-total-spent">฿0</h3>
-                        <p>ยอดใช้จ่ายรวม</p>
+                        <p data-i18n="stat_spent">ยอดใช้จ่ายรวม</p>
                     </div>
                 </div>
 
                 <button class="btn-secondary" id="btnInstallApp" style="display: none; background: #e8f5e9; color: #2e7d32; border: 1px solid #2e7d32; margin-bottom: 12px;"></button>
 
                 <button class="btn-primary" id="btnEditProfile" style="background: #1d1d1f; margin-bottom: 12px;">
-                    <i class="fa-solid fa-pen-to-square"></i> แก้ไขข้อมูลส่วนตัว
+                    <i class="fa-solid fa-pen-to-square"></i> <span data-i18n="btn_edit_prof">แก้ไขข้อมูลส่วนตัว</span>
                 </button>
                 
                 <button class="btn-secondary" id="btnResetPwd" style="background: white; border: 1px solid #ddd; margin-bottom: 12px;">
-                    <i class="fa-solid fa-key"></i> เปลี่ยนรหัสผ่าน
+                    <i class="fa-solid fa-key"></i> <span data-i18n="btn_pwd">เปลี่ยนรหัสผ่าน</span>
                 </button>
 
                 <button class="btn-secondary" id="btnReportIssue" style="background: #fff5f5; color: var(--tu-red); border: 1px solid var(--tu-red); margin-bottom: 25px;">
-                    <i class="fa-solid fa-triangle-exclamation"></i> แจ้งปัญหา / ขอคืนเงิน
+                    <i class="fa-solid fa-triangle-exclamation"></i> <span data-i18n="btn_issue">แจ้งปัญหา / ขอคืนเงิน</span>
                 </button>
 
-                <button class="btn-secondary" id="btnLogout" style="background: #f0f1f4; color: var(--text-main);">ออกจากระบบ</button>
+                <button class="btn-secondary" id="btnLogout" style="background: #f0f1f4; color: var(--text-main);" data-i18n="btn_logout">ออกจากระบบ</button>
 
-                <p style="font-size: 11px; color: var(--text-sub); margin-top: 25px; text-decoration: underline; cursor: pointer;" onclick="Swal.fire('นโยบายความเป็นส่วนตัว', 'ข้อมูลประวัติการสั่งซื้อและรหัสนักศึกษาของคุณ จะถูกเก็บรักษาเป็นความลับเพื่อใช้สำหรับการให้บริการตู้จ่ายยาอัตโนมัติเท่านั้น', 'info')">
+                <p style="font-size: 11px; color: var(--text-sub); margin-top: 25px; text-decoration: underline; cursor: pointer;" onclick="showPrivacyPolicy()" data-i18n="policy">
                     ข้อตกลงและนโยบายความเป็นส่วนตัว
                 </p>
             </div>
@@ -355,40 +246,40 @@
         <div style="padding: 20px; background: #fafafa; min-height: 100vh;">
             
             <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px;">
-                <h2 style="color: var(--tu-red); margin: 0;"><i class="fa-solid fa-hammer"></i> โหมดผู้ดูแล</h2>
+                <h2 style="color: var(--tu-red); margin: 0;"><i class="fa-solid fa-hammer"></i> <span data-i18n="admin_mode">โหมดผู้ดูแล</span></h2>
                 <div id="mqtt-status-badge" class="badge-status status-offline">
-                    <div class="status-dot"></div> <span id="mqtt-status-text">Offline</span>
+                    <div class="status-dot"></div> <span id="mqtt-status-text" data-i18n="admin_offline">Offline</span>
                 </div>
             </div>
 
             <div class="stats-container" style="margin-bottom: 15px;">
                 <div class="stat-box" style="background: #fff; border-color: #eee; box-shadow: 0 2px 8px rgba(0,0,0,0.02);">
-                    <p style="color: var(--text-sub); font-size: 11px;">ยอดขายวันนี้</p>
+                    <p style="color: var(--text-sub); font-size: 11px;" data-i18n="admin_today">ยอดขายวันนี้</p>
                     <h3 id="admin-today-sales" style="color: #28a745;">฿0</h3>
                 </div>
                 <div class="stat-box" style="background: #fff; border-color: #eee; box-shadow: 0 2px 8px rgba(0,0,0,0.02);">
-                    <p style="color: var(--text-sub); font-size: 11px;">ยอดขายรวมทั้งหมด</p>
+                    <p style="color: var(--text-sub); font-size: 11px;" data-i18n="admin_total">ยอดขายรวมทั้งหมด</p>
                     <h3 id="admin-total-sales" style="color: var(--tu-red);">฿0</h3>
                 </div>
             </div>
 
             <div class="admin-card" style="border-top: 3px solid var(--tu-red);">
-                <h3 style="margin-bottom: 15px; font-size: 15px;"><i class="fa-solid fa-box"></i> จัดการสต๊อก & ราคา</h3>
+                <h3 style="margin-bottom: 15px; font-size: 15px;"><i class="fa-solid fa-box"></i> <span data-i18n="admin_stock_title">จัดการสต๊อก & ราคา</span></h3>
                 <div id="admin-stock-container"></div>
             </div>
 
             <div class="admin-card">
-                <h3 style="margin-bottom: 10px; font-size: 15px;"><i class="fa-solid fa-microchip"></i> ทดสอบฮาร์ดแวร์ตู้ยา</h3>
+                <h3 style="margin-bottom: 10px; font-size: 15px;"><i class="fa-solid fa-microchip"></i> <span data-i18n="admin_test_title">ทดสอบฮาร์ดแวร์ตู้ยา</span></h3>
                 <button class="btn-primary" style="background: #1d1d1f; margin-bottom: 0;" onclick="testDispense()">
-                    <i class="fa-solid fa-gear"></i> ส่งคำสั่งทดสอบมอเตอร์จ่ายยา
+                    <i class="fa-solid fa-gear"></i> <span data-i18n="admin_test_btn">ส่งคำสั่งทดสอบมอเตอร์จ่ายยา</span>
                 </button>
             </div>
 
             <div class="admin-card">
                 <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 15px;">
-                    <h3 style="margin: 0; font-size: 15px;"><i class="fa-solid fa-list"></i> ประวัติการซื้อทั้งหมด</h3>
+                    <h3 style="margin: 0; font-size: 15px;"><i class="fa-solid fa-list"></i> <span data-i18n="admin_hist_title">ประวัติการซื้อทั้งหมด</span></h3>
                     <button class="btn-primary" style="background: #28a745; margin: 0; font-size: 12px; padding: 8px 12px; width: auto;" onclick="exportOrdersCSV()">
-                        <i class="fa-solid fa-file-excel"></i> โหลดรายงาน
+                        <i class="fa-solid fa-file-excel"></i> <span data-i18n="admin_export">โหลดรายงาน</span>
                     </button>
                 </div>
                 <div id="admin-all-orders-list" style="max-height: 300px; overflow-y: auto;">
@@ -396,7 +287,7 @@
                 </div>
             </div>
 
-            <button class="btn-secondary" id="btnAdminLogout" style="background: #e5e5ea; color: #333; margin-top: 10px;">ออกจากระบบ Admin</button>
+            <button class="btn-secondary" id="btnAdminLogout" style="background: #e5e5ea; color: #333; margin-top: 10px;" data-i18n="admin_logout">ออกจากระบบ Admin</button>
         </div>
     </div>
 
@@ -404,17 +295,17 @@
     <div class="cart-floating-bar" id="cart-floating-bar" onclick="openCartModal()">
         <div style="display: flex; align-items: center; gap: 10px;">
             <div class="cart-count" id="cart-count-badge">0</div>
-            <span style="font-weight: 500;">ดูตะกร้าสินค้า</span>
+            <span style="font-weight: 500;" data-i18n="view_cart">ดูตะกร้าสินค้า</span>
         </div>
         <div style="font-weight: 700; font-size: 16px;" id="cart-total-float">฿0</div>
     </div>
 
     <!-- Bottom Nav -->
     <div class="bottom-nav">
-        <div class="nav-item active" onclick="switchTab('view-home', this)"><i class="fa-solid fa-house"></i><span>หน้าหลัก</span></div>
-        <div class="nav-item" onclick="switchTab('view-orders', this)"><i class="fa-solid fa-clipboard-list"></i><span>คำสั่งซื้อ</span></div>
-        <div class="nav-item" onclick="switchTab('view-account', this)" id="nav-account"><i class="fa-regular fa-user"></i><span>บัญชี</span></div>
-        <div class="nav-item" onclick="switchTab('view-admin', this)" id="nav-admin" style="display: none;"><i class="fa-solid fa-lock"></i><span>แอดมิน</span></div>
+        <div class="nav-item active" onclick="switchTab('view-home', this)"><i class="fa-solid fa-house"></i><span data-i18n="nav_home">หน้าหลัก</span></div>
+        <div class="nav-item" onclick="switchTab('view-orders', this)"><i class="fa-solid fa-clipboard-list"></i><span data-i18n="nav_orders">คำสั่งซื้อ</span></div>
+        <div class="nav-item" onclick="switchTab('view-account', this)" id="nav-account"><i class="fa-regular fa-user"></i><span data-i18n="nav_acc">บัญชี</span></div>
+        <div class="nav-item" onclick="switchTab('view-admin', this)" id="nav-admin" style="display: none;"><i class="fa-solid fa-lock"></i><span data-i18n="nav_admin">แอดมิน</span></div>
     </div>
 </div>
 
@@ -423,21 +314,21 @@
 <div class="overlay-bg" id="cart-modal">
     <div class="bottom-sheet">
         <div class="drag-handle"></div>
-        <h2 style="font-size: 18px; margin-bottom: 5px;">ตะกร้าสินค้าของคุณ</h2>
+        <h2 style="font-size: 18px; margin-bottom: 5px;" data-i18n="cart_title">ตะกร้าสินค้าของคุณ</h2>
         <div class="cart-items-container" id="cart-items-container"></div>
         
         <div style="display: flex; justify-content: space-between; border-top: 1px dashed #eee; padding-top: 15px; margin-bottom: 15px; font-weight: bold; flex-shrink: 0;">
-            <span>ยอดสุทธิรวม</span>
+            <span data-i18n="cart_total">ยอดสุทธิรวม</span>
             <span style="color: var(--tu-red); font-size: 18px;" id="cart-grand-total">฿0</span>
         </div>
         
         <div class="consent-box">
             <input type="checkbox" id="consent-check">
-            <label for="consent-check">ข้าพเจ้าได้อ่านคำเตือนของยาทุกรายการ และยืนยันว่าไม่มีประวัติแพ้ยาเหล่านี้</label>
+            <label for="consent-check" data-i18n="cart_consent">ข้าพเจ้าได้อ่านคำเตือนของยาทุกรายการ และยืนยันว่าไม่มีประวัติแพ้ยาเหล่านี้</label>
         </div>
 
-        <button class="btn-primary" onclick="proceedToPayment()">ชำระเงิน</button>
-        <button class="btn-secondary" onclick="closeModals()" style="background: #f0f1f4;">เลือกยาเพิ่ม</button>
+        <button class="btn-primary" onclick="proceedToPayment()" data-i18n="btn_checkout">ชำระเงิน</button>
+        <button class="btn-secondary" onclick="closeModals()" style="background: #f0f1f4;" data-i18n="btn_add_more">เลือกยาเพิ่ม</button>
     </div>
 </div>
 
@@ -449,7 +340,7 @@
         <div id="payment-ui" style="width: 100%; text-align: center;">
             <div class="timer-wrapper" style="width: 100%; background: #fff5f5; padding: 12px 15px; border-radius: 12px; margin-bottom: 20px; border: 1px solid #ffd0d0; flex-shrink: 0;">
                 <div style="display: flex; justify-content: space-between; color: var(--tu-red); font-size: 13px; font-weight: 600; margin-bottom: 8px;">
-                    <span><i class="fa-regular fa-clock"></i> เวลาทำรายการ</span>
+                    <span><i class="fa-regular fa-clock"></i> <span data-i18n="timer_title">เวลาทำรายการ</span></span>
                     <span id="countdown">03:00</span>
                 </div>
                 <div style="width: 100%; background: #ffeaea; height: 6px; border-radius: 3px; overflow: hidden;">
@@ -457,32 +348,32 @@
                 </div>
             </div>
 
-            <h2 style="font-size: 18px; margin-bottom: 20px; flex-shrink: 0;">ชำระเงินผ่านแอปธนาคาร</h2>
+            <h2 style="font-size: 18px; margin-bottom: 20px; flex-shrink: 0;" data-i18n="pay_title">ชำระเงินผ่านแอปธนาคาร</h2>
             <div class="qr-box">
                 <img src="https://www.bot.or.th/content/dam/bot/documents/th/our-roles/payment-systems/about-payment-systems/PromptPay-logo.png" alt="PromptPay" class="pp-logo">
                 <div id="loader" class="loader"></div>
                 <img id="qr-image" src="" alt="QR Code">
-                <p id="qr-status" style="margin-top: 15px; font-size: 13px; color: var(--text-sub);">ระบบกำลังสร้างคิวอาร์โค้ด...</p>
+                <p id="qr-status" style="margin-top: 15px; font-size: 13px; color: var(--text-sub);" data-i18n="qr_gen">ระบบกำลังสร้างคิวอาร์โค้ด...</p>
             </div>
             <div class="summary-row">
-                <span id="summary-name" style="color: var(--text-sub); font-size: 13px;">รายการในตะกร้า</span>
+                <span id="summary-name" style="color: var(--text-sub); font-size: 13px;" data-i18n="cart_items">รายการในตะกร้า</span>
                 <span id="summary-price" style="color: var(--tu-red);">฿0</span>
             </div>
-            <button class="btn-cancel" onclick="closePayment()">ยกเลิกคำสั่งซื้อ</button>
+            <button class="btn-cancel" onclick="closePayment()" data-i18n="btn_cancel_order">ยกเลิกคำสั่งซื้อ</button>
         </div>
 
-        <!-- ⚙️ ส่วนที่สอง: แอนิเมชัน Hardware Sync (ซ่อนไว้ตอนแรก) -->
+        <!-- ⚙️ ส่วนที่สอง: แอนิเมชัน Hardware Sync -->
         <div id="hardware-sync-ui" class="sync-container">
             <div style="position: relative; width: 100px; height: 100px; margin: 0 auto;">
                 <i class="fa-solid fa-gear gear-icon"></i>
                 <i class="fa-solid fa-gear gear-icon-small"></i>
             </div>
-            <h2 style="color: #1d1d1f; margin-bottom: 5px; font-size: 18px;">ชำระเงินสำเร็จ!</h2>
-            <p style="color: var(--text-sub); font-size: 13px;">กำลังส่งคำสั่งสั่งจ่ายยาไปที่ตู้ ESP32...</p>
+            <h2 style="color: #1d1d1f; margin-bottom: 5px; font-size: 18px;" data-i18n="sync_success">ชำระเงินสำเร็จ!</h2>
+            <p style="color: var(--text-sub); font-size: 13px;" data-i18n="sync_wait">กำลังส่งคำสั่งสั่งจ่ายยาไปที่ตู้ ESP32...</p>
             <div class="hardware-progress-bar">
                 <div class="hardware-progress-fill"></div>
             </div>
-            <p style="color: var(--tu-red); font-size: 11px; font-weight: bold; margin-top: 10px;">โปรดรอสักครู่ ห้ามปิดหน้าจอ</p>
+            <p style="color: var(--tu-red); font-size: 11px; font-weight: bold; margin-top: 10px;" data-i18n="sync_warn">โปรดรอสักครู่ ห้ามปิดหน้าจอ</p>
         </div>
         
     </div>
@@ -491,29 +382,28 @@
 <div class="receipt-modal" id="receipt-modal">
     <div class="receipt-paper" id="receipt-content">
         <div class="receipt-header">
-            <!-- ✅ จุดที่แก้ไข: ดึงตรามธ.มาใส่ที่หัวใบเสร็จ และลบรูปลูกตาออก -->
             <img src="assets/images.png" class="receipt-logo" onerror="this.src='https://upload.wikimedia.org/wikipedia/th/thumb/3/30/Thammasat_University_logo.svg/1200px-Thammasat_University_logo.svg.png'">
             <div class="receipt-title">TU Smart Rx</div>
-            <div class="receipt-info">ใบเสร็จรับเงิน / Tax Invoice</div>
+            <div class="receipt-info" data-i18n="rcpt_title">ใบเสร็จรับเงิน / Tax Invoice</div>
             <div class="receipt-info" id="receipt-date">วันที่: --/--/----</div>
             <div class="receipt-info" id="receipt-ref">Ref: -----------</div>
         </div>
         <div class="receipt-body">
             <div class="receipt-row" style="font-weight: 600; color: #888; border-bottom: 1px solid #eee; padding-bottom: 5px;">
-                <span>รายการสินค้า</span>
-                <span>จำนวนเงิน</span>
+                <span data-i18n="rcpt_items">รายการสินค้า</span>
+                <span data-i18n="rcpt_amt">จำนวนเงิน</span>
             </div>
             <div id="receipt-items-list" style="margin-top: 10px;"></div>
             <div class="receipt-total">
-                <span>ยอดสุทธิรวม</span>
+                <span data-i18n="cart_total">ยอดสุทธิรวม</span>
                 <span id="receipt-grand-total">฿0.00</span>
             </div>
         </div>
         <div class="receipt-footer">
-            <p>ขอบคุณที่ใช้บริการตู้จ่ายยาอัตโนมัติ</p>
-            <p>คณะวิศวกรรมศาสตร์ มหาวิทยาลัยธรรมศาสตร์</p>
+            <p data-i18n="rcpt_thx">ขอบคุณที่ใช้บริการตู้จ่ายยาอัตโนมัติ</p>
+            <p data-i18n="rcpt_fac">คณะวิศวกรรมศาสตร์ มหาวิทยาลัยธรรมศาสตร์</p>
         </div>
-        <button class="btn-close-receipt" onclick="closeReceipt()">ปิดใบเสร็จ</button>
+        <button class="btn-close-receipt" onclick="closeReceipt()" data-i18n="btn_close_rcpt">ปิดใบเสร็จ</button>
     </div>
 </div>
 
@@ -522,6 +412,103 @@
     import { initializeApp } from "https://www.gstatic.com/firebasejs/10.8.1/firebase-app.js";
     import { getAuth, createUserWithEmailAndPassword, signInWithEmailAndPassword, onAuthStateChanged, signOut, updatePassword } from "https://www.gstatic.com/firebasejs/10.8.1/firebase-auth.js";
     import { getFirestore, collection, addDoc, getDocs, query, where, serverTimestamp, doc, setDoc, getDoc, onSnapshot, updateDoc } from "https://www.gstatic.com/firebasejs/10.8.1/firebase-firestore.js";
+
+    // 🌍 [อัปเดต] ระบบพจนานุกรมแปลภาษา
+    const dict = {
+        th: {
+            app_title: "ตู้จ่ายยาอัตโนมัติ TSE", app_loc: "อาคารเรียนรวม 1 (ตึกวิศวะฯ)",
+            nav_home: "หน้าหลัก", nav_orders: "คำสั่งซื้อ", nav_acc: "บัญชี", nav_admin: "แอดมิน",
+            loading_stock: "กำลังโหลดสต๊อกยาแบบเรียลไทม์...",
+            order_history: "ประวัติคำสั่งซื้อ", pls_login: "กรุณาเข้าสู่ระบบเพื่อดูข้อมูล",
+            your_orders: "ประวัติการรับยาของคุณ", student_login: "เข้าสู่ระบบนักศึกษา", auth_loading: "กำลังประมวลผล...",
+            ph_stu_id: "เลขทะเบียนนักศึกษา (10 หลัก)", ph_pwd: "รหัสผ่าน",
+            btn_login: "เข้าสู่ระบบ", btn_reg: "สมัครสมาชิกใหม่",
+            stu_id_title: "รหัสนักศึกษา", stu_subtitle: "นักศึกษามหาวิทยาลัยธรรมศาสตร์",
+            lbl_name: "ชื่อ:", lbl_phone: "โทร:", unspec: "ยังไม่ได้ระบุ",
+            stat_orders: "จำนวนครั้งที่รับยา", stat_spent: "ยอดใช้จ่ายรวม",
+            btn_install: "ติดตั้งแอปลงหน้าจอมือถือ", btn_edit_prof: "แก้ไขข้อมูลส่วนตัว",
+            btn_pwd: "เปลี่ยนรหัสผ่าน", btn_issue: "แจ้งปัญหา / ขอคืนเงิน", btn_logout: "ออกจากระบบ", policy: "ข้อตกลงและนโยบายความเป็นส่วนตัว",
+            admin_mode: "โหมดผู้ดูแล", admin_offline: "ระบบ Offline", admin_online: "ระบบ Online",
+            admin_today: "ยอดขายวันนี้", admin_total: "ยอดขายรวมทั้งหมด",
+            admin_stock_title: "จัดการสต๊อก & ราคา", admin_test_title: "ทดสอบฮาร์ดแวร์ตู้ยา",
+            admin_test_btn: "ส่งคำสั่งทดสอบมอเตอร์จ่ายยา", admin_hist_title: "ประวัติการซื้อทั้งหมด", admin_export: "โหลดรายงาน", admin_logout: "ออกจากระบบ Admin",
+            view_cart: "ดูตะกร้าสินค้า", cart_title: "ตะกร้าสินค้าของคุณ", cart_total: "ยอดสุทธิรวม", cart_consent: "ข้าพเจ้าได้อ่านคำเตือนของยาทุกรายการ และยืนยันว่าไม่มีประวัติแพ้ยาเหล่านี้",
+            btn_checkout: "ชำระเงิน", btn_add_more: "เลือกยาเพิ่ม", empty_cart: "ไม่มีสินค้าในตะกร้า",
+            timer_title: "เวลาทำรายการ", pay_title: "ชำระเงินผ่านแอปธนาคาร", qr_gen: "ระบบกำลังสร้างคิวอาร์โค้ด...", cart_items: "รายการในตะกร้า", btn_cancel_order: "ยกเลิกคำสั่งซื้อ",
+            sync_success: "ชำระเงินสำเร็จ!", sync_wait: "กำลังส่งคำสั่งสั่งจ่ายยาไปที่ตู้ ESP32...", sync_warn: "โปรดรอสักครู่ ห้ามปิดหน้าจอ",
+            rcpt_title: "ใบเสร็จรับเงิน / Tax Invoice", rcpt_date: "วันที่:", rcpt_items: "รายการสินค้า", rcpt_amt: "จำนวนเงิน",
+            rcpt_thx: "ขอบคุณที่ใช้บริการตู้จ่ายยาอัตโนมัติ", rcpt_fac: "คณะวิศวกรรมศาสตร์ มหาวิทยาลัยธรรมศาสตร์", btn_close_rcpt: "ปิดใบเสร็จ",
+            props: "สรรพคุณ:", warn: "คำเตือน:", out_of_stock: "สินค้าหมด", left: "เหลือ", pcs: "ชิ้น",
+            swal_added: "เพิ่มลงตะกร้าแล้ว", swal_stock_err: "สต๊อกมีไม่พอ", swal_consent: "กรุณายืนยันข้อตกลง", swal_consent_desc: "โปรดติ๊กถูกในช่องยืนยันว่าคุณไม่มีประวัติแพ้ยา", swal_timeout: "หมดเวลาทำรายการ", swal_timeout_desc: "ตะกร้าสินค้าถูกล้างแล้ว กรุณาทำรายการใหม่",
+            swal_pay_success: "จ่ายยาสำเร็จ!", swal_pay_desc: "กรุณารับยาที่ช่องรับสินค้าด้านล่างครับ",
+            rcpt_success: "รับยาสำเร็จ", btn_view_rcpt: "ดูใบเสร็จ"
+        },
+        en: {
+            app_title: "TSE Smart Pharmacy", app_loc: "LC1 Building (Engineering)",
+            nav_home: "Home", nav_orders: "Orders", nav_acc: "Account", nav_admin: "Admin",
+            loading_stock: "Loading real-time inventory...",
+            order_history: "Order History", pls_login: "Please login to view your data",
+            your_orders: "Your Prescription History", student_login: "Student Login", auth_loading: "Processing...",
+            ph_stu_id: "Student ID (10 digits)", ph_pwd: "Password",
+            btn_login: "Login", btn_reg: "Register",
+            stu_id_title: "Student ID", stu_subtitle: "Thammasat University Student",
+            lbl_name: "Name:", lbl_phone: "Phone:", unspec: "Unspecified",
+            stat_orders: "Total Orders", stat_spent: "Total Spent",
+            btn_install: "Install App", btn_edit_prof: "Edit Profile",
+            btn_pwd: "Change Password", btn_issue: "Report Issue / Refund", btn_logout: "Logout", policy: "Privacy Policy & Terms",
+            admin_mode: "Admin Mode", admin_offline: "System Offline", admin_online: "System Online",
+            admin_today: "Today's Sales", admin_total: "Total Sales",
+            admin_stock_title: "Manage Stock & Prices", admin_test_title: "Hardware Test",
+            admin_test_btn: "Send Motor Test Command", admin_hist_title: "All Transactions", admin_export: "Export Report", admin_logout: "Admin Logout",
+            view_cart: "View Cart", cart_title: "Your Cart", cart_total: "Grand Total", cart_consent: "I have read all medical warnings and confirm I have no allergies.",
+            btn_checkout: "Checkout", btn_add_more: "Add More Items", empty_cart: "Your cart is empty",
+            timer_title: "Time Remaining", pay_title: "Mobile Banking Payment", qr_gen: "Generating QR Code...", cart_items: "Cart Items", btn_cancel_order: "Cancel Order",
+            sync_success: "Payment Successful!", sync_wait: "Sending command to ESP32...", sync_warn: "Please wait, do not close this screen",
+            rcpt_title: "Receipt / Tax Invoice", rcpt_date: "Date:", rcpt_items: "Items", rcpt_amt: "Amount",
+            rcpt_thx: "Thank you for using our service", rcpt_fac: "Faculty of Engineering, Thammasat University", btn_close_rcpt: "Close",
+            props: "Indications:", warn: "Warning:", out_of_stock: "Out of Stock", left: "Left", pcs: "pcs",
+            swal_added: "Added to cart", swal_stock_err: "Not enough stock", swal_consent: "Please accept terms", swal_consent_desc: "Please check the box confirming you have no allergies.", swal_timeout: "Time Expired", swal_timeout_desc: "Your cart has been cleared. Please try again.",
+            swal_pay_success: "Dispensed Successfully!", swal_pay_desc: "Please pick up your medicine below.",
+            rcpt_success: "Dispensed", btn_view_rcpt: "View Receipt"
+        }
+    };
+
+    let currentLang = localStorage.getItem('tu_rx_lang') || 'th';
+    function t(key) { return dict[currentLang][key] || key; }
+
+    window.toggleLanguage = function() {
+        currentLang = currentLang === 'th' ? 'en' : 'th';
+        localStorage.setItem('tu_rx_lang', currentLang);
+        applyLanguage();
+    }
+
+    function applyLanguage() {
+        document.getElementById('langBtn').innerText = currentLang === 'th' ? '🇹🇭' : '🇬🇧';
+        
+        document.querySelectorAll('[data-i18n]').forEach(el => {
+            const key = el.getAttribute('data-i18n');
+            if (dict[currentLang][key]) {
+                el.innerText = dict[currentLang][key];
+            }
+        });
+
+        document.getElementById('stuIdInput').placeholder = t('ph_stu_id');
+        document.getElementById('pwdInput').placeholder = t('ph_pwd');
+        
+        let mqttTxt = document.getElementById('mqtt-status-text').innerText;
+        if(mqttTxt.includes("Online")) document.getElementById('mqtt-status-text').innerText = t('admin_online');
+        else document.getElementById('mqtt-status-text').innerText = t('admin_offline');
+
+        renderProducts();
+        updateCartUI();
+        if(auth.currentUser) {
+            const stuId = auth.currentUser.email.split('@')[0];
+            if(stuId !== ADMIN_ID) loadOrders(stuId);
+        }
+    }
+
+    // เรียกใช้ตอนโหลดหน้า
+    document.addEventListener("DOMContentLoaded", applyLanguage);
 
     let deferredPrompt;
     const installBtn = document.getElementById('btnInstallApp');
@@ -544,34 +531,33 @@
             deferredPrompt = e;
             if (installBtn) {
                 installBtn.style.display = 'block';
-                installBtn.innerHTML = '<i class="fa-solid fa-mobile-screen"></i> ติดตั้งแอปลงหน้าจอมือถือ';
+                installBtn.innerHTML = `<i class="fa-solid fa-mobile-screen"></i> <span data-i18n="btn_install">${t('btn_install')}</span>`;
             }
         });
-
         if (installBtn) {
             installBtn.addEventListener('click', async () => {
                 if (deferredPrompt) {
                     deferredPrompt.prompt();
                     const { outcome } = await deferredPrompt.userChoice;
-                    if (outcome === 'accepted') {
-                        installBtn.style.display = 'none';
-                    }
+                    if (outcome === 'accepted') installBtn.style.display = 'none';
                     deferredPrompt = null;
                 }
             });
         }
     }
 
+    window.showPrivacyPolicy = function() {
+        let title = currentLang === 'th' ? 'นโยบายความเป็นส่วนตัว' : 'Privacy Policy';
+        let desc = currentLang === 'th' ? 'ข้อมูลประวัติการสั่งซื้อและรหัสนักศึกษาของคุณ จะถูกเก็บรักษาเป็นความลับเพื่อใช้สำหรับการให้บริการตู้จ่ายยาอัตโนมัติเท่านั้น' : 'Your purchase history and student ID are kept strictly confidential and used only for operating this smart pharmacy.';
+        Swal.fire(title, desc, 'info');
+    }
+
     const btnReportIssue = document.getElementById('btnReportIssue');
     if (btnReportIssue) {
         btnReportIssue.addEventListener('click', () => {
-            Swal.fire({
-                icon: 'warning',
-                title: 'แจ้งปัญหาตู้ขัดข้อง',
-                html: 'กรุณาติดต่อ Line OA: <b>@TSE_SmartRx</b><br>หรือ โทร <b>08X-XXX-XXXX</b><br><br><span style="font-size:13px; color:#c51d23;"><i>* โปรดเตรียมภาพสลิปโอนเงินเพื่อขอคืนเงิน</i></span>',
-                confirmButtonColor: 'var(--tu-red)',
-                confirmButtonText: 'รับทราบ'
-            });
+            let title = currentLang === 'th' ? 'แจ้งปัญหาตู้ขัดข้อง' : 'Report an Issue';
+            let desc = currentLang === 'th' ? 'กรุณาติดต่อ Line OA: <b>@TSE_SmartRx</b><br>หรือ โทร <b>08X-XXX-XXXX</b><br><br><span style="font-size:13px; color:#c51d23;"><i>* โปรดเตรียมภาพสลิปโอนเงินเพื่อขอคืนเงิน</i></span>' : 'Please contact Line OA: <b>@TSE_SmartRx</b><br>or Call <b>08X-XXX-XXXX</b><br><br><span style="font-size:13px; color:#c51d23;"><i>* Please prepare your payment slip for refunds</i></span>';
+            Swal.fire({ icon: 'warning', title: title, html: desc, confirmButtonColor: 'var(--tu-red)' });
         });
     }
 
@@ -592,19 +578,18 @@
 
     const mqttClient = mqtt.connect('wss://broker.emqx.io:8084/mqtt');
     const mqttBadge = document.getElementById('mqtt-status-badge');
-    const mqttText = document.getElementById('mqtt-status-text');
     
     mqttClient.on('connect', () => {
         mqttBadge.className = 'badge-status status-online';
-        mqttText.innerText = 'ระบบ Online';
+        document.getElementById('mqtt-status-text').innerText = t('admin_online');
     });
     mqttClient.on('offline', () => {
         mqttBadge.className = 'badge-status status-offline';
-        mqttText.innerText = 'ระบบ Offline';
+        document.getElementById('mqtt-status-text').innerText = t('admin_offline');
     });
     mqttClient.on('error', () => {
         mqttBadge.className = 'badge-status status-offline';
-        mqttText.innerText = 'ขาดการเชื่อมต่อ';
+        document.getElementById('mqtt-status-text').innerText = t('admin_offline');
     });
     
     let inventory = []; 
@@ -628,12 +613,13 @@
         }
     });
 
+    // 💊 [อัปเดต] เพิ่มข้อมูลภาษาอังกฤษลงฐานข้อมูลสต๊อก
     async function initializeDefaultInventory() {
         const defaultItems = [
-            { id: 'p1', name: 'พาราเซตามอล 500mg', desc: 'แผงละ 10 เม็ด', price: 20, stock: 10, img: 'assets/para.jpeg', props: 'บรรเทาอาการปวด ลดไข้', warn: 'ห้ามใช้ในผู้ที่เป็นโรคตับรุนแรง' },
-            { id: 'p2', name: 'ผงถ่านคาร์บอน', desc: 'แผงละ 10 เม็ด', price: 25, stock: 5, img: 'assets/charcoal.jpeg', props: 'บรรเทาอาการท้องเสีย อาหารเป็นพิษ', warn: 'ทานห่างจากยาอื่น 2 ชม.' },
-            { id: 'p3', name: 'พลาสเตอร์ยา (5 ชิ้น)', desc: 'ป้องกันแผลติดเชื้อ', price: 15, stock: 15, img: 'assets/plaster.jpeg', props: 'ปกปิดและป้องกันบาดแผล', warn: 'ระวังการแพ้กาวพลาสเตอร์' },
-            { id: 'p4', name: 'ยาดมตราโป๊ยเซียน', desc: '1 หลอด', price: 20, stock: 20, img: 'assets/inhaler.jpeg', props: 'บรรเทาอาการวิงเวียนศีรษะ', warn: 'ยาใช้ภายนอก ห้ามรับประทาน' }
+            { id: 'p1', name: 'พาราเซตามอล 500mg', nameEn: 'Paracetamol 500mg', desc: 'แผงละ 10 เม็ด', descEn: '10 tablets/pack', price: 20, stock: 10, img: 'assets/para.jpeg', props: 'บรรเทาอาการปวด ลดไข้', propsEn: 'Relieves pain and reduces fever', warn: 'ห้ามใช้ในผู้ที่เป็นโรคตับรุนแรง', warnEn: 'Do not use if you have severe liver disease' },
+            { id: 'p2', name: 'ผงถ่านคาร์บอน', nameEn: 'Activated Charcoal', desc: 'แผงละ 10 เม็ด', descEn: '10 capsules/pack', price: 25, stock: 5, img: 'assets/charcoal.jpeg', props: 'บรรเทาอาการท้องเสีย อาหารเป็นพิษ', propsEn: 'Relieves diarrhea and food poisoning', warn: 'ทานห่างจากยาอื่น 2 ชม.', warnEn: 'Take 2 hours apart from other meds' },
+            { id: 'p3', name: 'พลาสเตอร์ยา (5 ชิ้น)', nameEn: 'Medical Plaster (5 pcs)', desc: 'ป้องกันแผลติดเชื้อ', descEn: 'Prevents wound infection', price: 15, stock: 15, img: 'assets/plaster.jpeg', props: 'ปกปิดและป้องกันบาดแผล', propsEn: 'Covers and protects wounds', warn: 'ระวังการแพ้กาวพลาสเตอร์', warnEn: 'Beware of adhesive allergies' },
+            { id: 'p4', name: 'ยาดมตราโป๊ยเซียน', nameEn: 'Poy-Sian Inhaler', desc: '1 หลอด', descEn: '1 tube', price: 20, stock: 20, img: 'assets/inhaler.jpeg', props: 'บรรเทาอาการวิงเวียนศีรษะ', propsEn: 'Relieves dizziness and nasal congestion', warn: 'ยาใช้ภายนอก ห้ามรับประทาน', warnEn: 'For external use only. Do not swallow' }
         ];
         for (const item of defaultItems) {
             await setDoc(doc(db, "inventory", item.id), item);
@@ -672,24 +658,30 @@
             const qtyInCart = cartItem ? cartItem.qty : 0;
             const isOutOfStock = (item.stock - qtyInCart) <= 0;
             
+            // ใช้ภาษาที่เลือก ถ้าไม่มีให้ใช้ภาษาไทยเป็นหลัก
+            let pName = currentLang === 'en' && item.nameEn ? item.nameEn : item.name;
+            let pDesc = currentLang === 'en' && item.descEn ? item.descEn : item.desc;
+            let pProps = currentLang === 'en' && item.propsEn ? item.propsEn : item.props;
+            let pWarn = currentLang === 'en' && item.warnEn ? item.warnEn : item.warn;
+
             const btnHTML = isOutOfStock 
-                ? `<button class="out-of-stock-btn" disabled>สินค้าหมด</button>`
+                ? `<button class="out-of-stock-btn" disabled>${t('out_of_stock')}</button>`
                 : `<button class="add-btn" onclick="addToCart('${item.id}')"><i class="fa-solid fa-plus"></i></button>`;
 
             const badgeHTML = item.stock <= 0 
-                ? `<div class="stock-badge" style="background: rgba(0,0,0,0.6); color: white;">หมดชั่วคราว</div>` 
-                : `<div class="stock-badge" style="background: var(--tu-yellow); color: #000; font-weight: 600;">เหลือ ${item.stock} ชิ้น</div>`;
+                ? `<div class="stock-badge" style="background: rgba(0,0,0,0.6); color: white;">${t('out_of_stock')}</div>` 
+                : `<div class="stock-badge" style="background: var(--tu-yellow); color: #000; font-weight: 600;">${t('left')} ${item.stock} ${t('pcs')}</div>`;
 
             container.innerHTML += `
                 <div class="product-card" style="opacity: ${item.stock <= 0 ? '0.6' : '1'};">
                     ${badgeHTML}
                     <img src="${item.img}" style="width: 70px; height: 70px; border-radius: 12px; object-fit: cover;" onerror="this.src='https://cdn-icons-png.flaticon.com/512/822/822102.png'">
                     <div class="prod-info">
-                        <h3>${item.name}</h3>
-                        <p style="font-size: 12px; color: var(--text-sub);">${item.desc}</p>
+                        <h3>${pName}</h3>
+                        <p style="font-size: 12px; color: var(--text-sub);">${pDesc}</p>
                         <div class="med-details">
-                            <p class="med-props"><i class="fa-solid fa-notes-medical med-icon"></i> <strong>สรรพคุณ:</strong> ${item.props}</p>
-                            <p class="med-warn"><i class="fa-solid fa-triangle-exclamation med-icon"></i> <strong>คำเตือน:</strong> ${item.warn}</p>
+                            <p class="med-props"><i class="fa-solid fa-notes-medical med-icon"></i> <strong>${t('props')}</strong> ${pProps}</p>
+                            <p class="med-warn"><i class="fa-solid fa-triangle-exclamation med-icon"></i> <strong>${t('warn')}</strong> ${pWarn}</p>
                         </div>
                         <div class="price-row">
                             <span class="price">฿${item.price}</span>
@@ -704,7 +696,7 @@
 
     window.addToCart = function(id) {
         if (!auth.currentUser) {
-            Swal.fire({icon: 'info', title: 'กรุณาเข้าสู่ระบบ', text: 'ต้องล็อกอินก่อนหยิบยาใส่ตะกร้านะครับ'});
+            Swal.fire({icon: 'info', title: t('pls_login'), text: currentLang === 'th' ? 'ต้องล็อกอินก่อนหยิบยาใส่ตะกร้านะครับ' : 'You must login to add items.'});
             switchTab('view-account', document.getElementById('nav-account'));
             return;
         }
@@ -720,7 +712,7 @@
         floatBar.classList.remove('bop-anim');
         void floatBar.offsetWidth; 
         floatBar.classList.add('bop-anim');
-        Swal.fire({ toast: true, position: 'top', icon: 'success', title: 'เพิ่มลงตะกร้าแล้ว', showConfirmButton: false, timer: 1000 });
+        Swal.fire({ toast: true, position: 'top', icon: 'success', title: t('swal_added'), showConfirmButton: false, timer: 1000 });
     }
 
     window.updateItemQty = function(id, delta) {
@@ -728,7 +720,7 @@
         if (cartIndex > -1) {
             const product = inventory.find(p => p.id === id);
             let newQty = cart[cartIndex].qty + delta;
-            if (newQty > product.stock) return Swal.fire({ toast: true, position: 'top', icon: 'error', title: 'สต๊อกมีไม่พอ', showConfirmButton: false, timer: 1500 });
+            if (newQty > product.stock) return Swal.fire({ toast: true, position: 'top', icon: 'error', title: t('swal_stock_err'), showConfirmButton: false, timer: 1500 });
             if (newQty <= 0) cart.splice(cartIndex, 1);
             else cart[cartIndex].qty = newQty;
             updateCartUI();
@@ -744,20 +736,21 @@
 
         if (cart.length === 0) {
             floatBar.style.display = 'none';
-            modalContainer.innerHTML = '<p style="text-align:center; color:#888; padding: 20px;">ไม่มีสินค้าในตะกร้า</p>';
+            modalContainer.innerHTML = `<p style="text-align:center; color:#888; padding: 20px;">${t('empty_cart')}</p>`;
             document.getElementById('cart-grand-total').innerText = '฿0';
             closeModals();
             return;
         }
 
         cart.forEach(item => {
+            let pName = currentLang === 'en' && item.nameEn ? item.nameEn : item.name;
             totalQty += item.qty; totalPrice += (item.price * item.qty);
             modalContainer.innerHTML += `
                 <div class="cart-item">
                     <div style="display:flex; gap:10px; align-items:center;">
                         <img src="${item.img}" style="width:40px; height:40px; border-radius:8px;" onerror="this.src='https://cdn-icons-png.flaticon.com/512/822/822102.png'">
                         <div>
-                            <div style="font-size:14px; font-weight:500;">${item.name}</div>
+                            <div style="font-size:14px; font-weight:500;">${pName}</div>
                             <div style="color:var(--tu-red); font-size:14px; font-weight:bold;">฿${item.price * item.qty}</div>
                         </div>
                     </div>
@@ -781,14 +774,15 @@
     window.proceedToPayment = async function() {
         const consent = document.getElementById('consent-check').checked;
         if(!consent) {
-            Swal.fire({icon: 'warning', title: 'กรุณายืนยันข้อตกลง', text: 'โปรดติ๊กถูกในช่องยืนยันว่าคุณไม่มีประวัติแพ้ยา', confirmButtonColor: 'var(--tu-red)'});
+            Swal.fire({icon: 'warning', title: t('swal_consent'), text: t('swal_consent_desc'), confirmButtonColor: 'var(--tu-red)'});
             return;
         }
 
         for (let item of cart) {
             const liveProd = inventory.find(p => p.id === item.id);
             if (!liveProd || liveProd.stock < item.qty) {
-                Swal.fire({ icon: 'error', title: 'ขออภัย สินค้าหมด', text: `สินค้า ${item.name} ถูกซื้อไปเมื่อสักครู่ กรุณาปรับจำนวนใหม่ครับ` });
+                let pName = currentLang === 'en' && item.nameEn ? item.nameEn : item.name;
+                Swal.fire({ icon: 'error', title: t('out_of_stock'), text: currentLang === 'th' ? `สินค้า ${pName} ถูกซื้อไปเมื่อสักครู่` : `Item ${pName} was just purchased by someone else.` });
                 closeModals();
                 return;
             }
@@ -796,10 +790,10 @@
 
         document.getElementById('cart-modal').style.display = 'none';
         let totalPrice = cart.reduce((sum, item) => sum + (item.price * item.qty), 0);
-        let itemsSummary = cart.map(i => `${i.name} (x${i.qty})`).join(', ');
+        let itemsSummary = cart.map(i => `${currentLang==='en' && i.nameEn ? i.nameEn : i.name} (x${i.qty})`).join(', ');
+        let systemItemName = cart.map(i => `${i.name} (x${i.qty})`).join(', '); // ส่งชื่อไทยไปเก็บ Database เสมอ เพื่อความสม่ำเสมอ
         
         document.getElementById('summary-price').innerText = `฿${totalPrice}.00`;
-        
         document.getElementById('payment-ui').style.display = 'block';
         document.getElementById('hardware-sync-ui').style.display = 'none';
         document.getElementById('payment-modal').style.display = 'flex'; 
@@ -810,7 +804,7 @@
         
         loader.style.display = 'block';
         qrImg.style.display = 'none';
-        statusTxt.innerText = 'ระบบกำลังสร้างคิวอาร์โค้ด...';
+        statusTxt.innerText = t('qr_gen');
 
         startTimer(180); 
 
@@ -826,16 +820,16 @@
                 loader.style.display = 'none';
                 qrImg.src = data.qrImage;
                 qrImg.style.display = 'block';
-                statusTxt.innerText = 'สแกนคิวอาร์โค้ดเพื่อชำระเงินและรับยา';
+                statusTxt.innerText = currentLang === 'th' ? 'สแกนคิวอาร์โค้ดเพื่อชำระเงินและรับยา' : 'Scan QR Code to pay and dispense';
                 mqttClient.publish("tse100/dispense", "PAYMENT_PENDING");
-                startCheckingPayment(data.chargeId, itemsSummary, totalPrice);
+                startCheckingPayment(data.chargeId, systemItemName, totalPrice);
             } else throw new Error();
         } catch (error) {
             loader.style.display = 'none';
-            statusTxt.innerText = 'เกิดข้อผิดพลาด ไม่สามารถเชื่อมต่อระบบได้';
+            statusTxt.innerText = currentLang === 'th' ? 'เกิดข้อผิดพลาด ไม่สามารถเชื่อมต่อระบบได้' : 'Connection Error';
             if(auth.currentUser && auth.currentUser.email.split('@')[0] === ADMIN_ID) {
                 if(!document.getElementById('btn-simulate-admin')) {
-                    document.getElementById('summary-price').parentElement.insertAdjacentHTML('afterend', `<button id="btn-simulate-admin" class="btn-primary" style="margin-top:10px; background:#28a745;" onclick="simulatePayment('${itemsSummary}', ${totalPrice})">แอดมิน: จำลองจ่ายเงิน</button>`);
+                    document.getElementById('summary-price').parentElement.insertAdjacentHTML('afterend', `<button id="btn-simulate-admin" class="btn-primary" style="margin-top:10px; background:#28a745;" onclick="simulatePayment('${systemItemName}', ${totalPrice})">Admin: Simulate Payment</button>`);
                 }
             }
         }
@@ -859,17 +853,14 @@
             let percent = (remaining / total) * 100;
             progress.style.width = percent + '%';
             
-            if (percent <= 20) {
-                progress.style.background = '#c51d23'; 
-            } else if (percent <= 50) {
-                progress.style.background = '#ffc107'; 
-            }
+            if (percent <= 20) { progress.style.background = '#c51d23'; } 
+            else if (percent <= 50) { progress.style.background = '#ffc107'; }
 
             if (--remaining < 0) {
                 clearInterval(timerInterval);
                 closePayment();
                 cart = []; updateCartUI(); renderProducts();
-                Swal.fire({icon: 'error', title: 'หมดเวลาทำรายการ', text: 'ตะกร้าสินค้าถูกล้างแล้ว กรุณาทำรายการใหม่', confirmButtonColor: 'var(--tu-red)'});
+                Swal.fire({icon: 'error', title: t('swal_timeout'), text: t('swal_timeout_desc'), confirmButtonColor: 'var(--tu-red)'});
             }
         }, 1000);
     }
@@ -907,6 +898,7 @@
                 await updateDoc(doc(db, "inventory", cartItem.id), { stock: newStock });
             }
         }
+
         if (auth.currentUser) {
             const stuId = auth.currentUser.email.split('@')[0];
             try {
@@ -921,8 +913,8 @@
             closePayment();
             Swal.fire({ 
                 icon: 'success', 
-                title: 'จ่ายยาสำเร็จ!', 
-                text: 'กรุณารับยาที่ช่องรับสินค้าด้านล่างครับ', 
+                title: t('swal_pay_success'), 
+                text: t('swal_pay_desc'), 
                 timer: 3500, 
                 showConfirmButton: false 
             }).then(() => {
@@ -959,11 +951,11 @@
                 getDoc(doc(db, "users", stuId)).then(userDoc => {
                     if(userDoc.exists()) {
                         const d = userDoc.data();
-                        document.getElementById('displayFullName').innerText = d.fullName || 'ยังไม่ได้ระบุ';
-                        document.getElementById('displayPhone').innerText = d.phone || 'ยังไม่ได้ระบุ';
+                        document.getElementById('displayFullName').innerText = d.fullName || t('unspec');
+                        document.getElementById('displayPhone').innerText = d.phone || t('unspec');
                     } else {
-                        document.getElementById('displayFullName').innerText = 'ยังไม่ได้ระบุ';
-                        document.getElementById('displayPhone').innerText = 'ยังไม่ได้ระบุ';
+                        document.getElementById('displayFullName').innerText = t('unspec');
+                        document.getElementById('displayPhone').innerText = t('unspec');
                     }
                 });
 
@@ -1006,18 +998,18 @@
         let currentName = document.getElementById('displayFullName').innerText;
         let currentPhone = document.getElementById('displayPhone').innerText;
         
-        if (currentName === 'ยังไม่ได้ระบุ') currentName = '';
-        if (currentPhone === 'ยังไม่ได้ระบุ') currentPhone = '';
+        if (currentName === t('unspec')) currentName = '';
+        if (currentPhone === t('unspec')) currentPhone = '';
 
         const { value: formValues } = await Swal.fire({
-            title: 'แก้ไขข้อมูลส่วนตัว',
+            title: currentLang === 'th' ? 'แก้ไขข้อมูลส่วนตัว' : 'Edit Profile',
             html:
-                `<input id="swal-input-name" class="swal2-input" placeholder="ชื่อ-นามสกุล" value="${currentName}">` +
-                `<input id="swal-input-phone" type="number" class="swal2-input" placeholder="เบอร์โทรศัพท์" value="${currentPhone}">`,
+                `<input id="swal-input-name" class="swal2-input" placeholder="${currentLang === 'th' ? 'ชื่อ-นามสกุล' : 'Full Name'}" value="${currentName}">` +
+                `<input id="swal-input-phone" type="number" class="swal2-input" placeholder="${currentLang === 'th' ? 'เบอร์โทรศัพท์' : 'Phone Number'}" value="${currentPhone}">`,
             focusConfirm: false,
             showCancelButton: true,
-            confirmButtonText: 'บันทึก',
-            cancelButtonText: 'ยกเลิก',
+            confirmButtonText: currentLang === 'th' ? 'บันทึก' : 'Save',
+            cancelButtonText: currentLang === 'th' ? 'ยกเลิก' : 'Cancel',
             confirmButtonColor: 'var(--tu-red)',
             preConfirm: () => {
                 return [
@@ -1031,11 +1023,11 @@
             const [fullName, phone] = formValues;
             try {
                 await setDoc(doc(db, "users", stuId), { fullName, phone }, { merge: true });
-                document.getElementById('displayFullName').innerText = fullName || 'ยังไม่ได้ระบุ';
-                document.getElementById('displayPhone').innerText = phone || 'ยังไม่ได้ระบุ';
-                Swal.fire({icon: 'success', title: 'บันทึกข้อมูลสำเร็จ', showConfirmButton: false, timer: 1500});
+                document.getElementById('displayFullName').innerText = fullName || t('unspec');
+                document.getElementById('displayPhone').innerText = phone || t('unspec');
+                Swal.fire({icon: 'success', title: currentLang === 'th' ? 'บันทึกข้อมูลสำเร็จ' : 'Saved!', showConfirmButton: false, timer: 1500});
             } catch(e) {
-                Swal.fire('ข้อผิดพลาด', 'ไม่สามารถบันทึกข้อมูลได้', 'error');
+                Swal.fire('Error', 'ไม่สามารถบันทึกข้อมูลได้', 'error');
             }
         }
     });
@@ -1044,28 +1036,26 @@
         if (!auth.currentUser) return;
         
         const { value: newPassword } = await Swal.fire({
-            title: 'เปลี่ยนรหัสผ่านใหม่',
+            title: currentLang === 'th' ? 'เปลี่ยนรหัสผ่านใหม่' : 'Change Password',
             input: 'password',
-            inputPlaceholder: 'ใส่รหัสผ่านใหม่อย่างน้อย 6 ตัวอักษร',
+            inputPlaceholder: currentLang === 'th' ? 'ใส่รหัสผ่านใหม่อย่างน้อย 6 ตัวอักษร' : 'Enter at least 6 chars',
             showCancelButton: true,
-            confirmButtonText: 'ยืนยันการเปลี่ยน',
-            cancelButtonText: 'ยกเลิก',
+            confirmButtonText: currentLang === 'th' ? 'ยืนยัน' : 'Confirm',
+            cancelButtonText: currentLang === 'th' ? 'ยกเลิก' : 'Cancel',
             confirmButtonColor: 'var(--tu-red)',
             inputValidator: (value) => {
-                if (!value || value.length < 6) {
-                    return 'รหัสผ่านต้องมีอย่างน้อย 6 ตัวอักษรครับ'
-                }
+                if (!value || value.length < 6) return currentLang === 'th' ? 'ต้องมีอย่างน้อย 6 ตัวอักษร' : 'Minimum 6 characters';
             }
         });
 
         if (newPassword) {
             updatePassword(auth.currentUser, newPassword).then(() => {
-                Swal.fire({icon: 'success', title: 'เปลี่ยนรหัสผ่านสำเร็จ!', showConfirmButton: false, timer: 1500});
+                Swal.fire({icon: 'success', title: currentLang === 'th' ? 'สำเร็จ!' : 'Success!', showConfirmButton: false, timer: 1500});
             }).catch((error) => {
                 if (error.code === 'auth/requires-recent-login') {
-                    Swal.fire('ข้อผิดพลาด', 'เพื่อความปลอดภัย กรุณาล็อกเอาท์และเข้าสู่ระบบใหม่อีกครั้ง ก่อนทำการเปลี่ยนรหัสผ่านครับ', 'error');
+                    Swal.fire('Error', currentLang === 'th' ? 'กรุณาล็อกเอาท์และเข้าสู่ระบบใหม่' : 'Please re-login to change password', 'error');
                 } else {
-                    Swal.fire('ข้อผิดพลาด', error.message, 'error');
+                    Swal.fire('Error', error.message, 'error');
                 }
             });
         }
@@ -1078,16 +1068,17 @@
         inventory.forEach(item => {
             const isLowStock = item.stock < 3;
             const cardClass = isLowStock ? 'admin-stock-item low-stock-alert' : 'admin-stock-item';
+            let pName = currentLang === 'en' && item.nameEn ? item.nameEn : item.name;
             
             container.innerHTML += `
                 <div class="${cardClass}">
                     <div class="admin-stock-row-1">
-                        <span style="font-size:14px; font-weight:600; color: ${isLowStock ? '#c51d23' : '#333'}">${item.name}</span>
-                        ${isLowStock ? '<span style="font-size:10px; color:white; background:#c51d23; padding:2px 6px; border-radius:10px;">ใกล้หมด!</span>' : ''}
+                        <span style="font-size:14px; font-weight:600; color: ${isLowStock ? '#c51d23' : '#333'}">${pName}</span>
+                        ${isLowStock ? `<span style="font-size:10px; color:white; background:#c51d23; padding:2px 6px; border-radius:10px;">${currentLang === 'th' ? 'ใกล้หมด!' : 'Low!'}</span>` : ''}
                     </div>
                     <div class="admin-stock-row-2">
                         <div style="font-size:12px; color:var(--text-sub); display:flex; align-items:center; gap:5px;">
-                            ราคา: ฿<input type="number" class="price-input" value="${item.price}" onchange="adminUpdatePrice('${item.id}', this.value)">
+                            ${currentLang === 'th' ? 'ราคา' : 'Price'}: ฿<input type="number" class="price-input" value="${item.price}" onchange="adminUpdatePrice('${item.id}', this.value)">
                         </div>
                         <div class="qty-controls" style="background:#fff; border:1px solid #ddd;">
                             <button class="qty-btn" onclick="adminAdjustStock('${item.id}', -1)">-</button>
@@ -1113,7 +1104,7 @@
         const priceNum = parseInt(newPrice);
         if(priceNum >= 0) {
             await updateDoc(doc(db, "inventory", id), { price: priceNum });
-            Swal.fire({ toast: true, position: 'top', icon: 'success', title: 'อัปเดตราคาสำเร็จ', showConfirmButton: false, timer: 1500 });
+            Swal.fire({ toast: true, position: 'top', icon: 'success', title: currentLang === 'th' ? 'อัปเดตราคาสำเร็จ' : 'Price Updated', showConfirmButton: false, timer: 1500 });
         }
     }
 
@@ -1133,31 +1124,27 @@
                 allOrders.push({id: doc.id, ...data}); 
                 const price = parseInt(data.price || 0);
                 totalSales += price;
-                
-                if (data.createdAt) {
-                    const orderDateStr = new Date(data.createdAt.toDate()).toLocaleDateString('th-TH');
-                    if (orderDateStr === todayStr) todaySales += price;
-                }
+                if (data.createdAt && new Date(data.createdAt.toDate()).toLocaleDateString('th-TH') === todayStr) todaySales += price;
             });
 
             adminGlobalOrdersData = allOrders;
-
             document.getElementById('admin-total-sales').innerText = `฿${totalSales.toLocaleString()}`;
             document.getElementById('admin-today-sales').innerText = `฿${todaySales.toLocaleString()}`;
 
             allOrders.sort((a, b) => { return (b.createdAt ? b.createdAt.toMillis() : 0) - (a.createdAt ? a.createdAt.toMillis() : 0); });
 
             if(allOrders.length === 0) {
-                ordersList.innerHTML = '<p style="text-align:center; color:var(--text-sub); font-size:13px; margin:20px 0;">ยังไม่มีรายการสั่งซื้อในระบบ</p>';
+                ordersList.innerHTML = `<p style="text-align:center; color:var(--text-sub); font-size:13px; margin:20px 0;">${currentLang === 'th' ? 'ยังไม่มีรายการสั่งซื้อในระบบ' : 'No orders yet.'}</p>`;
                 return;
             }
 
             let html = '';
             allOrders.forEach(order => {
                 const dateObj = order.createdAt ? new Date(order.createdAt.toDate()) : new Date();
-                const dateStr = dateObj.toLocaleDateString('th-TH');
-                const timeStr = dateObj.toLocaleTimeString('th-TH', { hour: '2-digit', minute: '2-digit' });
+                const dateStr = currentLang === 'en' ? dateObj.toLocaleDateString('en-GB') : dateObj.toLocaleDateString('th-TH');
+                const timeStr = dateObj.toLocaleTimeString(currentLang === 'en' ? 'en-GB' : 'th-TH', { hour: '2-digit', minute: '2-digit' });
                 
+                // สำหรับหน้าแอดมิน โชว์ชื่อไทยตรงๆ เลยก็ได้ หรือจะใช้ translation logic
                 html += `
                     <div style="padding: 12px 0; border-bottom: 1px solid #f0f1f4;">
                         <div style="display:flex; justify-content:space-between; margin-bottom:4px;">
@@ -1172,38 +1159,30 @@
             });
             ordersList.innerHTML = html;
 
-        } catch (error) { 
-            console.error("โหลดข้อมูลแอดมินล้มเหลว", error); 
-        }
+        } catch (error) {}
     }
 
     window.exportOrdersCSV = function() {
-        if(adminGlobalOrdersData.length === 0) return Swal.fire('ไม่มีข้อมูล', 'ยังไม่มีประวัติการซื้อขายให้ดาวน์โหลด', 'info');
-        
+        if(adminGlobalOrdersData.length === 0) return Swal.fire('ไม่มีข้อมูล', '', 'info');
         let csvContent = "data:text/csv;charset=utf-8,\uFEFF"; 
         csvContent += "วันที่,เวลา,รหัสนักศึกษา,รายการสินค้า,ราคา(บาท)\n";
-        
         adminGlobalOrdersData.forEach(o => {
             let dateObj = o.createdAt ? new Date(o.createdAt.toDate()) : new Date();
             let dateStr = dateObj.toLocaleDateString('th-TH');
             let timeStr = dateObj.toLocaleTimeString('th-TH', { hour: '2-digit', minute: '2-digit' });
             let safeName = o.itemName ? o.itemName.replace(/,/g, " ") : "ไม่มีชื่อ";
-            
             csvContent += `${dateStr},${timeStr},${o.stuId},${safeName},${o.price}\n`;
         });
-
         const encodedUri = encodeURI(csvContent);
         const link = document.createElement("a");
         link.setAttribute("href", encodedUri);
         link.setAttribute("download", "tu_smart_rx_sales_report.csv");
-        document.body.appendChild(link);
-        link.click();
-        document.body.removeChild(link);
+        document.body.appendChild(link); link.click(); document.body.removeChild(link);
     }
 
     window.testDispense = function() {
         mqttClient.publish("tse100/dispense", "PAYMENT_SUCCESS");
-        Swal.fire({ toast: true, position: 'top', icon: 'success', title: 'ส่งสัญญาณไปที่ตู้แล้ว', showConfirmButton: false, timer: 1500 });
+        Swal.fire({ toast: true, position: 'top', icon: 'success', title: currentLang==='th'?'ส่งสัญญาณไปที่ตู้แล้ว':'Command Sent', showConfirmButton: false, timer: 1500 });
     }
 
     async function loadOrders(stuId) {
@@ -1223,26 +1202,36 @@
             orders.sort((a, b) => { return (b.createdAt ? b.createdAt.toMillis() : 0) - (a.createdAt ? a.createdAt.toMillis() : 0); });
 
             if(orders.length === 0) {
-                ordersList.innerHTML = '<p style="text-align:center; color:var(--text-sub); margin-top:20px;">ยังไม่มีประวัติการรับยา</p>';
+                ordersList.innerHTML = `<p style="text-align:center; color:var(--text-sub); margin-top:20px;">${currentLang === 'th' ? 'ยังไม่มีประวัติการรับยา' : 'No prescription history.'}</p>`;
                 return;
             }
             let html = '';
             orders.forEach(order => {
                 const dateObj = order.createdAt ? new Date(order.createdAt.toDate()) : new Date();
-                const dateStr = dateObj.toLocaleDateString('th-TH');
-                const timeStr = dateObj.toLocaleTimeString('th-TH', { hour: '2-digit', minute: '2-digit' });
-                const safeItemName = order.itemName ? order.itemName.replace(/'/g, "\\'") : "สินค้าทั่วไป";
+                const dateStr = currentLang === 'en' ? dateObj.toLocaleDateString('en-GB') : dateObj.toLocaleDateString('th-TH');
+                const timeStr = dateObj.toLocaleTimeString(currentLang === 'en' ? 'en-GB' : 'th-TH', { hour: '2-digit', minute: '2-digit' });
+                
+                // แปลงชื่อสินค้าให้เป็นภาษาอังกฤษในหน้าประวัติ (ถ้ามี)
+                let translatedItemName = order.itemName;
+                if(currentLang === 'en') {
+                    translatedItemName = translatedItemName.replace('พาราเซตามอล 500mg', 'Paracetamol 500mg')
+                                                           .replace('ผงถ่านคาร์บอน', 'Activated Charcoal')
+                                                           .replace('พลาสเตอร์ยา (5 ชิ้น)', 'Medical Plaster (5 pcs)')
+                                                           .replace('ยาดมตราโป๊ยเซียน', 'Poy-Sian Inhaler');
+                }
+                const safeItemName = translatedItemName ? translatedItemName.replace(/'/g, "\\'") : "";
+
                 html += `<div class="order-history-card">
                             <div style="display: flex; justify-content: space-between; margin-bottom: 8px;">
-                                <strong>${order.itemName}</strong> <span style="color: var(--tu-red); font-weight:bold;">฿${order.price}</span>
+                                <strong>${translatedItemName}</strong> <span style="color: var(--tu-red); font-weight:bold;">฿${order.price}</span>
                             </div>
                             <div style="font-size: 12px; color: var(--text-sub); display: flex; justify-content: space-between; align-items:center;">
                                 <span><i class="fa-regular fa-clock"></i> ${dateStr} ${timeStr}</span> 
-                                <span style="color: #28a745; font-weight:500;">รับยาสำเร็จ</span>
+                                <span style="color: #28a745; font-weight:500;">${t('rcpt_success')}</span>
                             </div>
                             <button class="btn-secondary" style="width: 100%; margin-top: 10px; padding: 8px; font-size: 12px; background: #f5f6f8; color: #1d1d1f;" 
                                 onclick="showReceipt('${order.chargeId || order.id}', '${dateStr} ${timeStr}', '${safeItemName}', ${order.price})">
-                                <i class="fa-solid fa-receipt"></i> ดูใบเสร็จ
+                                <i class="fa-solid fa-receipt"></i> ${t('btn_view_rcpt')}
                             </button>
                         </div>`;
             });
@@ -1252,7 +1241,7 @@
 
     window.showReceipt = function(ref, dateTime, items, price) {
         document.getElementById('receipt-ref').innerText = `Ref: ${ref}`;
-        document.getElementById('receipt-date').innerText = `วันที่: ${dateTime}`;
+        document.getElementById('receipt-date').innerText = `${t('rcpt_date')} ${dateTime}`;
         document.getElementById('receipt-items-list').innerHTML = `
             <div class="receipt-row">
                 <span style="flex: 1; padding-right: 10px;">${items}</span>
