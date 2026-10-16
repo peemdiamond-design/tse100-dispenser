@@ -154,6 +154,7 @@
                 <p><i class="fa-solid fa-location-dot" style="color: var(--tu-red);"></i> <span data-i18n="app_loc">อาคารเรียนรวม 1 (ตึกวิศวะฯ)</span></p>
             </div>
         </div>
+        <!-- 🌍 ปุ่มสลับภาษา -->
         <button class="lang-toggle-btn" onclick="toggleLanguage()" id="langBtn">🇹🇭</button>
     </div>
 
@@ -600,6 +601,14 @@
     let cart = [];
     let adminGlobalOrdersData = [];
 
+    // 💡 [Auto-Patch] ข้อมูลภาษาอังกฤษฉุกเฉิน (จะถูกเขียนลงฐานข้อมูลอัตโนมัติถ้าไม่มี)
+    const defaultEngData = {
+        'p1': { nameEn: 'Paracetamol 500mg', descEn: '10 tablets/pack', propsEn: 'Relieves pain and reduces fever', warnEn: 'Do not use if you have severe liver disease' },
+        'p2': { nameEn: 'Activated Charcoal', descEn: '10 capsules/pack', propsEn: 'Relieves diarrhea and food poisoning', warnEn: 'Take 2 hours apart from other meds' },
+        'p3': { nameEn: 'Medical Plaster (5 pcs)', descEn: 'Prevents wound infection', propsEn: 'Covers and protects wounds', warnEn: 'Beware of adhesive allergies' },
+        'p4': { nameEn: 'Poy-Sian Inhaler', descEn: '1 tube', propsEn: 'Relieves dizziness and nasal congestion', warnEn: 'For external use only. Do not swallow' }
+    };
+
     const invRef = collection(db, "inventory");
     
     onSnapshot(invRef, (snapshot) => {
@@ -607,8 +616,16 @@
             initializeDefaultInventory();
         } else {
             inventory = [];
-            snapshot.forEach(doc => {
-                inventory.push({ id: doc.id, ...doc.data() });
+            snapshot.forEach(docSnap => {
+                let d = docSnap.data();
+                
+                // 💡 ตรวจสอบและแอบอัปเดตข้อมูลภาษาอังกฤษเข้า Firebase อัตโนมัติ (เฉพาะตัวที่ไม่มี)
+                if (!d.nameEn && defaultEngData[docSnap.id]) {
+                    updateDoc(doc(db, "inventory", docSnap.id), defaultEngData[docSnap.id]);
+                    d = { ...d, ...defaultEngData[docSnap.id] }; // รวมข้อมูลเข้า UI ทันที
+                }
+                
+                inventory.push({ id: docSnap.id, ...d });
             });
             inventory.sort((a, b) => a.id.localeCompare(b.id));
             document.getElementById('loading-inventory').style.display = 'none';
