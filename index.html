@@ -21,7 +21,7 @@
         body { background-color: var(--bg-color); color: var(--text-main); }
         .app-container { width: 100%; max-width: 480px; margin: 0 auto; background: var(--bg-color); min-height: 100vh; position: relative; padding-bottom: 130px; box-shadow: 0 0 20px rgba(0,0,0,0.05); overflow-x: hidden; }
         
-        /* 📱 [ใหม่] iOS Liquid Glass: แถบ Header ด้านบน */
+        /* 📱 iOS Liquid Glass: แถบ Header ด้านบน */
         .header { 
             background: rgba(255, 255, 255, 0.75); 
             backdrop-filter: blur(20px) saturate(180%); 
@@ -61,11 +61,10 @@
         .out-of-stock-btn { background: #e5e5ea; color: #86868b; width: auto; padding: 0 12px; border-radius: 16px; font-size: 12px; height: 32px; cursor: not-allowed; border: none; font-weight: bold; }
         .stock-badge { position: absolute; top: 10px; right: 10px; background: rgba(0,0,0,0.6); color: white; padding: 2px 8px; border-radius: 10px; font-size: 10px; }
 
-        /* 📱 [แก้ไข] iOS Liquid Glass: แถบตะกร้าลอยตัว ปรับความสูงหนีปุ่มด้านล่าง */
+        /* 📱 [แก้ไข] ปรับระยะปุ่มตะกร้าให้ต่ำลงชิดขอบเมนู แต่ไม่ทับกัน */
         .cart-floating-bar { 
             position: fixed; 
-            /* ยกแถบตะกร้าขึ้นเพื่อไม่ให้ซ้อนทับกับเมนู และเพิ่ม env สำหรับ iPhone */
-            bottom: calc(105px + env(safe-area-inset-bottom)); 
+            bottom: calc(85px + env(safe-area-inset-bottom)); 
             left: 50%; 
             transform: translateX(-50%); 
             width: 90%; 
@@ -90,7 +89,7 @@
         @keyframes bop { 0% { transform: translate(-50%, 0) scale(1); } 50% { transform: translate(-50%, 0) scale(1.08); } 100% { transform: translate(-50%, 0) scale(1); } }
         .bop-anim { animation: bop 0.3s ease !important; }
 
-        /* 📱 [ใหม่] iOS Liquid Glass: พื้นหลังดำเบลอตอนเปิดหน้าต่าง */
+        /* 📱 iOS Liquid Glass: พื้นหลังดำเบลอตอนเปิดหน้าต่าง */
         .overlay-bg { 
             position: fixed; 
             top: 0; 
@@ -106,7 +105,7 @@
             align-items: flex-end; 
         }
         
-        /* 📱 [ใหม่] iOS Spring Animation: หน้าต่างเด้งขึ้นมา */
+        /* 📱 iOS Spring Animation: หน้าต่างเด้งขึ้นมา */
         .bottom-sheet { 
             background: var(--card-bg); 
             width: 100%; 
@@ -128,7 +127,7 @@
         .qty-btn { background: none; border: none; font-size: 16px; color: var(--tu-red); font-weight: bold; cursor: pointer; padding: 0 5px; transition: transform 0.1s; }
         .qty-btn:active { transform: scale(0.8); }
 
-        /* 📱 [ใหม่] iOS Liquid Glass: แถบเมนูด้านล่าง (Bottom Nav) */
+        /* 📱 iOS Liquid Glass: แถบเมนูด้านล่าง (Bottom Nav) */
         .bottom-nav { 
             position: fixed; 
             bottom: 0; 
@@ -139,7 +138,6 @@
             -webkit-backdrop-filter: blur(20px) saturate(180%); 
             display: flex; 
             justify-content: space-around; 
-            /* เพิ่ม padding รองรับขอบจอด้านล่างของ iPhone X ขึ้นไป */
             padding: 12px 0 calc(20px + env(safe-area-inset-bottom)); 
             border-top: 1px solid rgba(0,0,0,0.05); 
             z-index: 10; 
@@ -400,9 +398,18 @@
 <div class="overlay-bg" id="payment-modal">
     <div class="bottom-sheet" style="align-items: center;">
         <div class="drag-handle"></div>
-        <div class="timer-badge" style="background: #fff5f5; color: var(--tu-red); padding: 6px 12px; border-radius: 20px; font-size: 13px; font-weight: 600; margin-bottom: 15px; flex-shrink: 0;">
-            <i class="fa-regular fa-clock"></i> ทำรายการภายใน <span id="countdown">03:00</span>
+        
+        <!-- [ใหม่] Progress Bar Timer ⏳ -->
+        <div class="timer-wrapper" style="width: 100%; background: #fff5f5; padding: 12px 15px; border-radius: 12px; margin-bottom: 20px; border: 1px solid #ffd0d0; flex-shrink: 0;">
+            <div style="display: flex; justify-content: space-between; color: var(--tu-red); font-size: 13px; font-weight: 600; margin-bottom: 8px;">
+                <span><i class="fa-regular fa-clock"></i> เวลาทำรายการ</span>
+                <span id="countdown">03:00</span>
+            </div>
+            <div style="width: 100%; background: #ffeaea; height: 6px; border-radius: 3px; overflow: hidden;">
+                <div id="timer-progress" style="width: 100%; height: 100%; background: #28a745; transition: width 1s linear, background-color 0.5s ease;"></div>
+            </div>
         </div>
+
         <h2 style="font-size: 18px; margin-bottom: 20px; flex-shrink: 0;">ชำระเงินผ่านแอปธนาคาร</h2>
         <div class="qr-box">
             <img src="https://www.bot.or.th/content/dam/bot/documents/th/our-roles/payment-systems/about-payment-systems/PromptPay-logo.png" alt="PromptPay" class="pp-logo">
@@ -421,7 +428,7 @@
 <div class="receipt-modal" id="receipt-modal">
     <div class="receipt-paper" id="receipt-content">
         <div class="receipt-header">
-            <img src="assets/images.png" class="receipt-logo" onerror="this.src='https://cdn-icons-png.flaticon.com/512/822/822102.png'">
+            <img src="assets/tu-med-logo.png" class="receipt-logo" onerror="this.src='https://cdn-icons-png.flaticon.com/512/822/822102.png'">
             <div class="receipt-title">TU Smart Rx</div>
             <div class="receipt-info">ใบเสร็จรับเงิน / Tax Invoice</div>
             <div class="receipt-info" id="receipt-date">วันที่: --/--/----</div>
@@ -765,14 +772,34 @@
         }
     }
 
+    // --- [อัปเดต] ควบคุมหลอดสีนับถอยหลัง ---
     function startTimer(seconds) {
         clearInterval(timerInterval);
         const display = document.getElementById('countdown');
+        const progress = document.getElementById('timer-progress');
         let remaining = seconds;
+        let total = seconds;
+        
+        // รีเซ็ตหลอดสีตอนเริ่ม
+        progress.style.width = '100%';
+        progress.style.background = '#28a745';
+
         timerInterval = setInterval(() => {
             let m = parseInt(remaining / 60, 10);
             let s = parseInt(remaining % 60, 10);
             display.textContent = (m < 10 ? "0" + m : m) + ":" + (s < 10 ? "0" + s : s);
+            
+            // คำนวณ % หลอด และอัปเดตความกว้าง
+            let percent = (remaining / total) * 100;
+            progress.style.width = percent + '%';
+            
+            // เปลี่ยนสีหลอดตามเวลา (เหลือน้อยกว่า 20% เป็นสีแดง, 50% สีเหลือง)
+            if (percent <= 20) {
+                progress.style.background = '#c51d23'; 
+            } else if (percent <= 50) {
+                progress.style.background = '#ffc107'; 
+            }
+
             if (--remaining < 0) {
                 clearInterval(timerInterval);
                 closePayment();
@@ -838,7 +865,6 @@
         if (paymentCheckInterval) clearInterval(paymentCheckInterval);
     }
 
-    // --- ดึงข้อมูลผู้ใช้จากฐานข้อมูลมาโชว์ ---
     onAuthStateChanged(auth, async (user) => {
         if (user) {
             const stuId = user.email.split('@')[0];
@@ -900,7 +926,6 @@
         signOut(auth).then(() => { switchTab('view-home', document.querySelector('.nav-item')); });
     });
 
-    // --- การทำงานของปุ่ม แก้ไขข้อมูลส่วนตัว ---
     document.getElementById('btnEditProfile').addEventListener('click', async () => {
         if (!auth.currentUser) return;
         const stuId = auth.currentUser.email.split('@')[0];
@@ -942,7 +967,6 @@
         }
     });
 
-    // --- การทำงานของปุ่ม เปลี่ยนรหัสผ่าน ---
     document.getElementById('btnResetPwd').addEventListener('click', async () => {
         if (!auth.currentUser) return;
         
