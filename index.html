@@ -4,8 +4,12 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
     <title>TU Smart Rx | สั่งยาสามัญประจำบ้าน</title>
+    
+    <!-- เชื่อมไฟล์ manifest เพื่อทำ PWA (แอปมือถือ) -->
     <link rel="manifest" href="manifest.json">
+    <!-- รองรับไอคอนสำหรับ iOS -->
     <link rel="apple-touch-icon" href="assets/app-icon.png">
+    
     <link href="https://fonts.googleapis.com/css2?family=Prompt:wght@300;400;500;600;700&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     <script src="https://unpkg.com/mqtt/dist/mqtt.min.js"></script>
@@ -193,7 +197,6 @@
                     </div>
                 </div>
 
-                <!-- ปุ่ม PWA Install จะถูกควบคุมด้วย Javascript ด้านล่าง -->
                 <button class="btn-secondary" id="btnInstallApp" style="display: none; background: #e8f5e9; color: #2e7d32; border: 1px solid #2e7d32; margin-bottom: 12px;"></button>
 
                 <button class="btn-primary" id="btnEditProfile" style="background: #1d1d1f; margin-bottom: 12px;">
@@ -203,6 +206,7 @@
                 <button class="btn-secondary" id="btnResetPwd" style="background: white; border: 1px solid #ddd; margin-bottom: 12px;">
                     <i class="fa-solid fa-key"></i> เปลี่ยนรหัสผ่าน
                 </button>
+
                 <button class="btn-secondary" id="btnReportIssue" style="background: #fff5f5; color: var(--tu-red); border: 1px solid var(--tu-red); margin-bottom: 25px;">
                     <i class="fa-solid fa-triangle-exclamation"></i> แจ้งปัญหา / ขอคืนเงิน
                 </button>
@@ -358,11 +362,11 @@
 
 <!-- ================= FIREBASE & APP LOGIC ================= -->
 <script type="module">
+    // [อัปเดต] เพิ่ม updatePassword ลงในรายการ import
     import { initializeApp } from "https://www.gstatic.com/firebasejs/10.8.1/firebase-app.js";
-    import { getAuth, createUserWithEmailAndPassword, signInWithEmailAndPassword, onAuthStateChanged, signOut } from "https://www.gstatic.com/firebasejs/10.8.1/firebase-auth.js";
+    import { getAuth, createUserWithEmailAndPassword, signInWithEmailAndPassword, onAuthStateChanged, signOut, updatePassword } from "https://www.gstatic.com/firebasejs/10.8.1/firebase-auth.js";
     import { getFirestore, collection, addDoc, getDocs, query, where, serverTimestamp, doc, setDoc, getDoc, onSnapshot, updateDoc } from "https://www.gstatic.com/firebasejs/10.8.1/firebase-firestore.js";
 
-    // --- [อัปเดต] ระบบ PWA Install Prompt (รองรับ iOS) ---
     let deferredPrompt;
     const installBtn = document.getElementById('btnInstallApp');
 
@@ -749,6 +753,7 @@
         if (paymentCheckInterval) clearInterval(paymentCheckInterval);
     }
 
+    // --- [อัปเดต] ดึงข้อมูลผู้ใช้จากฐานข้อมูลมาโชว์ ---
     onAuthStateChanged(auth, async (user) => {
         if (user) {
             const stuId = user.email.split('@')[0];
@@ -766,6 +771,19 @@
                 document.getElementById('orders-login-warning').style.display = 'none';
                 document.getElementById('orders-list-container').style.display = 'block';
                 document.getElementById('displayStuId').innerText = stuId;
+                
+                // ดึงข้อมูลชื่อและเบอร์โทรที่บันทึกไว้มาโชว์
+                getDoc(doc(db, "users", stuId)).then(userDoc => {
+                    if(userDoc.exists()) {
+                        const d = userDoc.data();
+                        document.getElementById('displayFullName').innerText = d.fullName || 'ยังไม่ได้ระบุ';
+                        document.getElementById('displayPhone').innerText = d.phone || 'ยังไม่ได้ระบุ';
+                    } else {
+                        document.getElementById('displayFullName').innerText = 'ยังไม่ได้ระบุ';
+                        document.getElementById('displayPhone').innerText = 'ยังไม่ได้ระบุ';
+                    }
+                });
+
                 loadOrders(stuId); 
             }
         } else {
@@ -796,6 +814,80 @@
     document.getElementById('btnLogout').addEventListener('click', () => signOut(auth));
     document.getElementById('btnAdminLogout').addEventListener('click', () => {
         signOut(auth).then(() => { switchTab('view-home', document.querySelector('.nav-item')); });
+    });
+
+    // --- [อัปเดต] การทำงานของปุ่ม แก้ไขข้อมูลส่วนตัว ---
+    document.getElementById('btnEditProfile').addEventListener('click', async () => {
+        if (!auth.currentUser) return;
+        const stuId = auth.currentUser.email.split('@')[0];
+        
+        let currentName = document.getElementById('displayFullName').innerText;
+        let currentPhone = document.getElementById('displayPhone').innerText;
+        
+        if (currentName === 'ยังไม่ได้ระบุ') currentName = '';
+        if (currentPhone === 'ยังไม่ได้ระบุ') currentPhone = '';
+
+        const { value: formValues } = await Swal.fire({
+            title: 'แก้ไขข้อมูลส่วนตัว',
+            html:
+                `<input id="swal-input-name" class="swal2-input" placeholder="ชื่อ-นามสกุล" value="${currentName}">` +
+                `<input id="swal-input-phone" type="number" class="swal2-input" placeholder="เบอร์โทรศัพท์" value="${currentPhone}">`,
+            focusConfirm: false,
+            showCancelButton: true,
+            confirmButtonText: 'บันทึก',
+            cancelButtonText: 'ยกเลิก',
+            confirmButtonColor: 'var(--tu-red)',
+            preConfirm: () => {
+                return [
+                    document.getElementById('swal-input-name').value,
+                    document.getElementById('swal-input-phone').value
+                ]
+            }
+        });
+
+        if (formValues) {
+            const [fullName, phone] = formValues;
+            try {
+                await setDoc(doc(db, "users", stuId), { fullName, phone }, { merge: true });
+                document.getElementById('displayFullName').innerText = fullName || 'ยังไม่ได้ระบุ';
+                document.getElementById('displayPhone').innerText = phone || 'ยังไม่ได้ระบุ';
+                Swal.fire({icon: 'success', title: 'บันทึกข้อมูลสำเร็จ', showConfirmButton: false, timer: 1500});
+            } catch(e) {
+                Swal.fire('ข้อผิดพลาด', 'ไม่สามารถบันทึกข้อมูลได้', 'error');
+            }
+        }
+    });
+
+    // --- [อัปเดต] การทำงานของปุ่ม เปลี่ยนรหัสผ่าน ---
+    document.getElementById('btnResetPwd').addEventListener('click', async () => {
+        if (!auth.currentUser) return;
+        
+        const { value: newPassword } = await Swal.fire({
+            title: 'เปลี่ยนรหัสผ่านใหม่',
+            input: 'password',
+            inputPlaceholder: 'ใส่รหัสผ่านใหม่อย่างน้อย 6 ตัวอักษร',
+            showCancelButton: true,
+            confirmButtonText: 'ยืนยันการเปลี่ยน',
+            cancelButtonText: 'ยกเลิก',
+            confirmButtonColor: 'var(--tu-red)',
+            inputValidator: (value) => {
+                if (!value || value.length < 6) {
+                    return 'รหัสผ่านต้องมีอย่างน้อย 6 ตัวอักษรครับ'
+                }
+            }
+        });
+
+        if (newPassword) {
+            updatePassword(auth.currentUser, newPassword).then(() => {
+                Swal.fire({icon: 'success', title: 'เปลี่ยนรหัสผ่านสำเร็จ!', showConfirmButton: false, timer: 1500});
+            }).catch((error) => {
+                if (error.code === 'auth/requires-recent-login') {
+                    Swal.fire('ข้อผิดพลาด', 'เพื่อความปลอดภัย กรุณาล็อกเอาท์และเข้าสู่ระบบใหม่อีกครั้ง ก่อนทำการเปลี่ยนรหัสผ่านครับ', 'error');
+                } else {
+                    Swal.fire('ข้อผิดพลาด', error.message, 'error');
+                }
+            });
+        }
     });
 
     function renderAdminStock() {
