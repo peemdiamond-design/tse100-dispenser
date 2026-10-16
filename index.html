@@ -61,7 +61,7 @@
         .out-of-stock-btn { background: #e5e5ea; color: #86868b; width: auto; padding: 0 12px; border-radius: 16px; font-size: 12px; height: 32px; cursor: not-allowed; border: none; font-weight: bold; }
         .stock-badge { position: absolute; top: 10px; right: 10px; background: rgba(0,0,0,0.6); color: white; padding: 2px 8px; border-radius: 10px; font-size: 10px; }
 
-        /* 📱 [แก้ไข] ปรับระยะปุ่มตะกร้าให้ต่ำลงชิดขอบเมนู แต่ไม่ทับกัน */
+        /* แถบตะกร้าลอยตัว */
         .cart-floating-bar { 
             position: fixed; 
             bottom: calc(85px + env(safe-area-inset-bottom)); 
@@ -89,7 +89,7 @@
         @keyframes bop { 0% { transform: translate(-50%, 0) scale(1); } 50% { transform: translate(-50%, 0) scale(1.08); } 100% { transform: translate(-50%, 0) scale(1); } }
         .bop-anim { animation: bop 0.3s ease !important; }
 
-        /* 📱 iOS Liquid Glass: พื้นหลังดำเบลอตอนเปิดหน้าต่าง */
+        /* พื้นหลังดำเบลอตอนเปิดหน้าต่าง */
         .overlay-bg { 
             position: fixed; 
             top: 0; 
@@ -105,7 +105,7 @@
             align-items: flex-end; 
         }
         
-        /* 📱 iOS Spring Animation: หน้าต่างเด้งขึ้นมา */
+        /* Spring Animation: หน้าต่างเด้งขึ้นมา */
         .bottom-sheet { 
             background: var(--card-bg); 
             width: 100%; 
@@ -127,7 +127,7 @@
         .qty-btn { background: none; border: none; font-size: 16px; color: var(--tu-red); font-weight: bold; cursor: pointer; padding: 0 5px; transition: transform 0.1s; }
         .qty-btn:active { transform: scale(0.8); }
 
-        /* 📱 iOS Liquid Glass: แถบเมนูด้านล่าง (Bottom Nav) */
+        /* แถบเมนูด้านล่าง (Bottom Nav) */
         .bottom-nav { 
             position: fixed; 
             bottom: 0; 
@@ -207,6 +207,52 @@
         .consent-box { margin-bottom: 15px; display: flex; align-items: flex-start; gap: 10px; background: #fff5f5; padding: 12px; border-radius: 8px; border: 1px solid #ffd0d0; flex-shrink: 0; }
         .consent-box input[type="checkbox"] { margin-top: 3px; accent-color: var(--tu-red); width: 18px; height: 18px; cursor: pointer; }
         .consent-box label { font-size: 12px; color: var(--tu-red); cursor: pointer; line-height: 1.4; font-weight: 500; }
+
+        /* ⚙️ แอนิเมชัน Hardware Sync (เฟืองหมุนตอนรอตู้ทำงาน) */
+        .sync-container {
+            display: none;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            padding: 30px 15px;
+            text-align: center;
+            animation: fadeIn 0.3s ease;
+        }
+        .gear-icon {
+            font-size: 50px;
+            color: var(--tu-red);
+            animation: spinGear 2s linear infinite;
+            margin-bottom: 15px;
+        }
+        .gear-icon-small {
+            font-size: 30px;
+            color: var(--tu-yellow);
+            position: absolute;
+            top: 25px;
+            right: 35%;
+            animation: spinGearReverse 1.5s linear infinite;
+        }
+        @keyframes spinGear { 100% { transform: rotate(360deg); } }
+        @keyframes spinGearReverse { 100% { transform: rotate(-360deg); } }
+        
+        /* Progress Bar สมมติโหลดการทำงานตู้ */
+        .hardware-progress-bar {
+            width: 80%;
+            height: 6px;
+            background: #eee;
+            border-radius: 4px;
+            margin: 15px auto;
+            overflow: hidden;
+            position: relative;
+        }
+        .hardware-progress-fill {
+            position: absolute;
+            top: 0; left: 0; height: 100%;
+            background: var(--tu-red);
+            width: 0%;
+            animation: loadHardware 2.5s ease-in-out forwards;
+        }
+        @keyframes loadHardware { 0% { width: 0%; } 50% { width: 60%; } 100% { width: 100%; } }
     </style>
 </head>
 <body>
@@ -396,39 +442,57 @@
 </div>
 
 <div class="overlay-bg" id="payment-modal">
-    <div class="bottom-sheet" style="align-items: center;">
+    <div class="bottom-sheet" style="align-items: center; padding-bottom: 20px;">
         <div class="drag-handle"></div>
         
-        <!-- [ใหม่] Progress Bar Timer ⏳ -->
-        <div class="timer-wrapper" style="width: 100%; background: #fff5f5; padding: 12px 15px; border-radius: 12px; margin-bottom: 20px; border: 1px solid #ffd0d0; flex-shrink: 0;">
-            <div style="display: flex; justify-content: space-between; color: var(--tu-red); font-size: 13px; font-weight: 600; margin-bottom: 8px;">
-                <span><i class="fa-regular fa-clock"></i> เวลาทำรายการ</span>
-                <span id="countdown">03:00</span>
+        <!-- ส่วนแรก: หน้าชำระเงินปกติ -->
+        <div id="payment-ui" style="width: 100%; text-align: center;">
+            <div class="timer-wrapper" style="width: 100%; background: #fff5f5; padding: 12px 15px; border-radius: 12px; margin-bottom: 20px; border: 1px solid #ffd0d0; flex-shrink: 0;">
+                <div style="display: flex; justify-content: space-between; color: var(--tu-red); font-size: 13px; font-weight: 600; margin-bottom: 8px;">
+                    <span><i class="fa-regular fa-clock"></i> เวลาทำรายการ</span>
+                    <span id="countdown">03:00</span>
+                </div>
+                <div style="width: 100%; background: #ffeaea; height: 6px; border-radius: 3px; overflow: hidden;">
+                    <div id="timer-progress" style="width: 100%; height: 100%; background: #28a745; transition: width 1s linear, background-color 0.5s ease;"></div>
+                </div>
             </div>
-            <div style="width: 100%; background: #ffeaea; height: 6px; border-radius: 3px; overflow: hidden;">
-                <div id="timer-progress" style="width: 100%; height: 100%; background: #28a745; transition: width 1s linear, background-color 0.5s ease;"></div>
+
+            <h2 style="font-size: 18px; margin-bottom: 20px; flex-shrink: 0;">ชำระเงินผ่านแอปธนาคาร</h2>
+            <div class="qr-box">
+                <img src="https://www.bot.or.th/content/dam/bot/documents/th/our-roles/payment-systems/about-payment-systems/PromptPay-logo.png" alt="PromptPay" class="pp-logo">
+                <div id="loader" class="loader"></div>
+                <img id="qr-image" src="" alt="QR Code">
+                <p id="qr-status" style="margin-top: 15px; font-size: 13px; color: var(--text-sub);">ระบบกำลังสร้างคิวอาร์โค้ด...</p>
             </div>
+            <div class="summary-row">
+                <span id="summary-name" style="color: var(--text-sub); font-size: 13px;">รายการในตะกร้า</span>
+                <span id="summary-price" style="color: var(--tu-red);">฿0</span>
+            </div>
+            <button class="btn-cancel" onclick="closePayment()">ยกเลิกคำสั่งซื้อ</button>
         </div>
 
-        <h2 style="font-size: 18px; margin-bottom: 20px; flex-shrink: 0;">ชำระเงินผ่านแอปธนาคาร</h2>
-        <div class="qr-box">
-            <img src="https://www.bot.or.th/content/dam/bot/documents/th/our-roles/payment-systems/about-payment-systems/PromptPay-logo.png" alt="PromptPay" class="pp-logo">
-            <div id="loader" class="loader"></div>
-            <img id="qr-image" src="" alt="QR Code">
-            <p id="qr-status" style="margin-top: 15px; font-size: 13px; color: var(--text-sub);">ระบบกำลังสร้างคิวอาร์โค้ด...</p>
+        <!-- ⚙️ ส่วนที่สอง: แอนิเมชัน Hardware Sync (ซ่อนไว้ตอนแรก) -->
+        <div id="hardware-sync-ui" class="sync-container">
+            <div style="position: relative; width: 100px; height: 100px; margin: 0 auto;">
+                <i class="fa-solid fa-gear gear-icon"></i>
+                <i class="fa-solid fa-gear gear-icon-small"></i>
+            </div>
+            <h2 style="color: #1d1d1f; margin-bottom: 5px; font-size: 18px;">ชำระเงินสำเร็จ!</h2>
+            <p style="color: var(--text-sub); font-size: 13px;">กำลังส่งคำสั่งสั่งจ่ายยาไปที่ตู้ ESP32...</p>
+            <div class="hardware-progress-bar">
+                <div class="hardware-progress-fill"></div>
+            </div>
+            <p style="color: var(--tu-red); font-size: 11px; font-weight: bold; margin-top: 10px;">โปรดรอสักครู่ ห้ามปิดหน้าจอ</p>
         </div>
-        <div class="summary-row">
-            <span id="summary-name" style="color: var(--text-sub); font-size: 13px;">รายการในตะกร้า</span>
-            <span id="summary-price" style="color: var(--tu-red);">฿0</span>
-        </div>
-        <button class="btn-cancel" onclick="closePayment()">ยกเลิกคำสั่งซื้อ</button>
+        
     </div>
 </div>
 
 <div class="receipt-modal" id="receipt-modal">
     <div class="receipt-paper" id="receipt-content">
         <div class="receipt-header">
-            <img src="assets/tu-med-logo.png" class="receipt-logo" onerror="this.src='https://cdn-icons-png.flaticon.com/512/822/822102.png'">
+            <!-- ✅ จุดที่แก้ไข: ดึงตรามธ.มาใส่ที่หัวใบเสร็จ และลบรูปลูกตาออก -->
+            <img src="assets/images.png" class="receipt-logo" onerror="this.src='https://upload.wikimedia.org/wikipedia/th/thumb/3/30/Thammasat_University_logo.svg/1200px-Thammasat_University_logo.svg.png'">
             <div class="receipt-title">TU Smart Rx</div>
             <div class="receipt-info">ใบเสร็จรับเงิน / Tax Invoice</div>
             <div class="receipt-info" id="receipt-date">วันที่: --/--/----</div>
@@ -735,6 +799,9 @@
         let itemsSummary = cart.map(i => `${i.name} (x${i.qty})`).join(', ');
         
         document.getElementById('summary-price').innerText = `฿${totalPrice}.00`;
+        
+        document.getElementById('payment-ui').style.display = 'block';
+        document.getElementById('hardware-sync-ui').style.display = 'none';
         document.getElementById('payment-modal').style.display = 'flex'; 
         
         const loader = document.getElementById('loader');
@@ -767,12 +834,13 @@
             loader.style.display = 'none';
             statusTxt.innerText = 'เกิดข้อผิดพลาด ไม่สามารถเชื่อมต่อระบบได้';
             if(auth.currentUser && auth.currentUser.email.split('@')[0] === ADMIN_ID) {
-                document.getElementById('summary-price').innerHTML += `<br><button class="btn-primary" style="margin-top:10px; background:#28a745;" onclick="simulatePayment('${itemsSummary}', ${totalPrice})">แอดมิน: จำลองจ่ายเงิน</button>`;
+                if(!document.getElementById('btn-simulate-admin')) {
+                    document.getElementById('summary-price').parentElement.insertAdjacentHTML('afterend', `<button id="btn-simulate-admin" class="btn-primary" style="margin-top:10px; background:#28a745;" onclick="simulatePayment('${itemsSummary}', ${totalPrice})">แอดมิน: จำลองจ่ายเงิน</button>`);
+                }
             }
         }
     }
 
-    // --- [อัปเดต] ควบคุมหลอดสีนับถอยหลัง ---
     function startTimer(seconds) {
         clearInterval(timerInterval);
         const display = document.getElementById('countdown');
@@ -780,7 +848,6 @@
         let remaining = seconds;
         let total = seconds;
         
-        // รีเซ็ตหลอดสีตอนเริ่ม
         progress.style.width = '100%';
         progress.style.background = '#28a745';
 
@@ -789,11 +856,9 @@
             let s = parseInt(remaining % 60, 10);
             display.textContent = (m < 10 ? "0" + m : m) + ":" + (s < 10 ? "0" + s : s);
             
-            // คำนวณ % หลอด และอัปเดตความกว้าง
             let percent = (remaining / total) * 100;
             progress.style.width = percent + '%';
             
-            // เปลี่ยนสีหลอดตามเวลา (เหลือน้อยกว่า 20% เป็นสีแดง, 50% สีเหลือง)
             if (percent <= 20) {
                 progress.style.background = '#c51d23'; 
             } else if (percent <= 50) {
@@ -829,9 +894,10 @@
     }
 
     async function processSuccessfulOrder(chargeId, itemName, itemPrice) {
-        document.getElementById('qr-image').style.display = 'none';
-        document.getElementById('qr-status').style.color = '#28a745';
-        document.getElementById('qr-status').innerText = '✅ ชำระเงินสำเร็จแล้ว!';
+        document.getElementById('payment-ui').style.display = 'none';
+        document.getElementById('hardware-sync-ui').style.display = 'flex';
+        
+        mqttClient.publish("tse100/dispense", "PAYMENT_SUCCESS");
         
         for (const cartItem of cart) {
             const prod = inventory.find(p => p.id === cartItem.id);
@@ -841,7 +907,6 @@
                 await updateDoc(doc(db, "inventory", cartItem.id), { stock: newStock });
             }
         }
-
         if (auth.currentUser) {
             const stuId = auth.currentUser.email.split('@')[0];
             try {
@@ -852,11 +917,19 @@
             } catch (e) { }
         }
 
-        mqttClient.publish("tse100/dispense", "PAYMENT_SUCCESS");
-        Swal.fire({ icon: 'success', title: 'ชำระเงินสำเร็จ!', text: 'ระบบกำลังสั่งตู้จ่ายยา กรุณารอรับยาด้านล่าง', timer: 3500, showConfirmButton: false }).then(() => {
-            cart = []; updateCartUI(); closePayment();
-            if(auth.currentUser.email.split('@')[0] !== ADMIN_ID) switchTab('view-orders', document.querySelectorAll('.nav-item')[1]);
-        });
+        setTimeout(() => {
+            closePayment();
+            Swal.fire({ 
+                icon: 'success', 
+                title: 'จ่ายยาสำเร็จ!', 
+                text: 'กรุณารับยาที่ช่องรับสินค้าด้านล่างครับ', 
+                timer: 3500, 
+                showConfirmButton: false 
+            }).then(() => {
+                cart = []; updateCartUI(); 
+                if(auth.currentUser.email.split('@')[0] !== ADMIN_ID) switchTab('view-orders', document.querySelectorAll('.nav-item')[1]);
+            });
+        }, 2500);
     }
 
     window.closePayment = function() {
