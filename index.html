@@ -4,13 +4,8 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
     <title>TU Smart Rx | สั่งยาสามัญประจำบ้าน</title>
-    
-    <!-- [ใหม่] เชื่อมไฟล์ manifest เพื่อทำ PWA (แอปมือถือ) -->
     <link rel="manifest" href="manifest.json">
-    
-    <!-- วางตรงนี้ครับ! เพื่อรองรับไอคอนสำหรับ iOS -->
     <link rel="apple-touch-icon" href="assets/app-icon.png">
-    
     <link href="https://fonts.googleapis.com/css2?family=Prompt:wght@300;400;500;600;700&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     <script src="https://unpkg.com/mqtt/dist/mqtt.min.js"></script>
@@ -198,15 +193,13 @@
                     </div>
                 </div>
 
-                <button class="btn-secondary" id="btnInstallApp" style="display: none; background: #e8f5e9; color: #2e7d32; border: 1px solid #2e7d32; margin-bottom: 12px;">
-                    <i class="fa-solid fa-mobile-screen"></i> ติดตั้งแอปลงหน้าจอมือถือ
-                </button>
+                <!-- ปุ่ม PWA Install จะถูกควบคุมด้วย Javascript ด้านล่าง -->
+                <button class="btn-secondary" id="btnInstallApp" style="display: none; background: #e8f5e9; color: #2e7d32; border: 1px solid #2e7d32; margin-bottom: 12px;"></button>
 
                 <button class="btn-primary" id="btnEditProfile" style="background: #1d1d1f; margin-bottom: 12px;">
                     <i class="fa-solid fa-pen-to-square"></i> แก้ไขข้อมูลส่วนตัว
                 </button>
                 
-                <!-- [ปุ่มที่ขอกลับมา] -->
                 <button class="btn-secondary" id="btnResetPwd" style="background: white; border: 1px solid #ddd; margin-bottom: 12px;">
                     <i class="fa-solid fa-key"></i> เปลี่ยนรหัสผ่าน
                 </button>
@@ -216,7 +209,6 @@
 
                 <button class="btn-secondary" id="btnLogout" style="background: #f0f1f4; color: var(--text-main);">ออกจากระบบ</button>
 
-                <!-- [ข้อความนโยบายที่ขอกลับมา] -->
                 <p style="font-size: 11px; color: var(--text-sub); margin-top: 25px; text-decoration: underline; cursor: pointer;" onclick="Swal.fire('นโยบายความเป็นส่วนตัว', 'ข้อมูลประวัติการสั่งซื้อและรหัสนักศึกษาของคุณ จะถูกเก็บรักษาเป็นความลับเพื่อใช้สำหรับการให้บริการตู้จ่ายยาอัตโนมัติเท่านั้น', 'info')">
                     ข้อตกลงและนโยบายความเป็นส่วนตัว
                 </p>
@@ -339,7 +331,7 @@
 <div class="receipt-modal" id="receipt-modal">
     <div class="receipt-paper" id="receipt-content">
         <div class="receipt-header">
-            <img src="assets/images.png" class="receipt-logo" onerror="this.src='https://upload.wikimedia.org/wikipedia/th/thumb/3/30/Thammasat_University_logo.svg/1200px-Thammasat_University_logo.svg.png'">
+            <img src="assets/images.png" class="receipt-logo" onerror="this.src='https://cdn-icons-png.flaticon.com/512/822/822102.png'">
             <div class="receipt-title">TU Smart Rx</div>
             <div class="receipt-info">ใบเสร็จรับเงิน / Tax Invoice</div>
             <div class="receipt-info" id="receipt-date">วันที่: --/--/----</div>
@@ -370,26 +362,46 @@
     import { getAuth, createUserWithEmailAndPassword, signInWithEmailAndPassword, onAuthStateChanged, signOut } from "https://www.gstatic.com/firebasejs/10.8.1/firebase-auth.js";
     import { getFirestore, collection, addDoc, getDocs, query, where, serverTimestamp, doc, setDoc, getDoc, onSnapshot, updateDoc } from "https://www.gstatic.com/firebasejs/10.8.1/firebase-firestore.js";
 
+    // --- [อัปเดต] ระบบ PWA Install Prompt (รองรับ iOS) ---
     let deferredPrompt;
-    window.addEventListener('beforeinstallprompt', (e) => {
-        e.preventDefault();
-        deferredPrompt = e;
-        const installBtn = document.getElementById('btnInstallApp');
-        if (installBtn) installBtn.style.display = 'block';
-    });
+    const installBtn = document.getElementById('btnInstallApp');
 
-    document.getElementById('btnInstallApp').addEventListener('click', async () => {
-        if (deferredPrompt) {
-            deferredPrompt.prompt();
-            const { outcome } = await deferredPrompt.userChoice;
-            if (outcome === 'accepted') {
-                document.getElementById('btnInstallApp').style.display = 'none';
-            }
-            deferredPrompt = null;
+    const isIOS = /iPad|iPhone|iPod/.test(navigator.userAgent) && !window.MSStream;
+    const isStandalone = window.matchMedia('(display-mode: standalone)').matches || window.navigator.standalone === true;
+
+    if (isIOS && !isStandalone) {
+        if (installBtn) {
+            installBtn.style.display = 'block';
+            installBtn.innerHTML = '<i class="fa-solid fa-arrow-up-from-bracket"></i> กดแชร์ด้านล่าง แล้วเลือก "เพิ่มไปยังหน้าจอโฮม"';
+            installBtn.style.pointerEvents = 'none'; 
+            installBtn.style.background = '#f8f9fa';
+            installBtn.style.color = '#6c757d';
+            installBtn.style.borderColor = '#dee2e6';
         }
-    });
+    } else {
+        window.addEventListener('beforeinstallprompt', (e) => {
+            e.preventDefault();
+            deferredPrompt = e;
+            if (installBtn) {
+                installBtn.style.display = 'block';
+                installBtn.innerHTML = '<i class="fa-solid fa-mobile-screen"></i> ติดตั้งแอปลงหน้าจอมือถือ';
+            }
+        });
 
-    // --- [ฟังก์ชันปุ่มแจ้งปัญหา กลับมาแล้ว] ---
+        if (installBtn) {
+            installBtn.addEventListener('click', async () => {
+                if (deferredPrompt) {
+                    deferredPrompt.prompt();
+                    const { outcome } = await deferredPrompt.userChoice;
+                    if (outcome === 'accepted') {
+                        installBtn.style.display = 'none';
+                    }
+                    deferredPrompt = null;
+                }
+            });
+        }
+    }
+
     const btnReportIssue = document.getElementById('btnReportIssue');
     if (btnReportIssue) {
         btnReportIssue.addEventListener('click', () => {
