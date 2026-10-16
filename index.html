@@ -61,10 +61,11 @@
         .out-of-stock-btn { background: #e5e5ea; color: #86868b; width: auto; padding: 0 12px; border-radius: 16px; font-size: 12px; height: 32px; cursor: not-allowed; border: none; font-weight: bold; }
         .stock-badge { position: absolute; top: 10px; right: 10px; background: rgba(0,0,0,0.6); color: white; padding: 2px 8px; border-radius: 10px; font-size: 10px; }
 
-        /* 📱 [ใหม่] iOS Liquid Glass: แถบตะกร้าลอยตัว */
+        /* 📱 [แก้ไข] iOS Liquid Glass: แถบตะกร้าลอยตัว ปรับความสูงหนีปุ่มด้านล่าง */
         .cart-floating-bar { 
             position: fixed; 
-            bottom: 95px; 
+            /* ยกแถบตะกร้าขึ้นเพื่อไม่ให้ซ้อนทับกับเมนู และเพิ่ม env สำหรับ iPhone */
+            bottom: calc(105px + env(safe-area-inset-bottom)); 
             left: 50%; 
             transform: translateX(-50%); 
             width: 90%; 
@@ -282,7 +283,6 @@
                     </div>
                 </div>
 
-                <!-- ปุ่ม PWA Install จะถูกควบคุมด้วย Javascript ด้านล่าง -->
                 <button class="btn-secondary" id="btnInstallApp" style="display: none; background: #e8f5e9; color: #2e7d32; border: 1px solid #2e7d32; margin-bottom: 12px;"></button>
 
                 <button class="btn-primary" id="btnEditProfile" style="background: #1d1d1f; margin-bottom: 12px;">
