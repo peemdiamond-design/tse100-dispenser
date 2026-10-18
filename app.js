@@ -3,9 +3,6 @@ import { getAuth, createUserWithEmailAndPassword, signInWithEmailAndPassword, on
 import { getFirestore, collection, addDoc, getDocs, query, where, serverTimestamp, doc, setDoc, getDoc, onSnapshot, updateDoc } from "https://www.gstatic.com/firebasejs/10.8.1/firebase-firestore.js";
 import { CONFIG, DICT } from "./config.js";
 
-// ==========================================
-// 1. ระบบแปลภาษา (Bilingual System)
-// ==========================================
 let currentLang = localStorage.getItem('tu_rx_lang') || 'th';
 function t(key) { return DICT[currentLang][key] || key; }
 
@@ -35,11 +32,9 @@ function applyLanguage() {
         if(stuId !== CONFIG.ADMIN_ID) loadOrders(stuId);
     }
 }
+
 document.addEventListener("DOMContentLoaded", applyLanguage);
 
-// ==========================================
-// 2. ระบบ PWA (ติดตั้งแอปลงมือถือ)
-// ==========================================
 let deferredPrompt;
 const installBtn = document.getElementById('btnInstallApp');
 const isIOS = /iPad|iPhone|iPod/.test(navigator.userAgent) && !window.MSStream;
@@ -75,9 +70,6 @@ if (isIOS && !isStandalone) {
     }
 }
 
-// ==========================================
-// 3. UI Helpers
-// ==========================================
 window.showPrivacyPolicy = function() {
     let title = currentLang === 'th' ? 'นโยบายความเป็นส่วนตัว' : 'Privacy Policy';
     let desc = currentLang === 'th' ? 'ข้อมูลประวัติการสั่งซื้อและรหัสนักศึกษาของคุณ จะถูกเก็บรักษาเป็นความลับเพื่อใช้สำหรับการให้บริการตู้จ่ายยาอัตโนมัติเท่านั้น' : 'Your purchase history and student ID are kept strictly confidential and used only for operating this smart pharmacy.';
@@ -93,31 +85,6 @@ if (btnReportIssue) {
     });
 }
 
-window.switchTab = function(viewId, navElement) {
-    document.querySelectorAll('.view-section').forEach(el => el.classList.remove('active'));
-    document.getElementById(viewId).classList.add('active');
-    document.querySelectorAll('.nav-item').forEach(el => el.classList.remove('active'));
-    if(navElement) navElement.classList.add('active');
-    
-    if(auth.currentUser) {
-        const stuId = auth.currentUser.email.split('@')[0];
-        if(viewId === 'view-orders' && stuId !== CONFIG.ADMIN_ID) loadOrders(stuId); 
-        if(viewId === 'view-admin' && stuId === CONFIG.ADMIN_ID) loadAdminDashboard();
-    }
-}
-
-window.openCartModal = () => {
-    document.getElementById('consent-check').checked = false;
-    document.getElementById('cart-modal').style.display = 'flex';
-}
-window.closeModals = () => {
-    document.getElementById('cart-modal').style.display = 'none';
-    document.getElementById('payment-modal').style.display = 'none';
-}
-
-// ==========================================
-// 4. Firebase & MQTT Setup
-// ==========================================
 const app = initializeApp(CONFIG.FIREBASE_CONFIG);
 const auth = getAuth(app);
 const db = getFirestore(app);
@@ -138,14 +105,10 @@ mqttClient.on('error', () => {
     document.getElementById('mqtt-status-text').innerText = t('admin_offline');
 });
 
-// ==========================================
-// 5. ระบบสินค้า (Inventory & Cart)
-// ==========================================
 let inventory = []; 
 let cart = [];
 let adminGlobalOrdersData = [];
 
-// ข้อมูลภาษาอังกฤษฉุกเฉิน (Auto-Patch)
 const defaultEngData = {
     'p1': { nameEn: 'Paracetamol 500mg', descEn: '10 tablets/pack', propsEn: 'Relieves pain and reduces fever', warnEn: 'Do not use if you have severe liver disease' },
     'p2': { nameEn: 'Activated Charcoal', descEn: '10 capsules/pack', propsEn: 'Relieves diarrhea and food poisoning', warnEn: 'Take 2 hours apart from other meds' },
@@ -184,6 +147,28 @@ async function initializeDefaultInventory() {
     for (const item of defaultItems) {
         await setDoc(doc(db, "inventory", item.id), item);
     }
+}
+
+window.switchTab = function(viewId, navElement) {
+    document.querySelectorAll('.view-section').forEach(el => el.classList.remove('active'));
+    document.getElementById(viewId).classList.add('active');
+    document.querySelectorAll('.nav-item').forEach(el => el.classList.remove('active'));
+    if(navElement) navElement.classList.add('active');
+    
+    if(auth.currentUser) {
+        const stuId = auth.currentUser.email.split('@')[0];
+        if(viewId === 'view-orders' && stuId !== CONFIG.ADMIN_ID) loadOrders(stuId); 
+        if(viewId === 'view-admin' && stuId === CONFIG.ADMIN_ID) loadAdminDashboard();
+    }
+}
+
+window.openCartModal = () => {
+    document.getElementById('consent-check').checked = false;
+    document.getElementById('cart-modal').style.display = 'flex';
+}
+window.closeModals = () => {
+    document.getElementById('cart-modal').style.display = 'none';
+    document.getElementById('payment-modal').style.display = 'none';
 }
 
 function renderProducts() {
@@ -305,9 +290,6 @@ function updateCartUI() {
     document.getElementById('cart-grand-total').innerText = `฿${totalPrice}`;
 }
 
-// ==========================================
-// 6. ระบบชำระเงินและการจ่ายยา
-// ==========================================
 let timerInterval, paymentCheckInterval;
 
 window.proceedToPayment = async function() {
@@ -469,9 +451,6 @@ window.closePayment = function() {
     if (paymentCheckInterval) clearInterval(paymentCheckInterval);
 }
 
-// ==========================================
-// 7. ระบบสมาชิกและการเข้าสู่ระบบ (Auth)
-// ==========================================
 onAuthStateChanged(auth, async (user) => {
     if (user) {
         const stuId = user.email.split('@')[0];
@@ -603,9 +582,6 @@ document.getElementById('btnResetPwd').addEventListener('click', async () => {
     }
 });
 
-// ==========================================
-// 8. ระบบหลังบ้าน (Admin Dashboard)
-// ==========================================
 function renderAdminStock() {
     const container = document.getElementById('admin-stock-container');
     if(!container) return;
@@ -729,9 +705,6 @@ window.testDispense = function() {
     Swal.fire({ toast: true, position: 'top', icon: 'success', title: currentLang==='th'?'ส่งสัญญาณไปที่ตู้แล้ว':'Command Sent', showConfirmButton: false, timer: 1500 });
 }
 
-// ==========================================
-// 9. ระบบประวัติการสั่งซื้อและใบเสร็จ (Orders & Receipts)
-// ==========================================
 async function loadOrders(stuId) {
     const ordersList = document.getElementById('orders-list');
     if(document.getElementById('view-orders').classList.contains('active')) ordersList.innerHTML = '<div class="loader"></div>';
@@ -797,5 +770,4 @@ window.showReceipt = function(ref, dateTime, items, price) {
     document.getElementById('receipt-grand-total').innerText = `฿${price}.00`;
     document.getElementById('receipt-modal').style.display = 'flex';
 }
-
 window.closeReceipt = () => document.getElementById('receipt-modal').style.display = 'none';
