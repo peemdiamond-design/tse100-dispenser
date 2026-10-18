@@ -1,6 +1,7 @@
 import { initializeApp } from "https://www.gstatic.com/firebasejs/10.8.1/firebase-app.js";
 import { getAuth, createUserWithEmailAndPassword, signInWithEmailAndPassword, onAuthStateChanged, signOut, updatePassword } from "https://www.gstatic.com/firebasejs/10.8.1/firebase-auth.js";
-import { getFirestore, collection, addDoc, getDocs, query, where, serverTimestamp, doc, setDoc, getDoc, onSnapshot, updateDoc } from "https://www.gstatic.com/firebasejs/10.8.1/firebase-firestore.js";
+// ✅ เพิ่มคำสั่ง runTransaction เพื่อใช้ล็อคสต๊อก (ป้องกันคนกดซื้อชนกัน)
+import { getFirestore, collection, addDoc, getDocs, query, where, serverTimestamp, doc, setDoc, getDoc, onSnapshot, updateDoc, runTransaction } from "https://www.gstatic.com/firebasejs/10.8.1/firebase-firestore.js";
 import { CONFIG, DICT } from "./config.js";
 
 let currentLang = localStorage.getItem('tu_rx_lang') || 'th';
@@ -290,7 +291,9 @@ function updateCartUI() {
     document.getElementById('cart-grand-total').innerText = `฿${totalPrice}`;
 }
 
+// ✅ ตัวแปรเช็กสถานะการจ่ายเงิน และการจัดการเวลา
 let timerInterval, paymentCheckInterval;
+let isPaymentSuccess = false; 
 
 window.proceedToPayment = async function() {
     const consent = document.getElementById('consent-check').checked;
@@ -299,19 +302,36 @@ window.proceedToPayment = async function() {
         return;
     }
 
-    for (let item of cart) {
-        const liveProd = inventory.find(p => p.id === item.id);
-        if (!liveProd || liveProd.stock < item.qty) {
-            let pName = currentLang === 'en' && item.nameEn ? item.nameEn : item.name;
-            Swal.fire({ icon: 'error', title: t('out_of_stock'), text: currentLang === 'th' ? `สินค้า ${pName} ถูกซื้อไปเมื่อสักครู่` : `Item ${pName} was just purchased by someone else.` });
-            closeModals();
-            return;
-        }
+    isPaymentSuccess = false; // รีเซ็ตสถานะ
+
+    // 🔴 1. ระบบ Lock สต๊อกแบบ Transaction (ป้องกัน 2 คนกดชำระเงินพร้อมกัน)
+    try {
+        await runTransaction(db, async (transaction) => {
+            let stockToUpdate = [];
+            for (let item of cart) {
+                const prodRef = doc(db, "inventory", item.id);
+                const prodSnap = await transaction.get(prodRef);
+                
+                if (!prodSnap.exists() || prodSnap.data().stock < item.qty) {
+                    let pName = currentLang === 'en' && item.nameEn ? item.nameEn : item.name;
+                    throw new Error(`Out of stock: ${pName}`);
+                }
+                // หักสต๊อกล่วงหน้าเพื่อเป็นการ "จอง" ไว้
+                stockToUpdate.push({ ref: prodRef, newStock: prodSnap.data().stock - item.qty });
+            }
+            stockToUpdate.forEach(update => {
+                transaction.update(update.ref, { stock: update.newStock });
+            });
+        });
+    } catch (error) {
+        Swal.fire({ icon: 'error', title: t('out_of_stock'), text: currentLang === 'th' ? 'มีคนซื้อสินค้านี้ไปเมื่อสักครู่ สต๊อกไม่พอแล้วครับ' : 'Item was just purchased by someone else.' });
+        closeModals();
+        return;
     }
 
+    // 🟢 2. ผ่านด่านสต๊อกแล้ว ค่อยเปิดหน้าจ่ายเงิน
     document.getElementById('cart-modal').style.display = 'none';
     let totalPrice = cart.reduce((sum, item) => sum + (item.price * item.qty), 0);
-    let itemsSummary = cart.map(i => `${currentLang==='en' && i.nameEn ? i.nameEn : i.name} (x${i.qty})`).join(', ');
     let systemItemName = cart.map(i => `${i.name} (x${i.qty})`).join(', '); 
     
     document.getElementById('summary-price').innerText = `฿${totalPrice}.00`;
@@ -342,16 +362,33 @@ window.proceedToPayment = async function() {
             qrImg.src = data.qrImage;
             qrImg.style.display = 'block';
             statusTxt.innerText = currentLang === 'th' ? 'สแกนคิวอาร์โค้ดเพื่อชำระเงินและรับยา' : 'Scan QR Code to pay and dispense';
-            mqttClient.publish("tse100/dispense", "PAYMENT_PENDING");
+            
+            // ส่งสัญญาณไปบอกตู้ว่า "กำลังมีคนจ่ายเงินนะ" เผื่อตู้จะขึ้นจอเตือนคนอื่นให้รอ
+            mqttClient.publish("tse100/status", "USER_PAYING");
+            
             startCheckingPayment(data.chargeId, systemItemName, totalPrice);
         } else throw new Error();
     } catch (error) {
         loader.style.display = 'none';
         statusTxt.innerText = currentLang === 'th' ? 'เกิดข้อผิดพลาด ไม่สามารถเชื่อมต่อระบบได้' : 'Connection Error';
+        
+        restoreStock(); // 🔄 คืนสต๊อกถ้าระบบสร้าง QR ล่ม
+
         if(auth.currentUser && auth.currentUser.email.split('@')[0] === CONFIG.ADMIN_ID) {
             if(!document.getElementById('btn-simulate-admin')) {
                 document.getElementById('summary-price').parentElement.insertAdjacentHTML('afterend', `<button id="btn-simulate-admin" class="btn-primary" style="margin-top:10px; background:#28a745;" onclick="simulatePayment('${systemItemName}', ${totalPrice})">Admin: Simulate Payment</button>`);
             }
+        }
+    }
+}
+
+// ✅ ฟังก์ชันคืนสต๊อก (กรณียกเลิก, เน็ตหลุด, หรือหมดเวลา 3 นาที)
+window.restoreStock = async function() {
+    for (const item of cart) {
+        const prodRef = doc(db, "inventory", item.id);
+        const prodSnap = await getDoc(prodRef);
+        if(prodSnap.exists()) {
+            await updateDoc(prodRef, { stock: prodSnap.data().stock + item.qty });
         }
     }
 }
@@ -379,7 +416,7 @@ function startTimer(seconds) {
 
         if (--remaining < 0) {
             clearInterval(timerInterval);
-            closePayment();
+            closePayment(); // 🔄 ฟังก์ชันนี้จะจัดการคืนสต๊อกให้อัตโนมัติ
             cart = []; updateCartUI(); renderProducts();
             Swal.fire({icon: 'error', title: t('swal_timeout'), text: t('swal_timeout_desc'), confirmButtonColor: 'var(--tu-red)'});
         }
@@ -406,20 +443,13 @@ function startCheckingPayment(chargeId, itemName, itemPrice) {
 }
 
 async function processSuccessfulOrder(chargeId, itemName, itemPrice) {
+    isPaymentSuccess = true; // ✅ ตั้งสถานะเป็นจ่ายสำเร็จแล้ว (ไม่หักสต๊อกซ้ำ และไม่คืนสต๊อก)
+
     document.getElementById('payment-ui').style.display = 'none';
     document.getElementById('hardware-sync-ui').style.display = 'flex';
     
     mqttClient.publish("tse100/dispense", "PAYMENT_SUCCESS");
     
-    for (const cartItem of cart) {
-        const prod = inventory.find(p => p.id === cartItem.id);
-        if(prod) {
-            let newStock = prod.stock - cartItem.qty;
-            if (newStock < 0) newStock = 0;
-            await updateDoc(doc(db, "inventory", cartItem.id), { stock: newStock });
-        }
-    }
-
     if (auth.currentUser) {
         const stuId = auth.currentUser.email.split('@')[0];
         try {
@@ -445,8 +475,15 @@ async function processSuccessfulOrder(chargeId, itemName, itemPrice) {
     }, 2500);
 }
 
+// ✅ อัปเดตเพื่อให้เช็กสถานะการจ่ายเงินก่อน ถ้ายังไม่ได้จ่าย แต่กดออก หรือหมดเวลา ให้คืนยาเข้าตู้
 window.closePayment = function() {
     document.getElementById('payment-modal').style.display = 'none'; 
+    
+    // ถ้ายกเลิกกลางคันก่อนหมดเวลา หรือ หมดเวลาไปแล้ว (แต่ยังไม่จ่ายเงิน) ให้คืนสต๊อก
+    if (!isPaymentSuccess && cart.length > 0) {
+        restoreStock();
+    }
+    
     clearInterval(timerInterval);
     if (paymentCheckInterval) clearInterval(paymentCheckInterval);
 }
