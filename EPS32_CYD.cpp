@@ -7,8 +7,8 @@
 #include <XPT2046_Touchscreen.h> 
 
 // ---------------- 1. ตั้งค่า Wi-Fi & MQTT ----------------
-const char* ssid = "62/532_2.4G";      
-const char* password = "09154951";     
+const char* ssid = "0800652735";      
+const char* password = "1234567890";     
 const char* mqtt_server = "broker.emqx.io"; 
 const char* mqtt_topic = "tse100/dispense"; 
 
@@ -174,7 +174,8 @@ void callback(char* topic, byte* payload, unsigned int length) {
     printCentered("DISPENSING", 85, 3, TU_RED); 
     isDispensing = true; 
     
-    digitalWrite(MOTOR_PIN, HIGH);
+    // ✅ แก้ไข: สั่ง LOW ให้รีเลย์ Active (มอเตอร์หมุน)
+    digitalWrite(MOTOR_PIN, LOW);
     delay(500); 
     unsigned long startTime = millis();
     while (digitalRead(LIMIT_PIN) == HIGH) {
@@ -188,7 +189,8 @@ void callback(char* topic, byte* payload, unsigned int length) {
         loadDotCount = (loadDotCount + 1) % 4;
       }
     }
-    digitalWrite(MOTOR_PIN, LOW); 
+    // ✅ แก้ไข: สั่ง HIGH ให้รีเลย์ตัดไฟ (มอเตอร์หยุด)
+    digitalWrite(MOTOR_PIN, HIGH); 
     isDispensing = false;
     delay(2000); 
     
@@ -220,7 +222,10 @@ void reconnect() {
 void setup() {
   Serial.begin(9600);
   pinMode(MOTOR_PIN, OUTPUT);
-  digitalWrite(MOTOR_PIN, LOW);
+  
+  // ✅ แก้ไข: สั่ง HIGH ตอนเปิดเครื่อง ป้องกันรีเลย์ทำงานค้าง
+  digitalWrite(MOTOR_PIN, HIGH);
+  
   pinMode(LIMIT_PIN, INPUT_PULLUP); 
   
   pinMode(TFT_BL, OUTPUT);
