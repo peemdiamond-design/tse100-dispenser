@@ -140,10 +140,10 @@ onSnapshot(invRef, (snapshot) => {
 
 async function initializeDefaultInventory() {
     const defaultItems = [
-        { id: 'p1', name: 'พาราเซตามอล 500mg', nameEn: 'Paracetamol 500mg', desc: 'แผงละ 10 เม็ด', descEn: '10 tablets/pack', price: 20, stock: 10, img: 'assets/para.jpeg', props: 'บรรเทาอาการปวด ลดไข้', propsEn: 'Relieves pain and reduces fever', warn: 'ห้ามใช้ในผู้ที่เป็นโรคตับรุนแรง', warnEn: 'Do not use if you have severe liver disease' },
-        { id: 'p2', name: 'ผงถ่านคาร์บอน', nameEn: 'Activated Charcoal', desc: 'แผงละ 10 เม็ด', descEn: '10 capsules/pack', price: 25, stock: 5, img: 'assets/charcoal.jpeg', props: 'บรรเทาอาการท้องเสีย อาหารเป็นพิษ', propsEn: 'Relieves diarrhea and food poisoning', warn: 'ทานห่างจากยาอื่น 2 ชม.', warnEn: 'Take 2 hours apart from other meds' },
-        { id: 'p3', name: 'พลาสเตอร์ยา (5 ชิ้น)', nameEn: 'Medical Plaster (5 pcs)', desc: 'ป้องกันแผลติดเชื้อ', descEn: 'Prevents wound infection', price: 15, stock: 15, img: 'assets/plaster.jpeg', props: 'ปกปิดและป้องกันบาดแผล', propsEn: 'Covers and protects wounds', warn: 'ระวังการแพ้กาวพลาสเตอร์', warnEn: 'Beware of adhesive allergies' },
-        { id: 'p4', name: 'ยาดมตราโป๊ยเซียน', nameEn: 'Poy-Sian Inhaler', desc: '1 หลอด', descEn: '1 tube', price: 20, stock: 20, img: 'assets/inhaler.jpeg', props: 'บรรเทาอาการวิงเวียนศีรษะ', propsEn: 'Relieves dizziness and nasal congestion', warn: 'ยาใช้ภายนอก ห้ามรับประทาน', warnEn: 'For external use only. Do not swallow' }
+        { id: 'p1', name: 'พาราเซตามอล 500mg', nameEn: 'Paracetamol 500mg', desc: 'แผงละ 10 เม็ด', descEn: '10 tablets/pack', price: 20, stock: 10, img: 'assets/para.jpeg', props: 'บรรเทาอาการปวด ลดไข้', propsEn: 'Relieves pain and reduces fever', warn: 'ห้ามใช้ในผู้ที่เป็นโรคตับรุนแรง', warnEn: 'Do not use if you have severe liver disease', expDate: '' },
+        { id: 'p2', name: 'ผงถ่านคาร์บอน', nameEn: 'Activated Charcoal', desc: 'แผงละ 10 เม็ด', descEn: '10 capsules/pack', price: 25, stock: 5, img: 'assets/charcoal.jpeg', props: 'บรรเทาอาการท้องเสีย อาหารเป็นพิษ', propsEn: 'Relieves diarrhea and food poisoning', warn: 'ทานห่างจากยาอื่น 2 ชม.', warnEn: 'Take 2 hours apart from other meds', expDate: '' },
+        { id: 'p3', name: 'พลาสเตอร์ยา (5 ชิ้น)', nameEn: 'Medical Plaster (5 pcs)', desc: 'ป้องกันแผลติดเชื้อ', descEn: 'Prevents wound infection', price: 15, stock: 15, img: 'assets/plaster.jpeg', props: 'ปกปิดและป้องกันบาดแผล', propsEn: 'Covers and protects wounds', warn: 'ระวังการแพ้กาวพลาสเตอร์', warnEn: 'Beware of adhesive allergies', expDate: '' },
+        { id: 'p4', name: 'ยาดมตราโป๊ยเซียน', nameEn: 'Poy-Sian Inhaler', desc: '1 หลอด', descEn: '1 tube', price: 20, stock: 20, img: 'assets/inhaler.jpeg', props: 'บรรเทาอาการวิงเวียนศีรษะ', propsEn: 'Relieves dizziness and nasal congestion', warn: 'ยาใช้ภายนอก ห้ามรับประทาน', warnEn: 'For external use only. Do not swallow', expDate: '' }
     ];
     for (const item of defaultItems) {
         await setDoc(doc(db, "inventory", item.id), item);
@@ -224,6 +224,23 @@ window.addToCart = function(id) {
         return;
     }
     const product = inventory.find(p => p.id === id);
+
+    // ✅ ดักจับวันหมดอายุก่อนหยิบลงตะกร้า
+    if (product.expDate) {
+        const today = new Date();
+        today.setHours(0, 0, 0, 0); // ตัดเวลาทิ้ง เทียบเฉพาะวัน
+        const exp = new Date(product.expDate);
+        if (exp < today) {
+            Swal.fire({
+                icon: 'error', 
+                title: currentLang === 'th' ? 'ยาหมดอายุ' : 'Expired Item', 
+                text: currentLang === 'th' ? 'สินค้านี้หมดอายุแล้ว ไม่สามารถสั่งซื้อได้ ขออภัยในความไม่สะดวกครับ' : 'This item has expired and cannot be purchased.',
+                confirmButtonColor: 'var(--tu-red)'
+            });
+            return; // หยุดการทำงาน ไม่ให้เอาลงตะกร้า
+        }
+    }
+
     const cartItem = cart.find(c => c.id === id);
     if (cartItem) cartItem.qty += 1;
     else cart.push({ ...product, qty: 1 });
@@ -291,7 +308,6 @@ function updateCartUI() {
     document.getElementById('cart-grand-total').innerText = `฿${totalPrice}`;
 }
 
-// ✅ ตัวแปรเช็กสถานะการจ่ายเงิน และการจัดการเวลา
 let timerInterval, paymentCheckInterval;
 let isPaymentSuccess = false; 
 
@@ -302,9 +318,9 @@ window.proceedToPayment = async function() {
         return;
     }
 
-    isPaymentSuccess = false; // รีเซ็ตสถานะ
+    isPaymentSuccess = false; 
 
-    // 🔴 1. ระบบ Lock สต๊อกแบบ Transaction (ป้องกัน 2 คนกดชำระเงินพร้อมกัน)
+    // 🔴 1. ระบบ Lock สต๊อกแบบ Transaction
     try {
         await runTransaction(db, async (transaction) => {
             let stockToUpdate = [];
@@ -316,7 +332,6 @@ window.proceedToPayment = async function() {
                     let pName = currentLang === 'en' && item.nameEn ? item.nameEn : item.name;
                     throw new Error(`Out of stock: ${pName}`);
                 }
-                // หักสต๊อกล่วงหน้าเพื่อเป็นการ "จอง" ไว้
                 stockToUpdate.push({ ref: prodRef, newStock: prodSnap.data().stock - item.qty });
             }
             stockToUpdate.forEach(update => {
@@ -363,16 +378,14 @@ window.proceedToPayment = async function() {
             qrImg.style.display = 'block';
             statusTxt.innerText = currentLang === 'th' ? 'สแกนคิวอาร์โค้ดเพื่อชำระเงินและรับยา' : 'Scan QR Code to pay and dispense';
             
-            // ส่งสัญญาณไปบอกตู้ว่า "กำลังมีคนจ่ายเงินนะ" เผื่อตู้จะขึ้นจอเตือนคนอื่นให้รอ
             mqttClient.publish("tse100/status", "USER_PAYING");
-            
             startCheckingPayment(data.chargeId, systemItemName, totalPrice);
         } else throw new Error();
     } catch (error) {
         loader.style.display = 'none';
         statusTxt.innerText = currentLang === 'th' ? 'เกิดข้อผิดพลาด ไม่สามารถเชื่อมต่อระบบได้' : 'Connection Error';
         
-        restoreStock(); // 🔄 คืนสต๊อกถ้าระบบสร้าง QR ล่ม
+        restoreStock();
 
         if(auth.currentUser && auth.currentUser.email.split('@')[0] === CONFIG.ADMIN_ID) {
             if(!document.getElementById('btn-simulate-admin')) {
@@ -382,7 +395,6 @@ window.proceedToPayment = async function() {
     }
 }
 
-// ✅ ฟังก์ชันคืนสต๊อก (กรณียกเลิก, เน็ตหลุด, หรือหมดเวลา 3 นาที)
 window.restoreStock = async function() {
     for (const item of cart) {
         const prodRef = doc(db, "inventory", item.id);
@@ -416,7 +428,7 @@ function startTimer(seconds) {
 
         if (--remaining < 0) {
             clearInterval(timerInterval);
-            closePayment(); // 🔄 ฟังก์ชันนี้จะจัดการคืนสต๊อกให้อัตโนมัติ
+            closePayment(); 
             cart = []; updateCartUI(); renderProducts();
             Swal.fire({icon: 'error', title: t('swal_timeout'), text: t('swal_timeout_desc'), confirmButtonColor: 'var(--tu-red)'});
         }
@@ -443,7 +455,7 @@ function startCheckingPayment(chargeId, itemName, itemPrice) {
 }
 
 async function processSuccessfulOrder(chargeId, itemName, itemPrice) {
-    isPaymentSuccess = true; // ✅ ตั้งสถานะเป็นจ่ายสำเร็จแล้ว (ไม่หักสต๊อกซ้ำ และไม่คืนสต๊อก)
+    isPaymentSuccess = true; 
 
     document.getElementById('payment-ui').style.display = 'none';
     document.getElementById('hardware-sync-ui').style.display = 'flex';
@@ -475,11 +487,9 @@ async function processSuccessfulOrder(chargeId, itemName, itemPrice) {
     }, 2500);
 }
 
-// ✅ อัปเดตเพื่อให้เช็กสถานะการจ่ายเงินก่อน ถ้ายังไม่ได้จ่าย แต่กดออก หรือหมดเวลา ให้คืนยาเข้าตู้
 window.closePayment = function() {
     document.getElementById('payment-modal').style.display = 'none'; 
     
-    // ถ้ายกเลิกกลางคันก่อนหมดเวลา หรือ หมดเวลาไปแล้ว (แต่ยังไม่จ่ายเงิน) ให้คืนสต๊อก
     if (!isPaymentSuccess && cart.length > 0) {
         restoreStock();
     }
@@ -619,6 +629,9 @@ document.getElementById('btnResetPwd').addEventListener('click', async () => {
     }
 });
 
+// ==========================================
+// 8. ระบบหลังบ้าน (Admin Dashboard)
+// ==========================================
 function renderAdminStock() {
     const container = document.getElementById('admin-stock-container');
     if(!container) return;
@@ -628,25 +641,66 @@ function renderAdminStock() {
         const cardClass = isLowStock ? 'admin-stock-item low-stock-alert' : 'admin-stock-item';
         let pName = currentLang === 'en' && item.nameEn ? item.nameEn : item.name;
         
+        // ✅ ระบบคำนวณและแสดงสีแจ้งเตือนวันหมดอายุ (Shelf Life)
+        let expColor = "#888";
+        let expText = currentLang === 'th' ? "ยังไม่ตั้งค่า" : "Not set";
+        let expBorder = "transparent";
+
+        if (item.expDate) {
+            const today = new Date();
+            today.setHours(0, 0, 0, 0); 
+            const exp = new Date(item.expDate);
+            const diffTime = exp - today;
+            const diffDays = Math.ceil(diffTime / (1000 * 60 * 60 * 24)); 
+
+            if (diffDays < 0) {
+                expColor = "#c51d23"; // สีแดง (หมดอายุ)
+                expBorder = "#c51d23";
+                expText = currentLang === 'th' ? "หมดอายุแล้ว!" : "Expired!";
+            } else if (diffDays <= 30) {
+                expColor = "#ff8c00"; // สีส้ม (ใกล้หมดอายุ)
+                expBorder = "#ff8c00";
+                expText = currentLang === 'th' ? `เหลือ ${diffDays} วัน` : `${diffDays} days left`;
+            } else {
+                expColor = "#28a745"; // สีเขียว (ปกติ)
+                expBorder = "#28a745";
+                expText = currentLang === 'th' ? "ปกติ" : "Normal";
+            }
+        }
+        
         container.innerHTML += `
-            <div class="${cardClass}">
-                <div class="admin-stock-row-1">
+            <div class="${cardClass}" style="margin-bottom: 12px; padding-bottom: 15px;">
+                <div class="admin-stock-row-1" style="display:flex; justify-content:space-between; align-items:center; margin-bottom: 8px;">
                     <span style="font-size:14px; font-weight:600; color: ${isLowStock ? '#c51d23' : '#333'}">${pName}</span>
-                    ${isLowStock ? `<span style="font-size:10px; color:white; background:#c51d23; padding:2px 6px; border-radius:10px;">${currentLang === 'th' ? 'ใกล้หมด!' : 'Low!'}</span>` : ''}
-                </div>
-                <div class="admin-stock-row-2">
-                    <div style="font-size:12px; color:var(--text-sub); display:flex; align-items:center; gap:5px;">
-                        ${currentLang === 'th' ? 'ราคา' : 'Price'}: ฿<input type="number" class="price-input" value="${item.price}" onchange="adminUpdatePrice('${item.id}', this.value)">
+                    <div style="display:flex; align-items:center; gap: 5px;">
+                        ${isLowStock ? `<span style="font-size:10px; color:white; background:#c51d23; padding:2px 6px; border-radius:10px;">${currentLang === 'th' ? 'ใกล้หมด!' : 'Low!'}</span>` : ''}
+                        <span style="font-size:10px; color:${expColor}; border:1px solid ${expBorder}; padding:2px 6px; border-radius:10px;">${expText}</span>
                     </div>
-                    <div class="qty-controls" style="background:#fff; border:1px solid #ddd;">
-                        <button class="qty-btn" onclick="adminAdjustStock('${item.id}', -1)">-</button>
-                        <span style="font-size:14px; width:30px; text-align:center;">${item.stock}</span>
-                        <button class="qty-btn" onclick="adminAdjustStock('${item.id}', 1)">+</button>
+                </div>
+                <div class="admin-stock-row-2" style="display:flex; flex-wrap:wrap; gap:10px; align-items:center;">
+                    <div style="font-size:12px; color:var(--text-sub); display:flex; align-items:center; gap:5px;">
+                        ${currentLang === 'th' ? 'ราคา' : 'Price'}: ฿<input type="number" class="price-input" style="width:50px; padding:4px;" value="${item.price}" onchange="adminUpdatePrice('${item.id}', this.value)">
+                    </div>
+                    <div class="qty-controls" style="background:#fff; border:1px solid #ddd; border-radius:4px; display:flex;">
+                        <button class="qty-btn" style="border:none; background:none; padding:4px 8px; cursor:pointer;" onclick="adminAdjustStock('${item.id}', -1)">-</button>
+                        <span style="font-size:14px; width:30px; text-align:center; padding-top:2px;">${item.stock}</span>
+                        <button class="qty-btn" style="border:none; background:none; padding:4px 8px; cursor:pointer;" onclick="adminAdjustStock('${item.id}', 1)">+</button>
+                    </div>
+                    
+                    <!-- ✅ ช่องกรอกวันหมดอายุสำหรับแอดมิน -->
+                    <div style="font-size:11px; color:var(--text-sub); display:flex; align-items:center; gap:5px; margin-left:auto;">
+                        EXP: <input type="date" style="padding:3px; font-size:11px; border:1px solid #ddd; border-radius:4px; font-family:inherit;" value="${item.expDate || ''}" onchange="adminUpdateExpDate('${item.id}', this.value)">
                     </div>
                 </div>
             </div>
         `;
     });
+}
+
+// ✅ ฟังก์ชันอัปเดตวันหมดอายุบน Firebase
+window.adminUpdateExpDate = async function(id, newDate) {
+    await updateDoc(doc(db, "inventory", id), { expDate: newDate });
+    Swal.fire({ toast: true, position: 'top', icon: 'success', title: currentLang === 'th' ? 'อัปเดตวันหมดอายุสำเร็จ' : 'Expiry Date Updated', showConfirmButton: false, timer: 1500 });
 }
 
 window.adminAdjustStock = async function(id, delta) {
