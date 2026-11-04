@@ -145,3 +145,100 @@ body { background-color: var(--bg-color); color: var(--text-main); }
 .hardware-progress-bar { width: 80%; height: 6px; background: #eee; border-radius: 4px; margin: 15px auto; overflow: hidden; position: relative; }
 .hardware-progress-fill { position: absolute; top: 0; left: 0; height: 100%; background: var(--tu-red); width: 0%; animation: loadHardware 2.5s ease-in-out forwards; }
 @keyframes loadHardware { 0% { width: 0%; } 50% { width: 60%; } 100% { width: 100%; } }
+/* =========================================
+การตกแต่งปุ่ม (Button Styles)
+========================================= */
+
+/* กลุ่มปุ่มหลัก (Primary Button) - เช่น ปุ่มชำระเงิน, เข้าสู่ระบบ */
+.btn-primary {
+background: linear-gradient(135deg, var(--tu-red, #c51d23) 0%, #a0141a 100%);
+color: white;
+border: none;
+border-radius: 12px;
+padding: 14px 24px;
+font-size: 16px;
+font-weight: 600;
+cursor: pointer;
+width: 100%;
+transition: all 0.2s ease;
+box-shadow: 0 4px 12px rgba(197, 29, 35, 0.2);
+display: flex;
+align-items: center;
+justify-content: center;
+gap: 8px;
+}
+.btn-primary:hover {
+transform: translateY(-2px);
+box-shadow: 0 6px 16px rgba(197, 29, 35, 0.3);
+}
+.btn-primary:active {
+transform: translateY(0);
+box-shadow: 0 2px 8px rgba(197, 29, 35, 0.2);
+}
+
+/* กลุ่มปุ่มรอง (Secondary Button) - เช่น สมัครสมาชิก, แจ้งปัญหา */
+.btn-secondary {
+background: #ffffff;
+color: var(--text-main, #333);
+border: 1px solid #e0e0e0;
+border-radius: 12px;
+padding: 14px 24px;
+font-size: 15px;
+font-weight: 600;
+cursor: pointer;
+width: 100%;
+transition: all 0.2s ease;
+box-shadow: 0 2px 6px rgba(0,0,0,0.02);
+display: flex;
+align-items: center;
+justify-content: center;
+gap: 8px;
+margin-top: 10px;
+}
+.btn-secondary:hover {
+background: #f8f9fa;
+border-color: #d0d0d0;
+}
+.btn-secondary:active {
+background: #f0f1f4;
+transform: scale(0.98);
+}
+
+/* ปุ่มยกเลิก (Cancel Button) */
+.btn-cancel {
+background: transparent;
+color: var(--text-sub, #888);
+border: none;
+font-size: 14px;
+font-weight: 500;
+text-decoration: underline;
+cursor: pointer;
+padding: 10px;
+margin-top: 10px;
+transition: color 0.2s ease;
+}
+.btn-cancel:hover {
+color: var(--tu-red, #c51d23);
+}
+
+/* ปุ่มบวก/ลบ จำนวนสินค้า (Qty Controls) */
+.qty-btn {
+background: #f0f1f4;
+border: none;
+width: 28px;
+height: 28px;
+border-radius: 6px;
+display: flex;
+align-items: center;
+justify-content: center;
+font-weight: bold;
+color: #333;
+cursor: pointer;
+transition: background 0.2s;
+}
+.qty-btn:hover {
+background: #e2e4e9;
+}
+.qty-btn:active {
+transform: scale(0.9);
+}
