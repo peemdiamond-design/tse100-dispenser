@@ -189,11 +189,68 @@
 
     <!-- VIEW: Home -->
     <div id="view-home" class="view-section active">
+        
+        <!-- แบนเนอร์ปรึกษาแพทย์ Tham-C -->
+        <div style="padding: 20px 20px 0;">
+            <div style="background: linear-gradient(135deg, #e3f2fd 0%, #bbdefb 100%); border-radius: 16px; padding: 15px; display: flex; align-items: center; gap: 15px; box-shadow: 0 4px 10px rgba(0,0,0,0.05); cursor: pointer; transition: transform 0.2s;" onclick="window.open('https://www.tham-c.com/th', '_blank')" onmousedown="this.style.transform='scale(0.98)'" onmouseup="this.style.transform='scale(1)'">
+                <div style="background: white; width: 45px; height: 45px; border-radius: 50%; display: flex; justify-content: center; align-items: center; flex-shrink: 0; box-shadow: 0 2px 5px rgba(0,0,0,0.1);">
+                    <i class="fa-solid fa-user-doctor" style="color: #1976d2; font-size: 20px;"></i>
+                </div>
+                <div>
+                    <h4 style="margin: 0; color: #1565c0; font-size: 14px; font-weight: 700;" data-i18n="thamc_title">ปรึกษาแพทย์ออนไลน์</h4>
+                    <p style="margin: 4px 0 0; color: #1d1d1f; font-size: 11px;" data-i18n="thamc_desc">ไม่แน่ใจอาการ? ปรึกษาหมอผ่าน Tham-C</p>
+                </div>
+                <i class="fa-solid fa-chevron-right" style="margin-left: auto; color: #1976d2;"></i>
+            </div>
+        </div>
+
         <div id="loading-inventory" style="text-align:center; margin-top:50px;">
             <div class="loader"></div>
             <p style="color:var(--text-sub); font-size:14px; margin-top:10px;" data-i18n="loading_stock">กำลังโหลดสต๊อกยาแบบเรียลไทม์...</p>
         </div>
         <div class="product-list" id="product-list-container"></div>
+    </div>
+
+    <!-- VIEW: Map & Location -->
+    <div id="view-map" class="view-section">
+        <div style="padding: 20px; padding-bottom: 0;">
+            <h2 style="font-size: 18px; margin-bottom: 15px; color: var(--tu-red); margin-top: 0;"><i class="fa-solid fa-map-location-dot"></i> <span data-i18n="map_title">แผนที่จุดตั้งตู้ Smart Rx</span></h2>
+        </div>
+        
+        <!-- Google Maps Embed -->
+        <div style="width: 100%; height: 280px; background: #eee; position: relative;">
+            <!-- โค้ดฝัง Google Maps ระบุพิกัดคณะวิศวกรรมศาสตร์ มธ. รังสิต -->
+            <iframe src="https://www.google.com/maps/embed?pb=!1m18!1m12!1m3!1d3871.439818814713!2d100.60195577601614!3d14.07340059009893!2m3!1f0!2f0!3f0!3m2!1i1024!2i768!4f13.1!3m3!1m2!1s0x30e28005b46b8be5%3A0xc0fb659d4c1ba754!2z4LiE4LiT4Liw4Lin4Li04Lio4Lin4LiB4Lij4Lij4Lih4Lio4Liy4Liq4LiV4Lij4LmMIOC4oeC4q-C4suC4p-C4tOC4l-C4ouC4suC4peC4seC4ouC4mOC4o-C4o-C4oeC4qOC4suC4quC4leC4o-C5jA!5e0!3m2!1sth!2sth!4v1700000000000!5m2!1sth!2sth" width="100%" height="100%" style="border:0;" allowfullscreen="" loading="lazy" referrerpolicy="no-referrer-when-downgrade"></iframe>
+        </div>
+
+        <div style="padding: 20px;">
+            <div class="product-card" style="flex-direction: column; gap: 10px;">
+                <div style="display: flex; justify-content: space-between; align-items: flex-start; width: 100%;">
+                    <div>
+                        <h3 style="font-size: 16px; margin: 0 0 5px 0; color: #1d1d1f;" data-i18n="map_loc_name">อาคารเรียนรวม 1 (ตึกวิศวะฯ)</h3>
+                        <p style="font-size: 12px; color: var(--text-sub); margin: 0;" data-i18n="map_loc_desc">มหาวิทยาลัยธรรมศาสตร์ ศูนย์รังสิต</p>
+                    </div>
+                    <span class="badge-status status-online" style="font-size: 10px;"><div class="status-dot"></div> Online</span>
+                </div>
+                
+                <hr style="border: 0; border-top: 1px dashed #eee; width: 100%; margin: 5px 0;">
+                
+                <div style="display: flex; flex-direction: column; gap: 8px; width: 100%;">
+                    <div style="display: flex; align-items: center; gap: 10px; font-size: 13px; color: var(--text-main);">
+                        <i class="fa-regular fa-clock" style="color: var(--tu-red); width: 16px;"></i>
+                        <span><b data-i18n="map_open">เปิดให้บริการ:</b> <span data-i18n="map_24h">24 ชั่วโมง</span></span>
+                    </div>
+                    <div style="display: flex; align-items: center; gap: 10px; font-size: 13px; color: var(--text-main);">
+                        <i class="fa-solid fa-box-open" style="color: var(--tu-red); width: 16px;"></i>
+                        <span><b data-i18n="map_status">สถานะตู้:</b> <span data-i18n="map_ready">พร้อมจำหน่ายยาสามัญ</span></span>
+                    </div>
+                </div>
+
+                <button class="btn-primary" style="margin-top: 10px;" onclick="window.open('https://maps.app.goo.gl/yH8GgZ66qUjU2U2H6', '_blank')">
+                    <i class="fa-solid fa-location-arrow"></i> <span data-i18n="map_nav">นำทางไปที่ตู้</span>
+                </button>
+            </div>
+        </div>
     </div>
 
     <!-- VIEW: Orders -->
@@ -331,6 +388,7 @@
     <!-- Bottom Nav -->
     <div class="bottom-nav">
         <div class="nav-item active" onclick="switchTab('view-home', this)"><i class="fa-solid fa-house"></i><span data-i18n="nav_home">หน้าหลัก</span></div>
+        <div class="nav-item" onclick="switchTab('view-map', this)"><i class="fa-solid fa-map-location-dot"></i><span data-i18n="nav_map">จุดตั้งตู้</span></div>
         <div class="nav-item" onclick="switchTab('view-orders', this)"><i class="fa-solid fa-clipboard-list"></i><span data-i18n="nav_orders">คำสั่งซื้อ</span></div>
         <div class="nav-item" onclick="switchTab('view-account', this)" id="nav-account"><i class="fa-regular fa-user"></i><span data-i18n="nav_acc">บัญชี</span></div>
         <div class="nav-item" onclick="switchTab('view-admin', this)" id="nav-admin" style="display: none;"><i class="fa-solid fa-lock"></i><span data-i18n="nav_admin">แอดมิน</span></div>
@@ -445,7 +503,9 @@
     const dict = {
         th: {
             app_title: "ตู้จ่ายยาอัตโนมัติ TSE", app_loc: "อาคารเรียนรวม 1 (ตึกวิศวะฯ)",
-            nav_home: "หน้าหลัก", nav_orders: "คำสั่งซื้อ", nav_acc: "บัญชี", nav_admin: "แอดมิน",
+            nav_home: "หน้าหลัก", nav_map: "จุดตั้งตู้", nav_orders: "คำสั่งซื้อ", nav_acc: "บัญชี", nav_admin: "แอดมิน",
+            thamc_title: "ปรึกษาแพทย์ออนไลน์", thamc_desc: "ไม่แน่ใจอาการ? ปรึกษาหมอผ่าน Tham-C",
+            map_title: "แผนที่จุดตั้งตู้ Smart Rx", map_loc_name: "อาคารเรียนรวม 1 (ตึกวิศวะฯ)", map_loc_desc: "มหาวิทยาลัยธรรมศาสตร์ ศูนย์รังสิต", map_open: "เปิดให้บริการ:", map_24h: "24 ชั่วโมง", map_status: "สถานะตู้:", map_ready: "พร้อมจำหน่ายยาสามัญ", map_nav: "นำทางไปที่ตู้",
             loading_stock: "กำลังโหลดสต๊อกยาแบบเรียลไทม์...",
             order_history: "ประวัติคำสั่งซื้อ", pls_login: "กรุณาเข้าสู่ระบบเพื่อดูข้อมูล",
             your_orders: "ประวัติการรับยาของคุณ", student_login: "เข้าสู่ระบบนักศึกษา", auth_loading: "กำลังประมวลผล...",
@@ -477,7 +537,9 @@
         },
         en: {
             app_title: "TSE Smart Pharmacy", app_loc: "LC1 Building (Engineering)",
-            nav_home: "Home", nav_orders: "Orders", nav_acc: "Account", nav_admin: "Admin",
+            nav_home: "Home", nav_map: "Locations", nav_orders: "Orders", nav_acc: "Account", nav_admin: "Admin",
+            thamc_title: "Online Doctor Consult", thamc_desc: "Not sure? Talk to a doctor via Tham-C",
+            map_title: "Smart Rx Locations", map_loc_name: "LC1 Building (Engineering)", map_loc_desc: "Thammasat University, Rangsit Campus", map_open: "Hours:", map_24h: "24 Hours", map_status: "Status:", map_ready: "Ready to dispense", map_nav: "Get Directions",
             loading_stock: "Loading real-time inventory...",
             order_history: "Order History", pls_login: "Please login to view your data",
             your_orders: "Your Prescription History", student_login: "Student Login", auth_loading: "Processing...",
