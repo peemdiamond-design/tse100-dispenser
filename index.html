@@ -15,6 +15,10 @@
     
     <script src="https://unpkg.com/mqtt/dist/mqtt.min.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+    
+    <!-- ✅ เพิ่ม Chart.js สำหรับสร้างกราฟยอดขายของ Admin -->
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    
     <style>
         :root { 
             --tu-red: #c51d23; --tu-yellow: #f6c026; --bg-color: #f5f6f8; 
@@ -22,16 +26,13 @@
             --border-color: #e5e5ea; --font-family: 'Prompt', sans-serif;
         }
         
-        /* ✅ แก้ปัญหาเรื่องขนาดและการล้นกรอบ (เอาคำสั่งบังคับฟอนต์ออกจากตรงนี้ เพื่อไม่ให้ทับไอคอน) */
         *, *::before, *::after { 
             box-sizing: border-box !important; 
             margin: 0; padding: 0; -webkit-tap-highlight-color: transparent; 
         }
         
-        /* ✅ บังคับฟอนต์ที่ body แทน เพื่อให้ฟอนต์หน้าเว็บเป็น Prompt แต่ไม่ทับไอคอน */
         body, html { background-color: var(--bg-color); color: var(--text-main); font-family: var(--font-family) !important; }
         
-        /* ✅ บังคับฟอร์มให้ใช้ฟอนต์ Prompt ด้วย (แก้ปัญหา iOS ดื้อ) */
         input, button, textarea, select { font-family: var(--font-family) !important; max-width: 100% !important; }
 
         .app-container { width: 100%; max-width: 480px; margin: 0 auto; background: var(--bg-color); min-height: 100vh; position: relative; padding-bottom: 130px; box-shadow: 0 0 20px rgba(0,0,0,0.05); overflow-x: hidden; }
@@ -153,7 +154,6 @@
         .hardware-progress-fill { position: absolute; top: 0; left: 0; height: 100%; background: var(--tu-red); width: 0%; animation: loadHardware 2.5s ease-in-out forwards; }
         @keyframes loadHardware { 0% { width: 0%; } 50% { width: 60%; } 100% { width: 100%; } }
 
-        /* ✅ ตกแต่งปุ่ม Professional */
         .btn-primary { background: linear-gradient(135deg, var(--tu-red) 0%, #a0141a 100%); color: white; border: none; border-radius: 12px; padding: 14px 24px; font-size: 16px; font-weight: 600; cursor: pointer; width: 100%; margin-bottom: 10px; transition: all 0.2s ease; box-shadow: 0 4px 12px rgba(197, 29, 35, 0.2); display: flex; align-items: center; justify-content: center; gap: 8px; }
         .btn-primary:hover { transform: translateY(-2px); box-shadow: 0 6px 16px rgba(197, 29, 35, 0.3); }
         .btn-primary:active { transform: translateY(0); box-shadow: 0 2px 8px rgba(197, 29, 35, 0.2); }
@@ -219,7 +219,6 @@
         
         <!-- Google Maps Embed -->
         <div style="width: 100%; height: 280px; background: #eee; position: relative;">
-            <!-- โค้ดฝัง Google Maps ระบุพิกัดคณะวิศวกรรมศาสตร์ มธ. รังสิต (อัปเดตใหม่) -->
             <iframe src="https://maps.google.com/maps?q=คณะวิศวกรรมศาสตร์%20มหาวิทยาลัยธรรมศาสตร์%20ศูนย์รังสิต&t=&z=17&ie=UTF8&iwloc=&output=embed" width="100%" height="100%" style="border:0;" allowfullscreen="" loading="lazy" referrerpolicy="no-referrer-when-downgrade"></iframe>
         </div>
 
@@ -348,7 +347,15 @@
                 </div>
             </div>
 
+            <!-- ✅ NEW: กราฟวิเคราะห์ยอดขาย -->
             <div class="admin-card" style="border-top: 3px solid var(--tu-red);">
+                <h3 style="margin-bottom: 15px; font-size: 15px;"><i class="fa-solid fa-chart-pie"></i> <span data-i18n="admin_chart_title">วิเคราะห์ยอดขาย (Top Sales)</span></h3>
+                <div style="position: relative; height:200px; width:100%;">
+                    <canvas id="salesChart"></canvas>
+                </div>
+            </div>
+
+            <div class="admin-card">
                 <h3 style="margin-bottom: 15px; font-size: 15px;"><i class="fa-solid fa-box"></i> <span data-i18n="admin_stock_title">จัดการสต๊อก & ราคา</span></h3>
                 <div id="admin-stock-container"></div>
             </div>
@@ -369,6 +376,20 @@
                 </div>
                 <div id="admin-all-orders-list" style="max-height: 300px; overflow-y: auto;">
                     <div class="loader" id="admin-orders-loader"></div>
+                </div>
+            </div>
+
+            <!-- ✅ NEW: ระบบบันทึกประวัติซ่อมบำรุง -->
+            <div class="admin-card">
+                <h3 style="margin-bottom: 15px; font-size: 15px;"><i class="fa-solid fa-screwdriver-wrench"></i> <span data-i18n="admin_maint_title">บันทึกการบำรุงรักษา</span></h3>
+                <div style="display: flex; gap: 10px; margin-bottom: 15px;">
+                    <input type="text" id="maintInput" style="flex:1; padding: 10px; border: 1px solid #ddd; border-radius: 8px; font-family: inherit; font-size: 13px;" placeholder="รายละเอียดซ่อม/เติมสต๊อก...">
+                    <button class="btn-primary" style="width: auto; margin: 0; padding: 10px 15px; font-size: 13px;" onclick="addMaintenanceLog()">
+                        <i class="fa-solid fa-plus"></i> <span data-i18n="admin_maint_btn">บันทึก</span>
+                    </button>
+                </div>
+                <div id="maint-list" style="max-height: 200px; overflow-y: auto; font-size: 12px; color: var(--text-sub);">
+                    <!-- Logs appear here -->
                 </div>
             </div>
 
@@ -518,6 +539,7 @@
             btn_pwd: "เปลี่ยนรหัสผ่าน", btn_issue: "แจ้งปัญหา / ขอคืนเงิน", btn_logout: "ออกจากระบบ", policy: "ข้อตกลงและนโยบายความเป็นส่วนตัว",
             admin_mode: "โหมดผู้ดูแล", admin_offline: "ระบบ Offline", admin_online: "ระบบ Online",
             admin_today: "ยอดขายวันนี้", admin_total: "ยอดขายรวมทั้งหมด",
+            admin_chart_title: "วิเคราะห์ยอดขาย (Top Sales)", admin_maint_title: "บันทึกการบำรุงรักษา", admin_maint_btn: "บันทึก", admin_maint_ph: "รายละเอียดซ่อม/เติมสต๊อก...", maint_no_data: "ยังไม่มีประวัติการบำรุงรักษา", swal_maint_success: "บันทึกประวัติสำเร็จ!",
             admin_stock_title: "จัดการสต๊อก & ราคา", admin_test_title: "ทดสอบฮาร์ดแวร์ตู้ยา",
             admin_test_btn: "ส่งคำสั่งทดสอบมอเตอร์จ่ายยา", admin_hist_title: "ประวัติการซื้อทั้งหมด", admin_export: "โหลดรายงาน", admin_logout: "ออกจากระบบ Admin",
             view_cart: "ดูตะกร้าสินค้า", cart_title: "ตะกร้าสินค้าของคุณ", cart_total: "ยอดสุทธิรวม", cart_consent: "ข้าพเจ้าได้อ่านคำเตือนของยาทุกรายการ และยืนยันว่าไม่มีประวัติแพ้ยาเหล่านี้",
@@ -552,6 +574,7 @@
             btn_pwd: "Change Password", btn_issue: "Report Issue / Refund", btn_logout: "Logout", policy: "Privacy Policy & Terms",
             admin_mode: "Admin Mode", admin_offline: "System Offline", admin_online: "System Online",
             admin_today: "Today's Sales", admin_total: "Total Sales",
+            admin_chart_title: "Sales Analytics (Top Sales)", admin_maint_title: "Maintenance Log", admin_maint_btn: "Save", admin_maint_ph: "Maintenance details...", maint_no_data: "No maintenance records.", swal_maint_success: "Log saved successfully!",
             admin_stock_title: "Manage Stock & Prices", admin_test_title: "Hardware Test",
             admin_test_btn: "Send Motor Test Command", admin_hist_title: "All Transactions", admin_export: "Export Report", admin_logout: "Admin Logout",
             view_cart: "View Cart", cart_title: "Your Cart", cart_total: "Grand Total", cart_consent: "I have read all medical warnings and confirm I have no allergies.",
@@ -592,6 +615,9 @@
 
         document.getElementById('stuIdInput').placeholder = t('ph_stu_id');
         document.getElementById('pwdInput').placeholder = t('ph_pwd');
+        
+        const maintInput = document.getElementById('maintInput');
+        if(maintInput) maintInput.placeholder = t('admin_maint_ph');
         
         let mqttTxt = document.getElementById('mqtt-status-text').innerText;
         if(mqttTxt === "ระบบ Online" || mqttTxt === "System Online") document.getElementById('mqtt-status-text').innerText = t('admin_online');
@@ -691,6 +717,7 @@
     let inventory = []; 
     let cart = [];
     let adminGlobalOrdersData = [];
+    let salesChartInstance = null; // ✅ ตัวแปรกราฟ
 
     const defaultEngData = {
         'p1': { nameEn: 'Paracetamol 500mg', descEn: '10 tablets/pack', propsEn: 'Relieves pain and reduces fever', warnEn: 'Do not use if you have severe liver disease' },
@@ -742,245 +769,13 @@
         if(auth.currentUser) {
             const stuId = auth.currentUser.email.split('@')[0];
             if(viewId === 'view-orders' && stuId !== ADMIN_ID) loadOrders(stuId); 
-            if(viewId === 'view-admin' && stuId === ADMIN_ID) loadAdminDashboard();
-        }
-    }
-    
-    window.openCartModal = () => {
-        document.getElementById('consent-check').checked = false;
-        document.getElementById('cart-modal').style.display = 'flex';
-    }
-    window.closeModals = () => {
-        document.getElementById('cart-modal').style.display = 'none';
-        document.getElementById('payment-modal').style.display = 'none';
-    }
-
-    function renderProducts() {
-        const container = document.getElementById('product-list-container');
-        container.innerHTML = '';
-        if (inventory.length === 0) return;
-        
-        inventory.forEach(item => {
-            const cartItem = cart.find(c => c.id === item.id);
-            const qtyInCart = cartItem ? cartItem.qty : 0;
-            const isOutOfStock = (item.stock - qtyInCart) <= 0;
-            
-            let pName = currentLang === 'en' && item.nameEn ? item.nameEn : item.name;
-            let pDesc = currentLang === 'en' && item.descEn ? item.descEn : item.desc;
-            let pProps = currentLang === 'en' && item.propsEn ? item.propsEn : item.props;
-            let pWarn = currentLang === 'en' && item.warnEn ? item.warnEn : item.warn;
-
-            const btnHTML = isOutOfStock 
-                ? `<button class="out-of-stock-btn" disabled>${t('out_of_stock')}</button>`
-                : `<button class="add-btn" onclick="addToCart('${item.id}')"><i class="fa-solid fa-plus"></i></button>`;
-
-            const badgeHTML = item.stock <= 0 
-                ? `<div class="stock-badge" style="background: rgba(0,0,0,0.6); color: white;">${t('out_of_stock')}</div>` 
-                : `<div class="stock-badge" style="background: var(--tu-yellow); color: #000; font-weight: 600;">${t('left')} ${item.stock} ${t('pcs')}</div>`;
-
-            container.innerHTML += `
-                <div class="product-card" style="opacity: ${item.stock <= 0 ? '0.6' : '1'};">
-                    ${badgeHTML}
-                    <img src="${item.img}" style="width: 70px; height: 70px; border-radius: 12px; object-fit: cover;" onerror="this.src='https://cdn-icons-png.flaticon.com/512/822/822102.png'">
-                    <div class="prod-info">
-                        <h3>${pName}</h3>
-                        <p style="font-size: 12px; color: var(--text-sub);">${pDesc}</p>
-                        <div class="med-details">
-                            <p class="med-props"><i class="fa-solid fa-notes-medical med-icon"></i> <strong>${t('props')}</strong> ${pProps}</p>
-                            <p class="med-warn"><i class="fa-solid fa-triangle-exclamation med-icon"></i> <strong>${t('warn')}</strong> ${pWarn}</p>
-                        </div>
-                        <div class="price-row">
-                            <span class="price">฿${item.price}</span>
-                            ${btnHTML}
-                        </div>
-                    </div>
-                </div>
-            `;
-        });
-        renderAdminStock();
-    }
-
-    window.addToCart = function(id) {
-        if (!auth.currentUser) {
-            Swal.fire({icon: 'info', title: t('pls_login'), text: currentLang === 'th' ? 'ต้องล็อกอินก่อนหยิบยาใส่ตะกร้านะครับ' : 'You must login to add items.'});
-            switchTab('view-account', document.getElementById('nav-account'));
-            return;
-        }
-        
-        const product = inventory.find(p => p.id === id);
-
-        // ✅ ดักจับวันหมดอายุก่อนหยิบลงตะกร้า
-        if (product.expDate) {
-            const today = new Date();
-            today.setHours(0, 0, 0, 0); // ตัดเวลาทิ้ง เทียบเฉพาะวัน
-            const exp = new Date(product.expDate);
-            if (exp < today) {
-                Swal.fire({
-                    icon: 'error', 
-                    title: currentLang === 'th' ? 'ยาหมดอายุ' : 'Expired Item', 
-                    text: currentLang === 'th' ? 'สินค้านี้หมดอายุแล้ว ไม่สามารถสั่งซื้อได้ ขออภัยในความไม่สะดวกครับ' : 'This item has expired and cannot be purchased.',
-                    confirmButtonColor: 'var(--tu-red)'
-                });
-                return; // หยุดการทำงาน ไม่ให้เอาลงตะกร้า
-            }
-        }
-
-        const cartItem = cart.find(c => c.id === id);
-        if (cartItem) cartItem.qty += 1;
-        else cart.push({ ...product, qty: 1 });
-        
-        updateCartUI();
-        renderProducts();
-
-        const floatBar = document.getElementById('cart-floating-bar');
-        floatBar.classList.remove('bop-anim');
-        void floatBar.offsetWidth; 
-        floatBar.classList.add('bop-anim');
-        Swal.fire({ toast: true, position: 'top', icon: 'success', title: t('swal_added'), showConfirmButton: false, timer: 1000 });
-    }
-
-    window.updateItemQty = function(id, delta) {
-        const cartIndex = cart.findIndex(c => c.id === id);
-        if (cartIndex > -1) {
-            const product = inventory.find(p => p.id === id);
-            let newQty = cart[cartIndex].qty + delta;
-            if (newQty > product.stock) return Swal.fire({ toast: true, position: 'top', icon: 'error', title: t('swal_stock_err'), showConfirmButton: false, timer: 1500 });
-            if (newQty <= 0) cart.splice(cartIndex, 1);
-            else cart[cartIndex].qty = newQty;
-            updateCartUI();
-            renderProducts();
-        }
-    }
-
-    function updateCartUI() {
-        const floatBar = document.getElementById('cart-floating-bar');
-        const modalContainer = document.getElementById('cart-items-container');
-        let totalQty = 0; let totalPrice = 0;
-        modalContainer.innerHTML = '';
-
-        if (cart.length === 0) {
-            floatBar.style.display = 'none';
-            modalContainer.innerHTML = `<p style="text-align:center; color:#888; padding: 20px;">${t('empty_cart')}</p>`;
-            document.getElementById('cart-grand-total').innerText = '฿0';
-            closeModals();
-            return;
-        }
-
-        cart.forEach(item => {
-            let pName = currentLang === 'en' && item.nameEn ? item.nameEn : item.name;
-            totalQty += item.qty; totalPrice += (item.price * item.qty);
-            modalContainer.innerHTML += `
-                <div class="cart-item">
-                    <div style="display:flex; gap:10px; align-items:center;">
-                        <img src="${item.img}" style="width:40px; height:40px; border-radius:8px;" onerror="this.src='https://cdn-icons-png.flaticon.com/512/822/822102.png'">
-                        <div>
-                            <div style="font-size:14px; font-weight:500;">${pName}</div>
-                            <div style="color:var(--tu-red); font-size:14px; font-weight:bold;">฿${item.price * item.qty}</div>
-                        </div>
-                    </div>
-                    <div class="qty-controls">
-                        <button class="qty-btn" onclick="updateItemQty('${item.id}', -1)">-</button>
-                        <span style="font-size:14px; width:20px; text-align:center; font-weight:bold;">${item.qty}</span>
-                        <button class="qty-btn" onclick="updateItemQty('${item.id}', 1)">+</button>
-                    </div>
-                </div>
-            `;
-        });
-        floatBar.style.display = 'flex';
-        document.getElementById('cart-count-badge').innerText = totalQty;
-        document.getElementById('cart-total-float').innerText = `฿${totalPrice}`;
-        document.getElementById('cart-grand-total').innerText = `฿${totalPrice}`;
-    }
-
-    const BACKEND_URL = 'https://api.peemcn25.dev'; 
-    let timerInterval, paymentCheckInterval;
-    let isPaymentSuccess = false;
-
-    window.proceedToPayment = async function() {
-        const consent = document.getElementById('consent-check').checked;
-        if(!consent) {
-            Swal.fire({icon: 'warning', title: t('swal_consent'), text: t('swal_consent_desc'), confirmButtonColor: 'var(--tu-red)'});
-            return;
-        }
-        
-        isPaymentSuccess = false;
-
-        // 🔴 1. ระบบ Lock สต๊อกแบบ Transaction ป้องกันชนกัน
-        try {
-            await runTransaction(db, async (transaction) => {
-                let stockToUpdate = [];
-                for (let item of cart) {
-                    const prodRef = doc(db, "inventory", item.id);
-                    const prodSnap = await transaction.get(prodRef);
-                    
-                    if (!prodSnap.exists() || prodSnap.data().stock < item.qty) {
-                        let pName = currentLang === 'en' && item.nameEn ? item.nameEn : item.name;
-                        throw new Error(`Out of stock: ${pName}`);
-                    }
-                    stockToUpdate.push({ ref: prodRef, newStock: prodSnap.data().stock - item.qty });
-                }
-                stockToUpdate.forEach(update => {
-                    transaction.update(update.ref, { stock: update.newStock });
-                });
-            });
-        } catch (error) {
-            Swal.fire({ icon: 'error', title: t('out_of_stock'), text: currentLang === 'th' ? 'มีคนซื้อสินค้านี้ไปเมื่อสักครู่ สต๊อกไม่พอแล้วครับ' : 'Item was just purchased by someone else.' });
-            closeModals();
-            return;
-        }
-
-        // 🟢 2. ผ่านด่านสต๊อกแล้ว ค่อยเปิดหน้าจ่ายเงิน
-        document.getElementById('cart-modal').style.display = 'none';
-        let totalPrice = cart.reduce((sum, item) => sum + (item.price * item.qty), 0);
-        let itemsSummary = cart.map(i => `${currentLang==='en' && i.nameEn ? i.nameEn : i.name} (x${i.qty})`).join(', ');
-        let systemItemName = cart.map(i => `${i.name} (x${i.qty})`).join(', '); 
-        
-        document.getElementById('summary-price').innerText = `฿${totalPrice}.00`;
-        document.getElementById('payment-ui').style.display = 'block';
-        document.getElementById('hardware-sync-ui').style.display = 'none';
-        document.getElementById('payment-modal').style.display = 'flex'; 
-        
-        const loader = document.getElementById('loader');
-        const qrImg = document.getElementById('qr-image');
-        const statusTxt = document.getElementById('qr-status');
-        
-        loader.style.display = 'block';
-        qrImg.style.display = 'none';
-        statusTxt.innerText = t('qr_gen');
-
-        startTimer(180); 
-
-        try {
-            const response = await fetch(`${BACKEND_URL}/api/create-qr`, {
-                method: 'POST',
-                headers: { 'Content-Type': 'application/json' },
-                body: JSON.stringify({ price: totalPrice, itemName: "ยา " + cart.length + " รายการ" })
-            });
-            const data = await response.json();
-
-            if (data.qrImage) {
-                loader.style.display = 'none';
-                qrImg.src = data.qrImage;
-                qrImg.style.display = 'block';
-                statusTxt.innerText = currentLang === 'th' ? 'สแกนคิวอาร์โค้ดเพื่อชำระเงินและรับยา' : 'Scan QR Code to pay and dispense';
-                mqttClient.publish("tse100/status", "USER_PAYING");
-                startCheckingPayment(data.chargeId, systemItemName, totalPrice);
-            } else throw new Error();
-        } catch (error) {
-            loader.style.display = 'none';
-            statusTxt.innerText = currentLang === 'th' ? 'เกิดข้อผิดพลาด ไม่สามารถเชื่อมต่อระบบได้' : 'Connection Error';
-            
-            restoreStock(); // 🔄 คืนสต๊อกถ้า API มีปัญหา
-
-            if(auth.currentUser && auth.currentUser.email.split('@')[0] === ADMIN_ID) {
-                if(!document.getElementById('btn-simulate-admin')) {
-                    document.getElementById('summary-price').parentElement.insertAdjacentHTML('afterend', `<button id="btn-simulate-admin" class="btn-primary" style="margin-top:10px; background:#28a745;" onclick="simulatePayment('${systemItemName}', ${totalPrice})">Admin: Simulate Payment</button>`);
-                }
+            if(viewId === 'view-admin' && stuId === ADMIN_ID) {
+                loadAdminDashboard();
+                loadMaintenanceLogs();
             }
         }
     }
 
-    // ✅ ฟังก์ชันคืนสต๊อก (กรณียกเลิก, เน็ตหลุด, หรือหมดเวลา 3 นาที)
     window.restoreStock = async function() {
         for (const item of cart) {
             const prodRef = doc(db, "inventory", item.id);
@@ -1076,7 +871,6 @@
     window.closePayment = function() {
         document.getElementById('payment-modal').style.display = 'none'; 
         
-        // ถ้าปิดหน้าต่างทั้งที่ยังจ่ายไม่สำเร็จ หรือกดยกเลิก ให้คืนสต๊อกเข้าตู้ทันที
         if (!isPaymentSuccess && cart.length > 0) {
             restoreStock();
         }
@@ -1094,6 +888,7 @@
                 document.getElementById('auth-section').style.display = 'none';
                 switchTab('view-admin', document.getElementById('nav-admin'));
                 loadAdminDashboard();
+                loadMaintenanceLogs(); // ✅ โหลดบันทึก
             } else {
                 document.getElementById('nav-account').style.display = 'flex';
                 document.getElementById('nav-admin').style.display = 'none';
@@ -1225,7 +1020,6 @@
             const cardClass = isLowStock ? 'admin-stock-item low-stock-alert' : 'admin-stock-item';
             let pName = currentLang === 'en' && item.nameEn ? item.nameEn : item.name;
             
-            // ✅ ระบบคำนวณและแสดงสีแจ้งเตือนวันหมดอายุ (Shelf Life)
             let expColor = "#888";
             let expText = currentLang === 'th' ? "ยังไม่ตั้งค่า" : "Not set";
             let expBorder = "transparent";
@@ -1238,15 +1032,15 @@
                 const diffDays = Math.ceil(diffTime / (1000 * 60 * 60 * 24)); 
 
                 if (diffDays < 0) {
-                    expColor = "#c51d23"; // สีแดง (หมดอายุ)
+                    expColor = "#c51d23";
                     expBorder = "#c51d23";
                     expText = currentLang === 'th' ? "หมดอายุแล้ว!" : "Expired!";
                 } else if (diffDays <= 30) {
-                    expColor = "#ff8c00"; // สีส้ม (ใกล้หมดอายุ)
+                    expColor = "#ff8c00";
                     expBorder = "#ff8c00";
                     expText = currentLang === 'th' ? `เหลือ ${diffDays} วัน` : `${diffDays} days left`;
                 } else {
-                    expColor = "#28a745"; // สีเขียว (ปกติ)
+                    expColor = "#28a745";
                     expBorder = "#28a745";
                     expText = currentLang === 'th' ? "ปกติ" : "Normal";
                 }
@@ -1271,7 +1065,6 @@
                             <button class="qty-btn" style="border:none; background:none; padding:4px 8px; cursor:pointer;" onclick="adminAdjustStock('${item.id}', 1)">+</button>
                         </div>
                         
-                        <!-- ✅ ช่องกรอกวันหมดอายุสำหรับแอดมิน -->
                         <div style="font-size:11px; color:var(--text-sub); display:flex; align-items:center; gap:5px; margin-left:auto;">
                             EXP: <input type="date" style="padding:3px; font-size:11px; border:1px solid #ddd; border-radius:4px; font-family:inherit;" value="${item.expDate || ''}" onchange="adminUpdateExpDate('${item.id}', this.value)">
                         </div>
@@ -1281,7 +1074,6 @@
         });
     }
 
-    // ✅ ฟังก์ชันอัปเดตวันหมดอายุบน Firebase
     window.adminUpdateExpDate = async function(id, newDate) {
         await updateDoc(doc(db, "inventory", id), { expDate: newDate });
         Swal.fire({ toast: true, position: 'top', icon: 'success', title: currentLang === 'th' ? 'อัปเดตวันหมดอายุสำเร็จ' : 'Expiry Date Updated', showConfirmButton: false, timer: 1500 });
@@ -1315,17 +1107,50 @@
             let todaySales = 0;
             const todayStr = new Date().toLocaleDateString('th-TH');
 
+            let itemSalesCounts = {}; // ✅ เก็บข้อมูลเพื่อทำกราฟ
+
             querySnapshot.forEach((doc) => { 
                 const data = doc.data(); 
                 allOrders.push({id: doc.id, ...data}); 
                 const price = parseInt(data.price || 0);
                 totalSales += price;
                 if (data.createdAt && new Date(data.createdAt.toDate()).toLocaleDateString('th-TH') === todayStr) todaySales += price;
+                
+                // คำนวณยอดขายแต่ละตัวเพื่อทำกราฟ
+                if(data.itemName) {
+                    let parts = data.itemName.split(',');
+                    parts.forEach(p => {
+                        let cleanName = p.split(' (x')[0].trim();
+                        itemSalesCounts[cleanName] = (itemSalesCounts[cleanName] || 0) + 1;
+                    });
+                }
             });
 
             adminGlobalOrdersData = allOrders;
             document.getElementById('admin-total-sales').innerText = `฿${totalSales.toLocaleString()}`;
             document.getElementById('admin-today-sales').innerText = `฿${todaySales.toLocaleString()}`;
+
+            // ✅ สร้าง/อัปเดตกราฟวิเคราะห์ยอดขาย
+            const ctx = document.getElementById('salesChart').getContext('2d');
+            if (salesChartInstance) salesChartInstance.destroy(); // เคลียร์กราฟเก่า
+            
+            salesChartInstance = new Chart(ctx, {
+                type: 'doughnut',
+                data: {
+                    labels: Object.keys(itemSalesCounts),
+                    datasets: [{
+                        data: Object.values(itemSalesCounts),
+                        backgroundColor: ['#c51d23', '#f6c026', '#1976d2', '#28a745', '#6c757d'],
+                        borderWidth: 2,
+                        borderColor: '#fff'
+                    }]
+                },
+                options: { 
+                    responsive: true, 
+                    maintainAspectRatio: false,
+                    plugins: { legend: { position: 'right', labels: { font: { family: "'Prompt', sans-serif" }, boxWidth: 12 } } }
+                }
+            });
 
             allOrders.sort((a, b) => { return (b.createdAt ? b.createdAt.toMillis() : 0) - (a.createdAt ? a.createdAt.toMillis() : 0); });
 
@@ -1373,6 +1198,65 @@
         link.setAttribute("href", encodedUri);
         link.setAttribute("download", "tu_smart_rx_sales_report.csv");
         document.body.appendChild(link); link.click(); document.body.removeChild(link);
+    }
+
+    window.addMaintenanceLog = async function() {
+        const input = document.getElementById('maintInput');
+        const text = input.value.trim();
+        if (!text) return;
+
+        try {
+            await addDoc(collection(db, "maintenance_logs"), {
+                detail: text,
+                createdAt: serverTimestamp(),
+                adminId: auth.currentUser.email.split('@')[0]
+            });
+            input.value = '';
+            Swal.fire({ toast: true, position: 'top', icon: 'success', title: t('swal_maint_success'), showConfirmButton: false, timer: 1500 });
+            loadMaintenanceLogs();
+        } catch (e) {
+            Swal.fire('Error', e.message, 'error');
+        }
+    }
+
+    async function loadMaintenanceLogs() {
+        const listDiv = document.getElementById('maint-list');
+        listDiv.innerHTML = '<div class="loader"></div>';
+        try {
+            const q = query(collection(db, "maintenance_logs"));
+            const querySnapshot = await getDocs(q);
+            const logs = [];
+            querySnapshot.forEach(doc => {
+                logs.push({ id: doc.id, ...doc.data() });
+            });
+            
+            logs.sort((a, b) => { return (b.createdAt ? b.createdAt.toMillis() : 0) - (a.createdAt ? a.createdAt.toMillis() : 0); });
+
+            if (logs.length === 0) {
+                listDiv.innerHTML = `<p style="text-align:center;">${t('maint_no_data')}</p>`;
+                return;
+            }
+
+            let html = '';
+            logs.forEach(log => {
+                const dateObj = log.createdAt ? new Date(log.createdAt.toDate()) : new Date();
+                const dateStr = currentLang === 'en' ? dateObj.toLocaleDateString('en-GB') : dateObj.toLocaleDateString('th-TH');
+                const timeStr = dateObj.toLocaleTimeString(currentLang === 'en' ? 'en-GB' : 'th-TH', { hour: '2-digit', minute: '2-digit' });
+                
+                html += `
+                    <div style="margin-bottom: 10px; padding-bottom: 10px; border-bottom: 1px solid #eee;">
+                        <div style="color: #94a3b8; font-size: 11px; margin-bottom: 3px;">
+                            <i class="fa-regular fa-clock"></i> ${dateStr} ${timeStr} 
+                            <span style="margin-left: 5px;"><i class="fa-solid fa-user-shield"></i> ${log.adminId}</span>
+                        </div>
+                        <div style="color: #1d1d1f; font-size: 13px;">${log.detail}</div>
+                    </div>
+                `;
+            });
+            listDiv.innerHTML = html;
+        } catch (e) {
+            listDiv.innerHTML = '<p style="text-align:center; color:red;">Error loading logs</p>';
+        }
     }
 
     window.testDispense = function() {
