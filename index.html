@@ -1783,7 +1783,7 @@
                             <span style="color:var(--tu-red); font-weight:600;">฿${order.price}</span>
                         </div>
                         <div style="display:flex; justify-content:space-between; align-items:center; font-size:11px; color:var(--text-sub);">
-                            <span><i class="fa-regular fa-user"></i> ${order.stuId}</span>
+                            <span><i class="fa-regular fa-user"></i> ${maskId(order.stuId)}</span>
                             <span>${dateStr} ${timeStr}</span>
                         </div>
                     </div>`;
@@ -1792,6 +1792,9 @@
 
         } catch (error) {}
     }
+
+    // 🔒 ปิดรหัสนักศึกษาบางส่วนเมื่อแสดง/ส่งออกในหน้าแอดมิน (เช่น 6910616249 → 6910••••49)
+    const maskId = id => { id = String(id || ''); return id.length >= 8 ? id.slice(0, 4) + '••••' + id.slice(-2) : (id ? '••••' : '-'); };
 
     window.exportOrdersCSV = function() {
         if(adminGlobalOrdersData.length === 0) return Swal.fire(currentLang === 'th' ? 'ไม่มีข้อมูล' : 'No Data', '', 'info');
@@ -1802,7 +1805,7 @@
             let dateStr = dateObj.toLocaleDateString('th-TH');
             let timeStr = dateObj.toLocaleTimeString('th-TH', { hour: '2-digit', minute: '2-digit' });
             let safeName = o.itemName ? o.itemName.replace(/,/g, " ") : "ไม่มีชื่อ";
-            csvContent += `${dateStr},${timeStr},${o.stuId},${safeName},${o.price}\n`;
+            csvContent += `${dateStr},${timeStr},${maskId(o.stuId)},${safeName},${o.price}\n`;
         });
         const encodedUri = encodeURI(csvContent);
         const link = document.createElement("a");
