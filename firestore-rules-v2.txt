@@ -49,11 +49,12 @@
       allow read: if rxAdmin() || resource.data.stuId == rxSid();
     }
 
-    // ให้แอดมินเพิ่มเครดิตให้ผู้บริจาค และแก้ส่วนผสมยาได้ (เพิ่มจากกฎเดิม ไม่ได้ตัดสิทธิ์เดิม)
-    match /users/{uid} {
-      allow read, write: if rxAdmin();
-    }
+    // โหมดบุคคลทั่วไป (ไม่ล็อกอิน): ลด/คืนสต๊อกตอนซื้อได้ แต่แก้ได้เฉพาะช่อง stock ครั้งละไม่เกิน 10 และไม่ติดลบ
     match /inventory/{itemId} {
-      allow write: if rxAdmin();
+      allow update: if request.auth == null
+        && request.resource.data.diff(resource.data).affectedKeys().hasOnly(['stock'])
+        && request.resource.data.stock is int
+        && request.resource.data.stock >= 0
+        && math.abs(request.resource.data.stock - resource.data.stock) <= 10;
     }
     // ===== TU Smart Rx v2 : จบ =====
