@@ -1,0 +1,59 @@
+    // ===== TU Smart Rx v2 : เริ่ม =====
+    // วางบล็อกนี้ "ข้างใน" match /databases/{database}/documents { ... } ของกฎเดิม
+    // ไม่ต้องลบกฎเดิม กฎ Firestore อนุญาตถ้ามีข้อใดข้อหนึ่งยอมให้ผ่าน
+
+    function rxSid() { return request.auth != null ? request.auth.token.email.split('@')[0] : ''; }
+    function rxAdmin() { return rxSid() == '6910616249'; }
+    function rxMember() { return request.auth != null && !rxAdmin(); }
+    function rxOnly(fields) { return request.resource.data.keys().hasOnly(fields); }
+
+    // ปุ่ม SOS: ทุกคนส่งได้ (บุคคลทั่วไปไม่ต้องล็อกอิน) แต่อ่านรายการทั้งหมดได้เฉพาะแอดมิน
+    match /emergencies/{id} {
+      allow create: if request.resource.data.status == 'new'
+        && request.resource.data.level in ['green', 'yellow', 'red']
+        && (request.resource.data.reporter == 'guest' || request.resource.data.reporter == rxSid())
+        && rxOnly(['level', 'lat', 'lng', 'accuracy', 'note', 'phone', 'reporter', 'fullName', 'status', 'source', 'createdAt']);
+      allow get: if rxAdmin() || resource.data.reporter == 'guest' || resource.data.reporter == rxSid();
+      allow list, update: if rxAdmin();
+    }
+
+    // ความพึงพอใจ: สมาชิกส่งในชื่อตัวเองได้ แอดมินอ่าน
+    match /feedback/{id} {
+      allow create: if rxMember() && request.resource.data.stuId == rxSid()
+        && request.resource.data.rating is int
+        && request.resource.data.rating >= 1 && request.resource.data.rating <= 5
+        && rxOnly(['stuId', 'rating', 'topics', 'comment', 'createdAt']);
+      allow read: if rxAdmin();
+    }
+
+    // บริจาคยา: สมาชิกส่งคำขอของตัวเอง เห็นเฉพาะของตัวเอง แอดมินอนุมัติ/ปฏิเสธ
+    match /donations/{id} {
+      allow create: if rxMember() && request.resource.data.stuId == rxSid()
+        && request.resource.data.status == 'pending'
+        && rxOnly(['stuId', 'medName', 'qty', 'expDate', 'note', 'status', 'createdAt']);
+      allow read: if rxAdmin() || resource.data.stuId == rxSid();
+      allow update: if rxAdmin();
+    }
+
+    // ลืมรหัสผ่าน: ส่งได้โดยไม่ต้องล็อกอิน แอดมินอ่านและปิดเรื่อง
+    match /resetRequests/{id} {
+      allow create: if request.resource.data.status == 'pending'
+        && rxOnly(['stuId', 'fullName', 'phone', 'status', 'createdAt']);
+      allow read, update: if rxAdmin();
+    }
+
+    // บันทึกเครดิต: สมาชิกบันทึกได้เฉพาะการใช้เครดิตของตัวเอง (ยอดติดลบ) แอดมินบันทึกการให้เครดิต
+    match /creditLogs/{id} {
+      allow create: if rxAdmin()
+        || (rxMember() && request.resource.data.stuId == rxSid() && request.resource.data.amount < 0);
+      allow read: if rxAdmin() || resource.data.stuId == rxSid();
+    }
+
+    // ให้แอดมินเพิ่มเครดิตให้ผู้บริจาค และแก้ส่วนผสมยาได้ (เพิ่มจากกฎเดิม ไม่ได้ตัดสิทธิ์เดิม)
+    match /users/{uid} {
+      allow read, write: if rxAdmin();
+    }
+    match /inventory/{itemId} {
+      allow write: if rxAdmin();
+    }
+    // ===== TU Smart Rx v2 : จบ =====
