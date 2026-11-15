@@ -34,7 +34,7 @@
         /* ✅ บังคับฟอร์มให้ใช้ฟอนต์ Prompt ด้วย (แก้ปัญหา iOS ดื้อ) */
         input, button, textarea, select { font-family: var(--font-family) !important; max-width: 100% !important; }
 
-        .app-container { width: 100%; max-width: 480px; margin: 0 auto; background: var(--bg-color); min-height: 100vh; position: relative; padding-bottom: 130px; box-shadow: 0 0 20px rgba(0,0,0,0.05); overflow-x: hidden; }
+        .app-container { width: 100%; max-width: 480px; margin: 0 auto; background: var(--bg-color); min-height: 100vh; position: relative; padding-bottom: 170px; box-shadow: 0 0 20px rgba(0,0,0,0.05); overflow-x: hidden; }
         
         .header { background: rgba(255, 255, 255, 0.75); backdrop-filter: blur(20px) saturate(180%); -webkit-backdrop-filter: blur(20px) saturate(180%); padding: 15px 20px; position: sticky; top: 0; z-index: 10; border-bottom: 1px solid rgba(0,0,0,0.05); display: flex; align-items: center; justify-content: space-between; }
         .location-info { display: flex; align-items: center; gap: 12px; }
@@ -66,7 +66,7 @@
         .out-of-stock-btn { background: #e5e5ea; color: #86868b; width: auto; padding: 0 12px; border-radius: 16px; font-size: 12px; height: 32px; cursor: not-allowed; border: none; font-weight: bold; }
         .stock-badge { position: absolute; top: 10px; right: 10px; background: rgba(0,0,0,0.6); color: white; padding: 2px 8px; border-radius: 10px; font-size: 10px; }
 
-        .cart-floating-bar { position: fixed; bottom: calc(85px + env(safe-area-inset-bottom)); left: 50%; transform: translateX(-50%); width: 90%; max-width: 440px; background: rgba(197, 29, 35, 0.85); backdrop-filter: blur(15px) saturate(180%); -webkit-backdrop-filter: blur(15px) saturate(180%); color: white; padding: 15px 20px; border-radius: 100px; display: none; justify-content: space-between; align-items: center; z-index: 15; box-shadow: 0 8px 25px rgba(197, 29, 35, 0.3); cursor: pointer; animation: slideUpCart 0.4s cubic-bezier(0.32, 0.72, 0, 1.2); transition: transform 0.2s; }
+        .cart-floating-bar { position: fixed; bottom: calc(112px + env(safe-area-inset-bottom)); left: 50%; transform: translateX(-50%); width: 90%; max-width: 440px; background: rgba(197, 29, 35, 0.85); backdrop-filter: blur(15px) saturate(180%); -webkit-backdrop-filter: blur(15px) saturate(180%); color: white; padding: 15px 20px; border-radius: 100px; display: none; justify-content: space-between; align-items: center; z-index: 15; box-shadow: 0 8px 25px rgba(197, 29, 35, 0.3); cursor: pointer; animation: slideUpCart 0.4s cubic-bezier(0.32, 0.72, 0, 1.2); transition: transform 0.2s; }
         .cart-floating-bar .cart-count { background: white; color: var(--tu-red); width: 24px; height: 24px; border-radius: 50%; display: flex; align-items: center; justify-content: center; font-size: 14px; font-weight: bold; }
         @keyframes slideUpCart { from { transform: translate(-50%, 100px); opacity: 0; } to { transform: translate(-50%, 0); opacity: 1; } }
         @keyframes bop { 0% { transform: translate(-50%, 0) scale(1); } 50% { transform: translate(-50%, 0) scale(1.08); } 100% { transform: translate(-50%, 0) scale(1); } }
@@ -170,6 +170,84 @@
         .qty-btn:hover { background: #e2e4e9; }
         .qty-btn:active { transform: scale(0.9); }
         .btn-close-receipt { width: 100%; background: #1d1d1f; color: white; padding: 12px; border: none; border-radius: 8px; font-size: 14px; font-weight: 600; cursor: pointer; margin-top: 20px; }
+
+        /* ===== v2: ฟีเจอร์ใหม่ ===== */
+        .header-actions { display: flex; align-items: center; gap: 8px; }
+        .icon-btn { background: #f0f1f4; border: 1px solid #ddd; border-radius: 20px; width: 36px; height: 34px; font-size: 15px; color: var(--text-main); cursor: pointer; display: flex; align-items: center; justify-content: center; }
+
+        .search-wrap { padding: 15px 20px 0; position: relative; }
+        .search-wrap i { position: absolute; left: 36px; top: 50%; transform: translateY(-15%); color: var(--text-sub); font-size: 14px; }
+        .search-input { width: 100%; padding: 13px 40px 13px 42px; border: 1px solid var(--border-color); border-radius: 14px; font-size: 14px; outline: none; background: #fff; box-shadow: 0 2px 8px rgba(0,0,0,0.03); }
+        .search-input:focus { border-color: var(--tu-red); }
+        .search-clear { position: absolute; right: 30px; top: 50%; transform: translateY(-15%); background: none; border: none; color: var(--text-sub); font-size: 16px; cursor: pointer; display: none; }
+
+        .quick-actions { display: grid; grid-template-columns: repeat(3, 1fr); gap: 10px; padding: 15px 20px 0; }
+        .qa-btn { background: #fff; border: 1px solid #eee; border-radius: 14px; padding: 12px 6px; text-align: center; cursor: pointer; box-shadow: 0 2px 8px rgba(0,0,0,0.03); font-size: 12px; font-weight: 500; color: var(--text-main); }
+        .qa-btn i { display: block; font-size: 20px; margin-bottom: 6px; color: var(--tu-red); }
+        .qa-btn:active { transform: scale(0.96); }
+
+        .guest-banner { margin: 15px 20px 0; background: #fff8e1; border: 1px solid #ffe08a; border-radius: 14px; padding: 12px 14px; font-size: 12px; color: #6b5300; display: none; gap: 10px; align-items: flex-start; line-height: 1.5; }
+        .guest-banner b { color: #3d2f00; }
+        .guest-banner a { color: var(--tu-red); font-weight: 600; text-decoration: underline; cursor: pointer; }
+
+        .allergy-flag { display: flex; gap: 6px; align-items: flex-start; background: #c51d23; color: #fff; font-size: 11px; font-weight: 600; border-radius: 8px; padding: 6px 8px; margin-top: 8px; line-height: 1.4; }
+        .product-card.allergic { border: 1.5px solid var(--tu-red); }
+
+        /* ปุ่มฉุกเฉินตรงกลาง */
+        .nav-sos { flex: 1; display: flex; flex-direction: column; align-items: center; justify-content: flex-end; font-size: 10px; color: var(--tu-red); font-weight: 600; cursor: pointer; position: relative; }
+        .nav-sos .sos-btn { position: absolute; top: -34px; width: 64px; height: 64px; border-radius: 50%; background: radial-gradient(circle at 30% 30%, #ff4d52, #c51d23 60%, #8e0f14); color: #fff; display: flex; align-items: center; justify-content: center; flex-direction: column; font-size: 13px; font-weight: 800; letter-spacing: 1px; box-shadow: 0 6px 18px rgba(197,29,35,0.45), 0 0 0 5px #fff; animation: sosPulse 2.2s ease-in-out infinite; }
+        .nav-sos .sos-btn i { font-size: 18px; margin-bottom: 1px; }
+        .nav-sos span.lbl { margin-top: 34px; }
+        @keyframes sosPulse { 0%,100% { box-shadow: 0 6px 18px rgba(197,29,35,0.45), 0 0 0 5px #fff, 0 0 0 5px rgba(197,29,35,0.35); } 50% { box-shadow: 0 6px 18px rgba(197,29,35,0.45), 0 0 0 5px #fff, 0 0 0 14px rgba(197,29,35,0); } }
+
+        .level-grid { display: flex; flex-direction: column; gap: 10px; margin: 10px 0 15px; }
+        .level-card { border: 2px solid #eee; border-radius: 14px; padding: 12px 14px; display: flex; gap: 12px; align-items: center; cursor: pointer; background: #fff; transition: all 0.15s; }
+        .level-card .dot { width: 22px; height: 22px; border-radius: 50%; flex-shrink: 0; }
+        .level-card h4 { font-size: 14px; margin-bottom: 2px; }
+        .level-card p { font-size: 11px; color: var(--text-sub); line-height: 1.4; }
+        .level-card.sel-green { border-color: #2e9e4f; background: #effaf2; }
+        .level-card.sel-yellow { border-color: #e0a800; background: #fff9e6; }
+        .level-card.sel-red { border-color: #c51d23; background: #fff1f1; }
+        .gps-box { background: #f5f6f8; border-radius: 12px; padding: 12px; font-size: 12px; color: var(--text-main); margin-bottom: 12px; line-height: 1.6; }
+        .gps-box b { color: var(--tu-red); }
+        .call-1669 { background: #1d1d1f; color: #fff; border: none; border-radius: 12px; padding: 12px; font-size: 15px; font-weight: 700; width: 100%; display: flex; gap: 8px; align-items: center; justify-content: center; text-decoration: none; margin-bottom: 10px; }
+        .sheet-textarea { width: 100%; min-height: 70px; padding: 12px; border: 1px solid var(--border-color); border-radius: 12px; font-size: 13px; outline: none; resize: vertical; background: #f9f9f9; margin-bottom: 12px; }
+        .sheet-input { width: 100%; padding: 12px; border: 1px solid var(--border-color); border-radius: 12px; font-size: 13px; outline: none; background: #f9f9f9; margin-bottom: 10px; }
+        .sheet-label { font-size: 12px; font-weight: 600; color: var(--text-main); margin: 4px 0 6px; display: block; }
+
+        .menu-list { background: #fff; border-radius: 14px; border: 1px solid #eee; overflow: hidden; margin-bottom: 20px; text-align: left; }
+        .menu-item { display: flex; align-items: center; gap: 12px; padding: 14px 15px; border-bottom: 1px solid #f2f2f4; cursor: pointer; font-size: 14px; }
+        .menu-item:last-child { border-bottom: none; }
+        .menu-item .mi { width: 34px; height: 34px; border-radius: 10px; display: flex; align-items: center; justify-content: center; font-size: 15px; flex-shrink: 0; }
+        .menu-item .chev { margin-left: auto; color: #c7c7cc; }
+        .menu-item small { display: block; font-size: 11px; color: var(--text-sub); }
+
+        .stars { display: flex; justify-content: center; gap: 8px; margin: 10px 0 6px; }
+        .stars i { font-size: 34px; color: #ddd; cursor: pointer; transition: transform 0.1s; }
+        .stars i.on { color: var(--tu-yellow); }
+        .stars i:active { transform: scale(0.85); }
+        .chips { display: flex; flex-wrap: wrap; gap: 8px; margin-bottom: 12px; }
+        .chip { border: 1px solid #ddd; border-radius: 20px; padding: 6px 12px; font-size: 12px; cursor: pointer; background: #fff; }
+        .chip.on { background: var(--tu-red); color: #fff; border-color: var(--tu-red); }
+
+        .credit-box { display: none; align-items: center; justify-content: space-between; gap: 10px; background: #effaf2; border: 1px solid #bfe6cb; border-radius: 10px; padding: 10px 12px; margin-bottom: 12px; font-size: 13px; flex-shrink: 0; }
+        .credit-box label { display: flex; gap: 8px; align-items: center; cursor: pointer; color: #1e6b36; font-weight: 500; }
+        .credit-box input { accent-color: #2e9e4f; width: 18px; height: 18px; }
+        .cart-allergy-warn { display: none; background: #c51d23; color: #fff; border-radius: 10px; padding: 10px 12px; font-size: 12px; margin-bottom: 12px; line-height: 1.5; flex-shrink: 0; }
+
+        .manual-wrap { padding: 20px; }
+        .manual-sec { background: #fff; border-radius: 14px; border: 1px solid #eee; margin-bottom: 10px; overflow: hidden; }
+        .manual-sec summary { list-style: none; padding: 14px 15px; font-size: 14px; font-weight: 600; cursor: pointer; display: flex; align-items: center; gap: 10px; }
+        .manual-sec summary::-webkit-details-marker { display: none; }
+        .manual-sec summary i.lead { width: 30px; height: 30px; border-radius: 9px; background: #fdecec; color: var(--tu-red); display: flex; align-items: center; justify-content: center; font-size: 13px; }
+        .manual-sec[open] summary { border-bottom: 1px solid #f2f2f4; }
+        .manual-sec ol, .manual-sec ul { padding: 12px 15px 14px 34px; font-size: 13px; line-height: 1.7; color: #333; }
+
+        .admin-list-item { padding: 12px 0; border-bottom: 1px solid #f0f1f4; font-size: 13px; }
+        .admin-list-item:last-child { border-bottom: none; }
+        .lvl-pill { display: inline-block; padding: 2px 10px; border-radius: 12px; font-size: 11px; font-weight: 700; color: #fff; }
+        .mini-btn { border: none; border-radius: 8px; padding: 6px 10px; font-size: 12px; font-weight: 600; cursor: pointer; }
+        .back-link { display: inline-flex; align-items: center; gap: 6px; font-size: 13px; color: var(--text-sub); cursor: pointer; margin-bottom: 12px; }
     </style>
 </head>
 <body>
@@ -183,8 +261,12 @@
                 <p><i class="fa-solid fa-location-dot" style="color: var(--tu-red);"></i> <span data-i18n="app_loc">อาคารเรียนรวม 1 (ตึกวิศวะฯ)</span></p>
             </div>
         </div>
-        <!-- 🌍 ปุ่มสลับภาษา -->
-        <button class="lang-toggle-btn" onclick="toggleLanguage()" id="langBtn">🇹🇭</button>
+        <div class="header-actions">
+            <!-- 📖 คู่มือการใช้งาน -->
+            <button class="icon-btn" onclick="openManual()" aria-label="คู่มือการใช้งาน"><i class="fa-regular fa-circle-question"></i></button>
+            <!-- 🌍 ปุ่มสลับภาษา -->
+            <button class="lang-toggle-btn" onclick="toggleLanguage()" id="langBtn">🇹🇭</button>
+        </div>
     </div>
 
     <!-- VIEW: Home -->
@@ -204,11 +286,45 @@
             </div>
         </div>
 
+        <!-- แบนเนอร์โหมดบุคคลทั่วไป -->
+        <div class="guest-banner" id="guest-banner">
+            <i class="fa-solid fa-circle-info" style="font-size:16px; margin-top:2px;"></i>
+            <div><b data-i18n="guest_banner_title">คุณกำลังใช้งานแบบบุคคลทั่วไป</b><br><span data-i18n="guest_banner_desc">ซื้อยาได้ แต่ระบบจะไม่บันทึกประวัติ เครดิต และข้อมูลแพ้ยา</span> <a onclick="goLogin()" data-i18n="guest_banner_link">เข้าสู่ระบบนักศึกษา</a></div>
+        </div>
+
+        <!-- 🔎 ช่องค้นหา -->
+        <div class="search-wrap">
+            <i class="fa-solid fa-magnifying-glass"></i>
+            <input type="search" id="searchInput" class="search-input" placeholder="ค้นหายา หรืออาการ เช่น ปวดหัว ท้องเสีย" oninput="onSearch(this.value)" autocomplete="off">
+            <button class="search-clear" id="searchClear" onclick="clearSearch()"><i class="fa-solid fa-circle-xmark" style="position:static; transform:none;"></i></button>
+        </div>
+
+        <!-- ทางลัด -->
+        <div class="quick-actions">
+            <div class="qa-btn" onclick="openDonate()"><i class="fa-solid fa-hand-holding-medical"></i><span data-i18n="qa_donate">บริจาคยา</span></div>
+            <div class="qa-btn" onclick="openFeedback()"><i class="fa-regular fa-face-smile"></i><span data-i18n="qa_feedback">ให้คะแนน</span></div>
+            <div class="qa-btn" onclick="openManual()"><i class="fa-solid fa-book-open"></i><span data-i18n="qa_manual">คู่มือ</span></div>
+        </div>
+
         <div id="loading-inventory" style="text-align:center; margin-top:50px;">
             <div class="loader"></div>
             <p style="color:var(--text-sub); font-size:14px; margin-top:10px;" data-i18n="loading_stock">กำลังโหลดสต๊อกยาแบบเรียลไทม์...</p>
         </div>
         <div class="product-list" id="product-list-container"></div>
+        <div id="search-empty" style="display:none; text-align:center; color:var(--text-sub); padding:30px 20px; font-size:14px;">
+            <i class="fa-solid fa-magnifying-glass" style="font-size:36px; color:#ddd; margin-bottom:10px; display:block;"></i>
+            <span data-i18n="search_empty">ไม่พบยาที่ค้นหา</span>
+        </div>
+    </div>
+
+    <!-- VIEW: คู่มือการใช้งาน -->
+    <div id="view-manual" class="view-section">
+        <div class="manual-wrap">
+            <div class="back-link" onclick="switchTab('view-home', document.getElementById('nav-home'))"><i class="fa-solid fa-chevron-left"></i> <span data-i18n="back_home">กลับหน้าหลัก</span></div>
+            <h2 style="font-size:20px; color:var(--tu-red); margin-bottom:4px;"><i class="fa-solid fa-book-open"></i> <span data-i18n="manual_title">คู่มือการใช้งาน</span></h2>
+            <p style="font-size:13px; color:var(--text-sub); margin-bottom:15px;" data-i18n="manual_sub">ทุกอย่างที่ต้องรู้ในการใช้ TU Smart Rx</p>
+            <div id="manual-content"></div>
+        </div>
     </div>
 
     <!-- VIEW: Map & Location -->
@@ -277,8 +393,17 @@
             <div class="form-group">
                 <input type="password" id="pwdInput" placeholder="รหัสผ่าน">
             </div>
+            <p style="text-align:right; margin:-5px 0 15px;"><a style="font-size:13px; color:var(--tu-red); cursor:pointer; text-decoration:underline;" onclick="forgotPassword()" data-i18n="forgot_pwd">ลืมรหัสผ่าน?</a></p>
             <button class="btn-primary" id="btnLogin" data-i18n="btn_login">เข้าสู่ระบบ</button>
             <button class="btn-secondary" id="btnRegister" data-i18n="btn_reg">สมัครสมาชิกใหม่</button>
+
+            <div style="display:flex; align-items:center; gap:10px; margin:20px 0 10px; color:var(--text-sub); font-size:12px;">
+                <div style="flex:1; height:1px; background:#eee;"></div><span data-i18n="or">หรือ</span><div style="flex:1; height:1px; background:#eee;"></div>
+            </div>
+            <button class="btn-secondary" style="background:#fff8e1; border-color:#ffe08a; color:#6b5300; margin-top:0;" onclick="useAsGuest()">
+                <i class="fa-solid fa-user-clock"></i> <span data-i18n="btn_guest">ใช้งานแบบบุคคลทั่วไป (ไม่ต้องล็อกอิน)</span>
+            </button>
+            <p style="font-size:11px; color:var(--text-sub); text-align:center; margin-top:8px; line-height:1.5;" data-i18n="guest_note">ซื้อยาได้ทันที แต่จะไม่บันทึกประวัติ และใช้ฟีเจอร์สมาชิกไม่ได้</p>
         </div>
         
         <div id="profile-section" style="display: none;">
@@ -300,6 +425,34 @@
                     <div class="stat-box">
                         <h3 id="stat-total-spent">฿0</h3>
                         <p data-i18n="stat_spent">ยอดใช้จ่ายรวม</p>
+                    </div>
+                    <div class="stat-box" style="background:#effaf2; border-color:#bfe6cb;">
+                        <h3 id="stat-credits" style="color:#2e9e4f;">0</h3>
+                        <p data-i18n="stat_credits">เครดิตแลกยา</p>
+                    </div>
+                </div>
+
+                <!-- เมนูสมาชิก -->
+                <div class="menu-list">
+                    <div class="menu-item" onclick="openAllergy()">
+                        <div class="mi" style="background:#fdecec; color:var(--tu-red);"><i class="fa-solid fa-file-medical"></i></div>
+                        <div><span data-i18n="menu_allergy">ประวัติแพ้ยา</span><small id="allergy-summary">ยังไม่ได้กรอก</small></div>
+                        <i class="fa-solid fa-chevron-right chev"></i>
+                    </div>
+                    <div class="menu-item" onclick="openDonate()">
+                        <div class="mi" style="background:#effaf2; color:#2e9e4f;"><i class="fa-solid fa-hand-holding-medical"></i></div>
+                        <div><span data-i18n="menu_donate">บริจาคยา รับเครดิต</span><small data-i18n="menu_donate_sub">นำยาที่ไม่ได้ใช้มาแลกเครดิตซื้อยา</small></div>
+                        <i class="fa-solid fa-chevron-right chev"></i>
+                    </div>
+                    <div class="menu-item" onclick="openFeedback()">
+                        <div class="mi" style="background:#fff8e1; color:#c99700;"><i class="fa-solid fa-star"></i></div>
+                        <div><span data-i18n="menu_feedback">ให้คะแนน & คำติชม</span><small data-i18n="menu_feedback_sub">ช่วยเราปรับปรุงบริการ</small></div>
+                        <i class="fa-solid fa-chevron-right chev"></i>
+                    </div>
+                    <div class="menu-item" onclick="openManual()">
+                        <div class="mi" style="background:#e8f0fe; color:#1a56db;"><i class="fa-solid fa-book-open"></i></div>
+                        <div><span data-i18n="menu_manual">คู่มือการใช้งาน</span></div>
+                        <i class="fa-solid fa-chevron-right chev"></i>
                     </div>
                 </div>
 
@@ -348,6 +501,31 @@
                 </div>
             </div>
 
+            <!-- 🚨 แจ้งเหตุฉุกเฉิน (เรียลไทม์) -->
+            <div class="admin-card" style="border-top: 3px solid #c51d23;">
+                <h3 style="margin-bottom: 10px; font-size: 15px;"><i class="fa-solid fa-truck-medical" style="color:#c51d23;"></i> <span data-i18n="admin_sos_title">แจ้งเหตุฉุกเฉิน</span> <span id="admin-sos-count" class="lvl-pill" style="background:#c51d23; display:none;"></span></h3>
+                <div id="admin-sos-list" style="max-height: 340px; overflow-y: auto;"></div>
+            </div>
+
+            <!-- ⭐ ความพึงพอใจ -->
+            <div class="admin-card">
+                <h3 style="margin-bottom: 10px; font-size: 15px;"><i class="fa-solid fa-star" style="color:#e0a800;"></i> <span data-i18n="admin_fb_title">ความพึงพอใจ & คำติชม</span></h3>
+                <div id="admin-fb-summary"></div>
+                <div id="admin-fb-list" style="max-height: 260px; overflow-y: auto;"></div>
+            </div>
+
+            <!-- 🎁 บริจาคยา -->
+            <div class="admin-card">
+                <h3 style="margin-bottom: 10px; font-size: 15px;"><i class="fa-solid fa-hand-holding-medical" style="color:#2e9e4f;"></i> <span data-i18n="admin_don_title">คำขอบริจาคยา</span></h3>
+                <div id="admin-don-list" style="max-height: 300px; overflow-y: auto;"></div>
+            </div>
+
+            <!-- 🔑 คำขอรีเซ็ตรหัสผ่าน -->
+            <div class="admin-card">
+                <h3 style="margin-bottom: 10px; font-size: 15px;"><i class="fa-solid fa-key"></i> <span data-i18n="admin_reset_title">คำขอรีเซ็ตรหัสผ่าน</span></h3>
+                <div id="admin-reset-list" style="max-height: 260px; overflow-y: auto;"></div>
+            </div>
+
             <div class="admin-card" style="border-top: 3px solid var(--tu-red);">
                 <h3 style="margin-bottom: 15px; font-size: 15px;"><i class="fa-solid fa-box"></i> <span data-i18n="admin_stock_title">จัดการสต๊อก & ราคา</span></h3>
                 <div id="admin-stock-container"></div>
@@ -387,9 +565,14 @@
 
     <!-- Bottom Nav -->
     <div class="bottom-nav">
-        <div class="nav-item active" onclick="switchTab('view-home', this)"><i class="fa-solid fa-house"></i><span data-i18n="nav_home">หน้าหลัก</span></div>
+        <div class="nav-item active" onclick="switchTab('view-home', this)" id="nav-home"><i class="fa-solid fa-house"></i><span data-i18n="nav_home">หน้าหลัก</span></div>
         <div class="nav-item" onclick="switchTab('view-map', this)"><i class="fa-solid fa-map-location-dot"></i><span data-i18n="nav_map">จุดตั้งตู้</span></div>
-        <div class="nav-item" onclick="switchTab('view-orders', this)"><i class="fa-solid fa-clipboard-list"></i><span data-i18n="nav_orders">คำสั่งซื้อ</span></div>
+        <!-- 🚨 ปุ่มฉุกเฉิน (ปุ่มหลักตรงกลาง) -->
+        <div class="nav-sos" onclick="openEmergency()">
+            <div class="sos-btn"><i class="fa-solid fa-truck-medical"></i>SOS</div>
+            <span class="lbl" data-i18n="nav_sos">ฉุกเฉิน</span>
+        </div>
+        <div class="nav-item" onclick="switchTab('view-orders', this)" id="nav-orders"><i class="fa-solid fa-clipboard-list"></i><span data-i18n="nav_orders">คำสั่งซื้อ</span></div>
         <div class="nav-item" onclick="switchTab('view-account', this)" id="nav-account"><i class="fa-regular fa-user"></i><span data-i18n="nav_acc">บัญชี</span></div>
         <div class="nav-item" onclick="switchTab('view-admin', this)" id="nav-admin" style="display: none;"><i class="fa-solid fa-lock"></i><span data-i18n="nav_admin">แอดมิน</span></div>
     </div>
@@ -408,6 +591,15 @@
             <span style="color: var(--tu-red); font-size: 18px;" id="cart-grand-total">฿0</span>
         </div>
         
+        <!-- ⚠️ เตือนแพ้ยา -->
+        <div class="cart-allergy-warn" id="cart-allergy-warn"></div>
+
+        <!-- 💚 ใช้เครดิตแลกยา -->
+        <div class="credit-box" id="credit-box">
+            <label><input type="checkbox" id="use-credit" onchange="updateCartUI()"> <span id="credit-label">ใช้เครดิต</span></label>
+            <span id="credit-discount" style="color:#2e9e4f; font-weight:700;"></span>
+        </div>
+
         <div class="consent-box">
             <input type="checkbox" id="consent-check">
             <label for="consent-check" data-i18n="cart_consent">ข้าพเจ้าได้อ่านคำเตือนของยาทุกรายการ และยืนยันว่าไม่มีประวัติแพ้ยาเหล่านี้</label>
@@ -493,11 +685,112 @@
     </div>
 </div>
 
+<!-- 🚨 MODAL: แจ้งเหตุฉุกเฉิน -->
+<div class="overlay-bg" id="sos-modal" onclick="if(event.target===this) closeSheet('sos-modal')">
+    <div class="bottom-sheet">
+        <div class="drag-handle"></div>
+        <div id="sos-form">
+            <h2 style="font-size: 19px; color:#c51d23; margin-bottom:4px;"><i class="fa-solid fa-truck-medical"></i> <span data-i18n="sos_title">ขอความช่วยเหลือ / แจ้งเหตุ</span></h2>
+            <p style="font-size:12px; color:var(--text-sub); margin-bottom:10px;" data-i18n="sos_sub">ระบบจะส่งตำแหน่ง GPS ของโทรศัพท์คุณไปยังเจ้าหน้าที่</p>
+
+            <a class="call-1669" href="tel:1669"><i class="fa-solid fa-phone"></i> <span data-i18n="sos_call">โทร 1669 สายด่วนการแพทย์ฉุกเฉิน</span></a>
+
+            <span class="sheet-label" data-i18n="sos_level">ระดับความรุนแรง</span>
+            <div class="level-grid">
+                <div class="level-card" id="lv-red" onclick="selectLevel('red')"><div class="dot" style="background:#c51d23;"></div><div><h4 data-i18n="lv_red">แดง · วิกฤต</h4><p data-i18n="lv_red_d">หมดสติ หายใจลำบาก เจ็บหน้าอก เลือดออกมาก ชัก</p></div></div>
+                <div class="level-card" id="lv-yellow" onclick="selectLevel('yellow')"><div class="dot" style="background:#e0a800;"></div><div><h4 data-i18n="lv_yellow">เหลือง · เร่งด่วน</h4><p data-i18n="lv_yellow_d">บาดเจ็บ ไข้สูง ปวดรุนแรง เวียนศีรษะมาก ต้องมีคนดูแล</p></div></div>
+                <div class="level-card" id="lv-green" onclick="selectLevel('green')"><div class="dot" style="background:#2e9e4f;"></div><div><h4 data-i18n="lv_green">เขียว · ไม่เร่งด่วน</h4><p data-i18n="lv_green_d">ต้องการความช่วยเหลือเล็กน้อย หรือสอบถามเรื่องสุขภาพ</p></div></div>
+            </div>
+
+            <span class="sheet-label" data-i18n="sos_loc">ตำแหน่งของคุณ</span>
+            <div class="gps-box" id="gps-box"><i class="fa-solid fa-location-crosshairs"></i> <span data-i18n="gps_wait">กำลังค้นหาตำแหน่ง GPS...</span></div>
+
+            <span class="sheet-label" data-i18n="sos_detail">รายละเอียดเพิ่มเติม (ไม่บังคับ)</span>
+            <textarea class="sheet-textarea" id="sos-note" placeholder="เช่น อาการ จำนวนผู้บาดเจ็บ จุดสังเกต ชั้น/ห้อง"></textarea>
+            <input class="sheet-input" id="sos-phone" type="tel" placeholder="เบอร์โทรติดต่อกลับ">
+
+            <button class="btn-primary" id="btnSendSos" onclick="sendEmergency()" style="background: linear-gradient(135deg,#e0262d,#a0141a);"><i class="fa-solid fa-paper-plane"></i> <span data-i18n="sos_send">ส่งคำขอความช่วยเหลือ</span></button>
+            <button class="btn-cancel" onclick="closeSheet('sos-modal')" data-i18n="swal_btn_cancel">ยกเลิก</button>
+        </div>
+        <div id="sos-sent" style="display:none; text-align:center; padding: 10px 0;">
+            <div id="sos-sent-icon" style="width:90px; height:90px; border-radius:50%; background:#c51d23; color:#fff; display:flex; align-items:center; justify-content:center; font-size:38px; margin:10px auto 15px;"><i class="fa-solid fa-tower-broadcast"></i></div>
+            <h2 style="font-size:19px; margin-bottom:6px;" id="sos-sent-title">ส่งคำขอแล้ว</h2>
+            <p style="font-size:13px; color:var(--text-sub); margin-bottom:15px; line-height:1.6;" id="sos-sent-desc"></p>
+            <a class="call-1669" href="tel:1669"><i class="fa-solid fa-phone"></i> <span data-i18n="sos_call">โทร 1669 สายด่วนการแพทย์ฉุกเฉิน</span></a>
+            <button class="btn-secondary" onclick="closeSheet('sos-modal')" data-i18n="close">ปิด</button>
+        </div>
+    </div>
+</div>
+
+<!-- ⭐ MODAL: ความพึงพอใจ + คำติชม -->
+<div class="overlay-bg" id="fb-modal" onclick="if(event.target===this) closeSheet('fb-modal')">
+    <div class="bottom-sheet">
+        <div class="drag-handle"></div>
+        <h2 style="font-size: 18px; text-align:center;" data-i18n="fb_title">ความพึงพอใจต่อบริการ</h2>
+        <p style="font-size:12px; color:var(--text-sub); text-align:center;" data-i18n="fb_sub">แตะดาวเพื่อให้คะแนน</p>
+        <div class="stars" id="fb-stars"></div>
+        <p id="fb-star-label" style="text-align:center; font-size:13px; font-weight:600; color:#c99700; min-height:20px; margin-bottom:10px;"></p>
+        <span class="sheet-label" data-i18n="fb_topic">เรื่องที่อยากติชม</span>
+        <div class="chips" id="fb-chips"></div>
+        <span class="sheet-label" data-i18n="fb_comment">คำติชม / ข้อเสนอแนะ</span>
+        <textarea class="sheet-textarea" id="fb-text" placeholder="บอกเราได้เลย ว่าชอบอะไร หรืออยากให้ปรับปรุงตรงไหน"></textarea>
+        <button class="btn-primary" onclick="submitFeedback()" data-i18n="fb_send">ส่งความคิดเห็น</button>
+        <button class="btn-cancel" onclick="closeSheet('fb-modal')" data-i18n="swal_btn_cancel">ยกเลิก</button>
+    </div>
+</div>
+
+<!-- 🎁 MODAL: บริจาคยา -->
+<div class="overlay-bg" id="don-modal" onclick="if(event.target===this) closeSheet('don-modal')">
+    <div class="bottom-sheet">
+        <div class="drag-handle"></div>
+        <h2 style="font-size: 18px; color:#2e9e4f;"><i class="fa-solid fa-hand-holding-medical"></i> <span data-i18n="don_title">บริจาคยา รับเครดิต</span></h2>
+        <p style="font-size:12px; color:var(--text-sub); margin:4px 0 12px; line-height:1.6;" data-i18n="don_sub">กรอกรายการยาที่จะบริจาค แล้วนำยามาส่งที่จุดรับบริจาค เมื่อเจ้าหน้าที่ตรวจสอบแล้ว คุณจะได้รับเครดิต (1 เครดิต = 1 บาท) ไว้แลกยาจากตู้</p>
+        <div style="background:#effaf2; border-radius:12px; padding:10px 12px; font-size:12px; color:#1e6b36; margin-bottom:12px; line-height:1.6;">
+            <b data-i18n="don_rules">เงื่อนไขยาที่รับบริจาค</b>
+            <ul style="padding-left:18px; margin-top:4px;" id="don-rules-list"></ul>
+        </div>
+        <span class="sheet-label" data-i18n="don_name">ชื่อยา</span>
+        <input class="sheet-input" id="don-name" placeholder="เช่น พาราเซตามอล 500mg">
+        <div style="display:flex; gap:10px;">
+            <div style="flex:1;"><span class="sheet-label" data-i18n="don_qty">จำนวน (แผง/ชิ้น)</span><input class="sheet-input" id="don-qty" type="number" min="1" value="1"></div>
+            <div style="flex:1;"><span class="sheet-label" data-i18n="don_exp">วันหมดอายุ</span><input class="sheet-input" id="don-exp" type="date"></div>
+        </div>
+        <span class="sheet-label" data-i18n="don_note">หมายเหตุ (ไม่บังคับ)</span>
+        <input class="sheet-input" id="don-note" placeholder="เช่น ยังไม่แกะกล่อง">
+        <label style="display:flex; gap:8px; align-items:flex-start; font-size:12px; margin:6px 0 14px; cursor:pointer;"><input type="checkbox" id="don-confirm" style="margin-top:2px; accent-color:#2e9e4f;"> <span data-i18n="don_confirm">ยืนยันว่ายาอยู่ในสภาพดี บรรจุภัณฑ์ไม่เสียหาย และเป็นยาสามัญ/ยาที่ซื้อได้ทั่วไป</span></label>
+        <button class="btn-primary" style="background: linear-gradient(135deg,#2e9e4f,#1e6b36); box-shadow:none;" onclick="submitDonation()" data-i18n="don_send">ส่งคำขอบริจาค</button>
+
+        <div style="margin-top:15px;">
+            <span class="sheet-label" data-i18n="don_mine">คำขอของฉัน</span>
+            <div id="my-donations" style="font-size:13px;"></div>
+        </div>
+        <button class="btn-cancel" onclick="closeSheet('don-modal')" data-i18n="close">ปิด</button>
+    </div>
+</div>
+
+<!-- 📋 MODAL: ประวัติแพ้ยา -->
+<div class="overlay-bg" id="allergy-modal" onclick="if(event.target===this) closeSheet('allergy-modal')">
+    <div class="bottom-sheet">
+        <div class="drag-handle"></div>
+        <h2 style="font-size: 18px; color:var(--tu-red);"><i class="fa-solid fa-file-medical"></i> <span data-i18n="alg_title">ประวัติแพ้ยา</span></h2>
+        <p style="font-size:12px; color:var(--text-sub); margin:4px 0 12px; line-height:1.6;" data-i18n="alg_sub">เลือกยาหรือสารที่คุณแพ้ ระบบจะเตือนทันทีถ้ายาในตู้มีส่วนผสมนั้น</p>
+        <span class="sheet-label" data-i18n="alg_pick">ยา / สารที่แพ้</span>
+        <div class="chips" id="alg-chips"></div>
+        <span class="sheet-label" data-i18n="alg_other">อื่น ๆ (คั่นด้วยเครื่องหมายจุลภาค)</span>
+        <input class="sheet-input" id="alg-other" placeholder="เช่น ibuprofen, กาวพลาสเตอร์">
+        <span class="sheet-label" data-i18n="alg_reaction">อาการที่เคยเป็นเมื่อแพ้</span>
+        <textarea class="sheet-textarea" id="alg-reaction" placeholder="เช่น ผื่นขึ้น ตาบวม หายใจลำบาก"></textarea>
+        <label style="display:flex; gap:8px; align-items:center; font-size:13px; margin-bottom:14px; cursor:pointer;"><input type="checkbox" id="alg-none" style="accent-color:var(--tu-red);"> <span data-i18n="alg_none">ไม่มีประวัติแพ้ยา</span></label>
+        <button class="btn-primary" onclick="saveAllergy()" data-i18n="swal_btn_save">บันทึก</button>
+        <button class="btn-cancel" onclick="closeSheet('allergy-modal')" data-i18n="swal_btn_cancel">ยกเลิก</button>
+    </div>
+</div>
+
 <!-- ================= FIREBASE & APP LOGIC ================= -->
 <script type="module">
     import { initializeApp } from "https://www.gstatic.com/firebasejs/10.8.1/firebase-app.js";
     import { getAuth, createUserWithEmailAndPassword, signInWithEmailAndPassword, onAuthStateChanged, signOut, updatePassword } from "https://www.gstatic.com/firebasejs/10.8.1/firebase-auth.js";
-    import { getFirestore, collection, addDoc, getDocs, query, where, serverTimestamp, doc, setDoc, getDoc, onSnapshot, updateDoc, runTransaction } from "https://www.gstatic.com/firebasejs/10.8.1/firebase-firestore.js";
+    import { getFirestore, collection, addDoc, getDocs, query, where, serverTimestamp, doc, setDoc, getDoc, onSnapshot, updateDoc, runTransaction, increment, orderBy, limit } from "https://www.gstatic.com/firebasejs/10.8.1/firebase-firestore.js";
 
     // 🌍 ระบบพจนานุกรมแปลภาษา
     const dict = {
@@ -571,6 +864,59 @@
         }
     };
 
+    // ===== v2: คำแปลของฟีเจอร์ใหม่ =====
+    Object.assign(dict.th, {
+        nav_sos: "ฉุกเฉิน", qa_donate: "บริจาคยา", qa_feedback: "ให้คะแนน", qa_manual: "คู่มือ",
+        guest_banner_title: "คุณกำลังใช้งานแบบบุคคลทั่วไป", guest_banner_desc: "ซื้อยาได้ แต่ระบบจะไม่บันทึกประวัติ เครดิต และข้อมูลแพ้ยา", guest_banner_link: "เข้าสู่ระบบนักศึกษา",
+        search_ph: "ค้นหายา หรืออาการ เช่น ปวดหัว ท้องเสีย", search_empty: "ไม่พบยาที่ค้นหา",
+        back_home: "กลับหน้าหลัก", manual_title: "คู่มือการใช้งาน", manual_sub: "ทุกอย่างที่ต้องรู้ในการใช้ TU Smart Rx",
+        forgot_pwd: "ลืมรหัสผ่าน?", or: "หรือ", btn_guest: "ใช้งานแบบบุคคลทั่วไป (ไม่ต้องล็อกอิน)", guest_note: "ซื้อยาได้ทันที แต่จะไม่บันทึกประวัติ และใช้ฟีเจอร์สมาชิกไม่ได้",
+        stat_credits: "เครดิตแลกยา", menu_allergy: "ประวัติแพ้ยา", menu_allergy_sub: "ยังไม่ได้กรอก", menu_donate: "บริจาคยา รับเครดิต", menu_donate_sub: "นำยาที่ไม่ได้ใช้มาแลกเครดิตซื้อยา",
+        menu_feedback: "ให้คะแนน & คำติชม", menu_feedback_sub: "ช่วยเราปรับปรุงบริการ", menu_manual: "คู่มือการใช้งาน",
+        admin_sos_title: "แจ้งเหตุฉุกเฉิน", admin_fb_title: "ความพึงพอใจ & คำติชม", admin_don_title: "คำขอบริจาคยา", admin_reset_title: "คำขอรีเซ็ตรหัสผ่าน",
+        sos_title: "ขอความช่วยเหลือ / แจ้งเหตุ", sos_sub: "ระบบจะส่งตำแหน่ง GPS ของโทรศัพท์คุณไปยังเจ้าหน้าที่", sos_call: "โทร 1669 สายด่วนการแพทย์ฉุกเฉิน",
+        sos_level: "ระดับความรุนแรง", lv_red: "แดง · วิกฤต", lv_red_d: "หมดสติ หายใจลำบาก เจ็บหน้าอก เลือดออกมาก ชัก",
+        lv_yellow: "เหลือง · เร่งด่วน", lv_yellow_d: "บาดเจ็บ ไข้สูง ปวดรุนแรง เวียนศีรษะมาก ต้องมีคนดูแล",
+        lv_green: "เขียว · ไม่เร่งด่วน", lv_green_d: "ต้องการความช่วยเหลือเล็กน้อย หรือสอบถามเรื่องสุขภาพ",
+        sos_loc: "ตำแหน่งของคุณ", gps_wait: "กำลังค้นหาตำแหน่ง GPS...", sos_detail: "รายละเอียดเพิ่มเติม (ไม่บังคับ)", sos_send: "ส่งคำขอความช่วยเหลือ",
+        sos_note_ph: "เช่น อาการ จำนวนผู้บาดเจ็บ จุดสังเกต ชั้น/ห้อง", sos_phone_ph: "เบอร์โทรติดต่อกลับ", close: "ปิด",
+        fb_title: "ความพึงพอใจต่อบริการ", fb_sub: "แตะดาวเพื่อให้คะแนน", fb_topic: "เรื่องที่อยากติชม", fb_comment: "คำติชม / ข้อเสนอแนะ", fb_send: "ส่งความคิดเห็น",
+        fb_ph: "บอกเราได้เลย ว่าชอบอะไร หรืออยากให้ปรับปรุงตรงไหน",
+        don_title: "บริจาคยา รับเครดิต", don_sub: "กรอกรายการยาที่จะบริจาค แล้วนำยามาส่งที่จุดรับบริจาค เมื่อเจ้าหน้าที่ตรวจสอบแล้ว คุณจะได้รับเครดิต (1 เครดิต = 1 บาท) ไว้แลกยาจากตู้",
+        don_rules: "เงื่อนไขยาที่รับบริจาค", don_name: "ชื่อยา", don_qty: "จำนวน (แผง/ชิ้น)", don_exp: "วันหมดอายุ", don_note: "หมายเหตุ (ไม่บังคับ)",
+        don_confirm: "ยืนยันว่ายาอยู่ในสภาพดี บรรจุภัณฑ์ไม่เสียหาย และเป็นยาสามัญ/ยาที่ซื้อได้ทั่วไป", don_send: "ส่งคำขอบริจาค", don_mine: "คำขอของฉัน",
+        don_name_ph: "เช่น พาราเซตามอล 500mg", don_note_ph: "เช่น ยังไม่แกะกล่อง",
+        alg_title: "ประวัติแพ้ยา", alg_sub: "เลือกยาหรือสารที่คุณแพ้ ระบบจะเตือนทันทีถ้ายาในตู้มีส่วนผสมนั้น", alg_pick: "ยา / สารที่แพ้",
+        alg_other: "อื่น ๆ (คั่นด้วยเครื่องหมายจุลภาค)", alg_reaction: "อาการที่เคยเป็นเมื่อแพ้", alg_none: "ไม่มีประวัติแพ้ยา",
+        alg_other_ph: "เช่น ibuprofen, กาวพลาสเตอร์", alg_reaction_ph: "เช่น ผื่นขึ้น ตาบวม หายใจลำบาก"
+    });
+    Object.assign(dict.en, {
+        nav_sos: "SOS", qa_donate: "Donate", qa_feedback: "Rate us", qa_manual: "Guide",
+        guest_banner_title: "You're using guest mode", guest_banner_desc: "You can buy medicine, but history, credits and allergy data are not saved.", guest_banner_link: "Student login",
+        search_ph: "Search medicine or symptom, e.g. headache", search_empty: "No matching medicine",
+        back_home: "Back to home", manual_title: "User Guide", manual_sub: "Everything you need to use TU Smart Rx",
+        forgot_pwd: "Forgot password?", or: "or", btn_guest: "Continue as guest (no login)", guest_note: "Buy right away, but nothing is saved and member features are unavailable.",
+        stat_credits: "Credits", menu_allergy: "Drug allergies", menu_allergy_sub: "Not filled in", menu_donate: "Donate medicine, earn credits", menu_donate_sub: "Trade unused medicine for credits",
+        menu_feedback: "Rate & feedback", menu_feedback_sub: "Help us improve", menu_manual: "User guide",
+        admin_sos_title: "Emergency reports", admin_fb_title: "Satisfaction & feedback", admin_don_title: "Donation requests", admin_reset_title: "Password reset requests",
+        sos_title: "Request help / Report", sos_sub: "Your phone's GPS location will be sent to staff", sos_call: "Call 1669 Emergency Medical",
+        sos_level: "Severity", lv_red: "Red · Critical", lv_red_d: "Unconscious, can't breathe, chest pain, heavy bleeding, seizure",
+        lv_yellow: "Yellow · Urgent", lv_yellow_d: "Injury, high fever, severe pain or dizziness, needs care",
+        lv_green: "Green · Non-urgent", lv_green_d: "Minor help or a health question",
+        sos_loc: "Your location", gps_wait: "Finding GPS location...", sos_detail: "Details (optional)", sos_send: "Send help request",
+        sos_note_ph: "Symptoms, number of people, landmarks, floor/room", sos_phone_ph: "Callback phone number", close: "Close",
+        fb_title: "Rate our service", fb_sub: "Tap the stars to rate", fb_topic: "Topic", fb_comment: "Comments / suggestions", fb_send: "Send feedback",
+        fb_ph: "Tell us what you liked or what we should improve",
+        don_title: "Donate medicine, earn credits", don_sub: "List the medicine you'll donate, then drop it off. Once staff verify it, you'll receive credits (1 credit = 1 THB) to redeem at the kiosk.",
+        don_rules: "Accepted donations", don_name: "Medicine name", don_qty: "Quantity (packs/pcs)", don_exp: "Expiry date", don_note: "Note (optional)",
+        don_confirm: "I confirm the medicine is in good condition, packaging intact, and it's an over-the-counter medicine.", don_send: "Submit donation", don_mine: "My requests",
+        don_name_ph: "e.g. Paracetamol 500mg", don_note_ph: "e.g. Unopened box",
+        alg_title: "Drug allergies", alg_sub: "Select what you're allergic to. You'll be warned if a kiosk item contains it.", alg_pick: "Allergens",
+        alg_other: "Other (comma separated)", alg_reaction: "Past reactions", alg_none: "No known drug allergies",
+        alg_other_ph: "e.g. ibuprofen, plaster adhesive", alg_reaction_ph: "e.g. rash, swelling, difficulty breathing"
+    });
+    const L = (th, en) => currentLang === 'th' ? th : en;
+
     let currentLang = localStorage.getItem('tu_rx_lang') || 'th';
     function t(key) { return dict[currentLang][key] || key; }
 
@@ -592,6 +938,9 @@
 
         document.getElementById('stuIdInput').placeholder = t('ph_stu_id');
         document.getElementById('pwdInput').placeholder = t('ph_pwd');
+        const phMap = { searchInput: 'search_ph', 'sos-note': 'sos_note_ph', 'sos-phone': 'sos_phone_ph', 'fb-text': 'fb_ph', 'don-name': 'don_name_ph', 'don-note': 'don_note_ph', 'alg-other': 'alg_other_ph', 'alg-reaction': 'alg_reaction_ph' };
+        Object.entries(phMap).forEach(([id, key]) => { const el = document.getElementById(id); if (el) el.placeholder = t(key); });
+        if (typeof renderV2Static === 'function') renderV2Static();
         
         let mqttTxt = document.getElementById('mqtt-status-text').innerText;
         if(mqttTxt === "ระบบ Online" || mqttTxt === "System Online") document.getElementById('mqtt-status-text').innerText = t('admin_online');
@@ -691,6 +1040,13 @@
     let inventory = []; 
     let cart = [];
     let adminGlobalOrdersData = [];
+    // v2 state
+    let searchTerm = '';
+    let userCredits = 0;
+    let userAllergies = null;      // { keys:[], other:'', reaction:'', none:false }
+    let pendingCreditUse = 0;
+    let unsubUser = null;
+    let adminUnsubs = [];
 
     const defaultEngData = {
         'p1': { nameEn: 'Paracetamol 500mg', descEn: '10 tablets/pack', propsEn: 'Relieves pain and reduces fever', warnEn: 'Do not use if you have severe liver disease' },
@@ -759,8 +1115,13 @@
         const container = document.getElementById('product-list-container');
         container.innerHTML = '';
         if (inventory.length === 0) return;
-        
-        inventory.forEach(item => {
+
+        // 🔎 กรองตามคำค้นหา
+        const shown = inventory.filter(item => matchesSearch(item, searchTerm));
+        document.getElementById('search-empty').style.display = (searchTerm && shown.length === 0) ? 'block' : 'none';
+
+        shown.forEach(item => {
+            const allergyHits = getAllergyHits(item);
             const cartItem = cart.find(c => c.id === item.id);
             const qtyInCart = cartItem ? cartItem.qty : 0;
             const isOutOfStock = (item.stock - qtyInCart) <= 0;
@@ -779,12 +1140,13 @@
                 : `<div class="stock-badge" style="background: var(--tu-yellow); color: #000; font-weight: 600;">${t('left')} ${item.stock} ${t('pcs')}</div>`;
 
             container.innerHTML += `
-                <div class="product-card" style="opacity: ${item.stock <= 0 ? '0.6' : '1'};">
+                <div class="product-card ${allergyHits.length ? 'allergic' : ''}" style="opacity: ${item.stock <= 0 ? '0.6' : '1'};">
                     ${badgeHTML}
                     <img src="${item.img}" style="width: 70px; height: 70px; border-radius: 12px; object-fit: cover;" onerror="this.src='https://cdn-icons-png.flaticon.com/512/822/822102.png'">
                     <div class="prod-info">
                         <h3>${pName}</h3>
                         <p style="font-size: 12px; color: var(--text-sub);">${pDesc}</p>
+                        ${allergyHits.length ? `<div class="allergy-flag"><i class="fa-solid fa-triangle-exclamation" style="margin-top:2px;"></i><span>${L('คุณมีประวัติแพ้', 'You are allergic to')}: ${allergyHits.join(', ')}</span></div>` : ''}
                         <div class="med-details">
                             <p class="med-props"><i class="fa-solid fa-notes-medical med-icon"></i> <strong>${t('props')}</strong> ${pProps}</p>
                             <p class="med-warn"><i class="fa-solid fa-triangle-exclamation med-icon"></i> <strong>${t('warn')}</strong> ${pWarn}</p>
@@ -800,14 +1162,24 @@
         renderAdminStock();
     }
 
-    window.addToCart = function(id) {
-        if (!auth.currentUser) {
-            Swal.fire({icon: 'info', title: t('pls_login'), text: currentLang === 'th' ? 'ต้องล็อกอินก่อนหยิบยาใส่ตะกร้านะครับ' : 'You must login to add items.'});
-            switchTab('view-account', document.getElementById('nav-account'));
-            return;
-        }
-        
+    window.addToCart = async function(id) {
+        // ✅ v2: บุคคลทั่วไปซื้อได้โดยไม่ต้องล็อกอิน (แต่จะไม่บันทึกประวัติ)
         const product = inventory.find(p => p.id === id);
+
+        // ⚠️ v2: เตือนถ้ายานี้มีส่วนผสมที่ผู้ใช้แพ้
+        const hits = getAllergyHits(product);
+        if (hits.length) {
+            const res = await Swal.fire({
+                icon: 'warning',
+                title: L('คำเตือน: คุณมีประวัติแพ้ยา', 'Warning: allergy on file'),
+                html: L(`ยานี้มีส่วนผสมที่คุณแพ้: <b>${hits.join(', ')}</b><br><br>ไม่แนะนำให้ใช้ หากไม่แน่ใจ กรุณาปรึกษาแพทย์หรือเภสัชกรก่อน`, `This product contains: <b>${hits.join(', ')}</b><br><br>Not recommended. Please consult a doctor or pharmacist first.`),
+                showCancelButton: true,
+                confirmButtonText: L('ยืนยันว่าจะซื้อ', 'Add anyway'),
+                cancelButtonText: L('ไม่ซื้อ', 'Cancel'),
+                confirmButtonColor: '#888', cancelButtonColor: 'var(--tu-red)', reverseButtons: true, focusCancel: true
+            });
+            if (!res.isConfirmed) return;
+        }
 
         // ✅ ดักจับวันหมดอายุก่อนหยิบลงตะกร้า
         if (product.expDate) {
@@ -889,7 +1261,30 @@
         floatBar.style.display = 'flex';
         document.getElementById('cart-count-badge').innerText = totalQty;
         document.getElementById('cart-total-float').innerText = `฿${totalPrice}`;
-        document.getElementById('cart-grand-total').innerText = `฿${totalPrice}`;
+
+        // 💚 v2: เครดิตแลกยา (เฉพาะสมาชิก)
+        const creditBox = document.getElementById('credit-box');
+        const discount = getCreditDiscount(totalPrice);
+        if (isMember() && userCredits > 0) {
+            creditBox.style.display = 'flex';
+            document.getElementById('credit-label').innerText = L(`ใช้เครดิต (มี ${userCredits})`, `Use credits (${userCredits} available)`);
+            document.getElementById('credit-discount').innerText = discount ? `-฿${discount}` : '';
+        } else {
+            creditBox.style.display = 'none';
+        }
+        const payable = totalPrice - discount;
+        document.getElementById('cart-grand-total').innerHTML = discount
+            ? `<span style="text-decoration:line-through; color:#aaa; font-size:13px; font-weight:400; margin-right:6px;">฿${totalPrice}</span>฿${payable}`
+            : `฿${totalPrice}`;
+
+        // ⚠️ v2: เตือนแพ้ยาในตะกร้า
+        const warn = document.getElementById('cart-allergy-warn');
+        const flagged = cart.map(i => ({ i, hits: getAllergyHits(i) })).filter(x => x.hits.length);
+        if (flagged.length) {
+            warn.style.display = 'block';
+            warn.innerHTML = `<i class="fa-solid fa-triangle-exclamation"></i> <b>${L('ตะกร้ามียาที่คุณมีประวัติแพ้', 'Your cart has items you may be allergic to')}</b><br>` +
+                flagged.map(x => `• ${currentLang === 'en' && x.i.nameEn ? x.i.nameEn : x.i.name}: ${x.hits.join(', ')}`).join('<br>');
+        } else warn.style.display = 'none';
     }
 
     const BACKEND_URL = 'https://api.peemcn25.dev'; 
@@ -933,9 +1328,20 @@
         document.getElementById('cart-modal').style.display = 'none';
         let totalPrice = cart.reduce((sum, item) => sum + (item.price * item.qty), 0);
         let itemsSummary = cart.map(i => `${currentLang==='en' && i.nameEn ? i.nameEn : i.name} (x${i.qty})`).join(', ');
-        let systemItemName = cart.map(i => `${i.name} (x${i.qty})`).join(', '); 
-        
-        document.getElementById('summary-price').innerText = `฿${totalPrice}.00`;
+        let systemItemName = cart.map(i => `${i.name} (x${i.qty})`).join(', ');
+
+        // 💚 v2: หักเครดิต
+        pendingCreditUse = getCreditDiscount(totalPrice);
+        const payable = totalPrice - pendingCreditUse;
+        if (pendingCreditUse > 0 && payable === 0) {
+            // เครดิตพอจ่ายทั้งหมด ไม่ต้องสแกน QR
+            document.getElementById('payment-ui').style.display = 'none';
+            document.getElementById('payment-modal').style.display = 'flex';
+            processSuccessfulOrder('CREDIT-' + Date.now(), systemItemName, totalPrice);
+            return;
+        }
+
+        document.getElementById('summary-price').innerText = pendingCreditUse ? `฿${payable}.00 (${L('หักเครดิต', 'credits')} ${pendingCreditUse})` : `฿${totalPrice}.00`;
         document.getElementById('payment-ui').style.display = 'block';
         document.getElementById('hardware-sync-ui').style.display = 'none';
         document.getElementById('payment-modal').style.display = 'flex'; 
@@ -954,7 +1360,7 @@
             const response = await fetch(`${BACKEND_URL}/api/create-qr`, {
                 method: 'POST',
                 headers: { 'Content-Type': 'application/json' },
-                body: JSON.stringify({ price: totalPrice, itemName: "ยา " + cart.length + " รายการ" })
+                body: JSON.stringify({ price: payable, itemName: "ยา " + cart.length + " รายการ" })
             });
             const data = await response.json();
 
@@ -1047,28 +1453,48 @@
         document.getElementById('hardware-sync-ui').style.display = 'flex';
         
         mqttClient.publish("tse100/dispense", "PAYMENT_SUCCESS");
-        
+
+        const creditUsed = pendingCreditUse || 0;
+        pendingCreditUse = 0;
+
         if (auth.currentUser) {
             const stuId = auth.currentUser.email.split('@')[0];
             try {
+                // 💚 v2: หักเครดิตที่ใช้ไป
+                if (creditUsed > 0) {
+                    await updateDoc(doc(db, "users", stuId), { credits: increment(-creditUsed) });
+                    await addDoc(collection(db, "creditLogs"), { stuId, amount: -creditUsed, reason: 'redeem', chargeId, createdAt: serverTimestamp() });
+                    userCredits = Math.max(0, userCredits - creditUsed);
+                    renderCredits();
+                }
                 await addDoc(collection(db, "orders"), {
-                    stuId: stuId, itemName: itemName, price: itemPrice,
-                    chargeId: chargeId, status: "completed", createdAt: serverTimestamp() 
+                    stuId: stuId, itemName: itemName, price: itemPrice - creditUsed, creditUsed: creditUsed, fullPrice: itemPrice,
+                    chargeId: chargeId, status: "completed", createdAt: serverTimestamp()
                 });
             } catch (e) { }
         }
 
+        const isGuestOrder = !auth.currentUser;
+        const nowStr = new Date().toLocaleString(currentLang === 'en' ? 'en-GB' : 'th-TH', { dateStyle: 'short', timeStyle: 'short' });
+
         setTimeout(() => {
             closePayment();
-            Swal.fire({ 
-                icon: 'success', 
-                title: t('swal_pay_success'), 
-                text: t('swal_pay_desc'), 
-                timer: 3500, 
-                showConfirmButton: false 
+            Swal.fire({
+                icon: 'success',
+                title: t('swal_pay_success'),
+                text: t('swal_pay_desc'),
+                timer: 3500,
+                showConfirmButton: false
             }).then(() => {
-                cart = []; updateCartUI(); 
-                if(auth.currentUser.email.split('@')[0] !== ADMIN_ID) switchTab('view-orders', document.querySelectorAll('.nav-item')[1]);
+                cart = []; updateCartUI();
+                if (isGuestOrder) {
+                    // บุคคลทั่วไป: แสดงใบเสร็จครั้งเดียว (ไม่ได้บันทึกในระบบ)
+                    showReceipt(chargeId, nowStr, itemName, itemPrice);
+                    setTimeout(() => askFeedbackAfterOrder(), 400);
+                } else if (auth.currentUser.email.split('@')[0] !== ADMIN_ID) {
+                    switchTab('view-orders', document.getElementById('nav-orders'));
+                    setTimeout(() => askFeedbackAfterOrder(), 600);
+                }
             });
         }, 2500);
     }
@@ -1094,6 +1520,8 @@
                 document.getElementById('auth-section').style.display = 'none';
                 switchTab('view-admin', document.getElementById('nav-admin'));
                 loadAdminDashboard();
+                startAdminWatchers(); // v2: ฉุกเฉิน / ติชม / บริจาค / รีเซ็ตรหัส
+                setGuestUI(false);
             } else {
                 document.getElementById('nav-account').style.display = 'flex';
                 document.getElementById('nav-admin').style.display = 'none';
@@ -1113,6 +1541,8 @@
                         document.getElementById('displayPhone').innerText = t('unspec');
                     }
                 });
+                watchUserProfile(stuId); // v2: เครดิต + ประวัติแพ้ยา (เรียลไทม์)
+                setGuestUI(false);
 
                 loadOrders(stuId); 
             }
@@ -1123,6 +1553,8 @@
             document.getElementById('profile-section').style.display = 'none';
             document.getElementById('orders-login-warning').style.display = 'block';
             document.getElementById('orders-list-container').style.display = 'none';
+            stopUserWatchers();
+            setGuestUI(true);
         }
     });
 
@@ -1275,6 +1707,10 @@
                         <div style="font-size:11px; color:var(--text-sub); display:flex; align-items:center; gap:5px; margin-left:auto;">
                             EXP: <input type="date" style="padding:3px; font-size:11px; border:1px solid #ddd; border-radius:4px; font-family:inherit;" value="${item.expDate || ''}" onchange="adminUpdateExpDate('${item.id}', this.value)">
                         </div>
+                    </div>
+                    <!-- v2: ส่วนผสม (ใช้เตือนผู้แพ้ยา) -->
+                    <div style="font-size:11px; color:var(--text-sub); display:flex; align-items:center; gap:6px; margin-top:8px;">
+                        ${currentLang === 'th' ? 'ส่วนผสม' : 'Ingredients'}: <input type="text" style="flex:1; padding:4px 6px; font-size:11px; border:1px solid #ddd; border-radius:4px; font-family:inherit;" value="${getIngredients(item).join(', ')}" placeholder="paracetamol, menthol" onchange="adminUpdateIngredients('${item.id}', this.value)">
                     </div>
                 </div>
             `;
@@ -1446,6 +1882,465 @@
         document.getElementById('receipt-modal').style.display = 'flex';
     }
     window.closeReceipt = () => document.getElementById('receipt-modal').style.display = 'none';
+
+    /* =====================================================================
+       v2: ฟีเจอร์ใหม่
+       - ค้นหา · บุคคลทั่วไป · ลืมรหัสผ่าน · คู่มือ · ความพึงพอใจ/คำติชม
+       - บริจาคยา → เครดิต · ประวัติแพ้ยา · ปุ่มฉุกเฉิน SOS (GPS + ระดับ เขียว/เหลือง/แดง)
+       คอลเลกชัน Firestore ที่เพิ่ม: emergencies, feedback, donations, creditLogs, resetRequests
+       ===================================================================== */
+
+    const DONATION_MIN_MONTHS = 6;  // ยาที่บริจาคต้องเหลืออายุอย่างน้อยกี่เดือน
+
+    const esc = s => String(s ?? '').replace(/[&<>"']/g, c => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[c]));
+    const myId = () => auth.currentUser ? auth.currentUser.email.split('@')[0] : null;
+    const isMember = () => !!auth.currentUser && myId() !== ADMIN_ID;
+    window.updateCartUI = () => updateCartUI(); // ใช้จาก onchange ของ checkbox เครดิต
+    window.closeSheet = id => { document.getElementById(id).style.display = 'none'; if (id === 'sos-modal') stopGps(); };
+    const openSheet = id => { document.getElementById(id).style.display = 'flex'; };
+    const fmtTime = ts => { const d = ts && ts.toDate ? ts.toDate() : new Date(); return d.toLocaleString(currentLang === 'en' ? 'en-GB' : 'th-TH', { dateStyle: 'short', timeStyle: 'short' }); };
+
+    // ---------- ข้อมูลส่วนผสม / คำค้นของยาเริ่มต้น (แอดมินแก้ส่วนผสมได้ในหน้าสต๊อก) ----------
+    const DEFAULT_META = {
+        p1: { ingredients: ['paracetamol'], tags: ['ปวดหัว', 'ปวด', 'ไข้', 'ตัวร้อน', 'ลดไข้', 'headache', 'fever', 'pain'] },
+        p2: { ingredients: ['activated_charcoal'], tags: ['ท้องเสีย', 'ท้องร่วง', 'อาหารเป็นพิษ', 'ปวดท้อง', 'diarrhea', 'food poisoning'] },
+        p3: { ingredients: ['adhesive'], tags: ['แผล', 'บาดแผล', 'มีดบาด', 'ถลอก', 'wound', 'cut', 'bandage'] },
+        p4: { ingredients: ['menthol', 'camphor', 'borneol', 'eucalyptus'], tags: ['เวียนหัว', 'วิงเวียน', 'คัดจมูก', 'หน้ามืด', 'dizzy', 'nasal', 'congestion'] }
+    };
+    const ALLERGENS = [
+        { key: 'paracetamol', th: 'พาราเซตามอล', en: 'Paracetamol' },
+        { key: 'nsaids', th: 'NSAIDs (ไอบูโพรเฟน, แอสไพริน)', en: 'NSAIDs (ibuprofen, aspirin)' },
+        { key: 'penicillin', th: 'เพนิซิลลิน', en: 'Penicillin' },
+        { key: 'sulfa', th: 'ยากลุ่มซัลฟา', en: 'Sulfa drugs' },
+        { key: 'activated_charcoal', th: 'ผงถ่าน (Activated charcoal)', en: 'Activated charcoal' },
+        { key: 'menthol', th: 'เมนทอล', en: 'Menthol' },
+        { key: 'camphor', th: 'การบูร', en: 'Camphor' },
+        { key: 'borneol', th: 'พิมเสน', en: 'Borneol' },
+        { key: 'eucalyptus', th: 'น้ำมันยูคาลิปตัส', en: 'Eucalyptus oil' },
+        { key: 'adhesive', th: 'กาวพลาสเตอร์', en: 'Plaster adhesive' },
+        { key: 'latex', th: 'ยางลาเท็กซ์', en: 'Latex' }
+    ];
+    const allergenLabel = key => { const a = ALLERGENS.find(x => x.key === key); return a ? (currentLang === 'en' ? a.en : a.th) : key; };
+    const getIngredients = item => (item && Array.isArray(item.ingredients)) ? item.ingredients : ((item && DEFAULT_META[item.id]) ? DEFAULT_META[item.id].ingredients : []);
+
+    // ---------- 🔎 ค้นหา ----------
+    function matchesSearch(item, term) {
+        if (!term) return true;
+        const meta = DEFAULT_META[item.id] || {};
+        const hay = [item.name, item.nameEn, item.desc, item.descEn, item.props, item.propsEn,
+            ...(item.tags || meta.tags || []), ...getIngredients(item), ...getIngredients(item).map(allergenLabel)]
+            .filter(Boolean).join(' ').toLowerCase();
+        return term.toLowerCase().split(/\s+/).filter(Boolean).every(tok => hay.includes(tok));
+    }
+    window.onSearch = val => {
+        searchTerm = val.trim();
+        document.getElementById('searchClear').style.display = searchTerm ? 'block' : 'none';
+        renderProducts();
+    };
+    window.clearSearch = () => { document.getElementById('searchInput').value = ''; onSearch(''); };
+
+    // ---------- ⚠️ แพ้ยา ----------
+    function getAllergyHits(item) {
+        if (!item || !isMember() || !userAllergies || userAllergies.none) return [];
+        const ing = getIngredients(item);
+        const hits = (userAllergies.keys || []).filter(k => ing.includes(k)).map(allergenLabel);
+        const others = (userAllergies.other || '').split(',').map(s => s.trim().toLowerCase()).filter(s => s.length >= 3);
+        const hay = [item.name, item.nameEn, ...ing, ...ing.map(k => { const a = ALLERGENS.find(x => x.key === k); return a ? a.th + ' ' + a.en : k; })].join(' ').toLowerCase();
+        others.forEach(o => { if (hay.includes(o) && !hits.includes(o)) hits.push(o); });
+        return hits;
+    }
+    function renderAllergySummary() {
+        const el = document.getElementById('allergy-summary');
+        if (!el) return;
+        if (!userAllergies) { el.innerText = L('ยังไม่ได้กรอก', 'Not filled in'); el.style.color = ''; return; }
+        if (userAllergies.none) { el.innerText = L('ไม่มีประวัติแพ้ยา', 'No known allergies'); el.style.color = '#2e9e4f'; return; }
+        const list = [...(userAllergies.keys || []).map(allergenLabel), ...(userAllergies.other ? [userAllergies.other] : [])];
+        el.innerText = list.length ? L('แพ้: ', 'Allergic to: ') + list.join(', ') : L('ยังไม่ได้กรอก', 'Not filled in');
+        el.style.color = list.length ? 'var(--tu-red)' : '';
+    }
+    window.openAllergy = () => {
+        if (!requireMember()) return;
+        const sel = new Set((userAllergies && userAllergies.keys) || []);
+        document.getElementById('alg-chips').innerHTML = ALLERGENS.map(a => `<span class="chip ${sel.has(a.key) ? 'on' : ''}" data-key="${a.key}" onclick="this.classList.toggle('on'); document.getElementById('alg-none').checked=false;">${currentLang === 'en' ? a.en : a.th}</span>`).join('');
+        document.getElementById('alg-other').value = (userAllergies && userAllergies.other) || '';
+        document.getElementById('alg-reaction').value = (userAllergies && userAllergies.reaction) || '';
+        document.getElementById('alg-none').checked = !!(userAllergies && userAllergies.none);
+        document.getElementById('alg-none').onchange = e => { if (e.target.checked) document.querySelectorAll('#alg-chips .chip').forEach(c => c.classList.remove('on')); };
+        openSheet('allergy-modal');
+    };
+    window.saveAllergy = async () => {
+        const keys = [...document.querySelectorAll('#alg-chips .chip.on')].map(c => c.dataset.key);
+        const none = document.getElementById('alg-none').checked;
+        const data = { keys: none ? [] : keys, other: none ? '' : document.getElementById('alg-other').value.trim(), reaction: document.getElementById('alg-reaction').value.trim(), none, updatedAt: serverTimestamp() };
+        if (!none && !data.keys.length && !data.other) return Swal.fire({ icon: 'info', title: L('กรุณาเลือกยาที่แพ้ หรือติ๊ก "ไม่มีประวัติแพ้ยา"', 'Pick an allergen or tick "No known allergies"'), confirmButtonColor: 'var(--tu-red)' });
+        try {
+            await setDoc(doc(db, "users", myId()), { allergies: data }, { merge: true });
+            closeSheet('allergy-modal');
+            Swal.fire({ icon: 'success', title: t('swal_save_success'), showConfirmButton: false, timer: 1400 });
+        } catch (e) { Swal.fire(t('swal_err'), e.message, 'error'); }
+    };
+
+    // ---------- 💚 เครดิต ----------
+    function getCreditDiscount(total) {
+        const box = document.getElementById('use-credit');
+        if (!isMember() || !box || !box.checked || userCredits <= 0) return 0;
+        return Math.min(userCredits, total);
+    }
+    function renderCredits() { const el = document.getElementById('stat-credits'); if (el) el.innerText = userCredits; }
+
+    // ---------- ผู้ใช้: ติดตามข้อมูลโปรไฟล์แบบเรียลไทม์ ----------
+    function watchUserProfile(stuId) {
+        if (unsubUser) unsubUser();
+        unsubUser = onSnapshot(doc(db, "users", stuId), snap => {
+            const d = snap.exists() ? snap.data() : {};
+            userCredits = Math.max(0, parseInt(d.credits || 0));
+            userAllergies = d.allergies || null;
+            renderCredits(); renderAllergySummary(); renderProducts(); updateCartUI();
+        });
+    }
+    function stopUserWatchers() {
+        if (unsubUser) { unsubUser(); unsubUser = null; }
+        adminUnsubs.forEach(u => u()); adminUnsubs = [];
+        userCredits = 0; userAllergies = null;
+        const box = document.getElementById('use-credit'); if (box) box.checked = false;
+        renderCredits(); renderProducts(); updateCartUI();
+    }
+
+    // ---------- 👤 บุคคลทั่วไป ----------
+    function setGuestUI(isGuest) { document.getElementById('guest-banner').style.display = isGuest ? 'flex' : 'none'; }
+    window.useAsGuest = () => {
+        switchTab('view-home', document.getElementById('nav-home'));
+        Swal.fire({ toast: true, position: 'top', icon: 'info', title: L('ใช้งานแบบบุคคลทั่วไป เลือกยาได้เลย', 'Guest mode — start shopping'), showConfirmButton: false, timer: 1800 });
+    };
+    window.goLogin = () => switchTab('view-account', document.getElementById('nav-account'));
+    function requireMember() {
+        if (isMember()) return true;
+        Swal.fire({
+            icon: 'info', title: L('ฟีเจอร์นี้สำหรับนักศึกษาที่เข้าสู่ระบบ', 'Members only'),
+            text: L('บุคคลทั่วไปใช้ได้เฉพาะการซื้อยาและปุ่มฉุกเฉิน', 'Guests can only buy medicine and use SOS.'),
+            showCancelButton: true, confirmButtonText: t('btn_login'), cancelButtonText: t('close'), confirmButtonColor: 'var(--tu-red)'
+        }).then(r => { if (r.isConfirmed) goLogin(); });
+        return false;
+    }
+
+    // ---------- 🔑 ลืมรหัสผ่าน ----------
+    // บัญชีใช้อีเมลจำลอง (@tse.tu.ac.th) จึงส่งอีเมลรีเซ็ตไม่ได้ → ส่งคำขอให้เจ้าหน้าที่ยืนยันตัวตนแล้วดำเนินการ
+    window.forgotPassword = async () => {
+        const preId = document.getElementById('stuIdInput').value.trim();
+        const { value: v } = await Swal.fire({
+            title: L('ลืมรหัสผ่าน', 'Forgot password'),
+            html: `<p style="font-size:13px; color:#666; margin-bottom:8px;">${L('กรอกข้อมูลเพื่อให้เจ้าหน้าที่ยืนยันตัวตนและติดต่อกลับ', 'Staff will verify your identity and contact you.')}</p>
+                   <input id="fp-id" class="swal2-input" type="number" placeholder="${t('ph_stu_id')}" value="${esc(preId)}">
+                   <input id="fp-name" class="swal2-input" placeholder="${t('swal_ph_name')}">
+                   <input id="fp-phone" class="swal2-input" type="tel" placeholder="${t('swal_ph_phone')}">`,
+            showCancelButton: true, confirmButtonText: L('ส่งคำขอ', 'Send request'), cancelButtonText: t('swal_btn_cancel'), confirmButtonColor: 'var(--tu-red)',
+            preConfirm: () => {
+                const id = document.getElementById('fp-id').value.trim(), name = document.getElementById('fp-name').value.trim(), phone = document.getElementById('fp-phone').value.trim();
+                if (id.length !== 10) return Swal.showValidationMessage(L('รหัสนักศึกษาต้องมี 10 หลัก', 'Student ID must be 10 digits'));
+                if (!name || phone.length < 9) return Swal.showValidationMessage(L('กรุณากรอกชื่อและเบอร์โทรให้ถูกต้อง', 'Enter your name and a valid phone'));
+                return { id, name, phone };
+            }
+        });
+        if (!v) return;
+        try {
+            await addDoc(collection(db, "resetRequests"), { stuId: v.id, fullName: v.name, phone: v.phone, status: 'pending', createdAt: serverTimestamp() });
+            Swal.fire({ icon: 'success', title: L('ส่งคำขอแล้ว', 'Request sent'), text: L('เจ้าหน้าที่จะติดต่อกลับทางเบอร์โทรที่ให้ไว้ เพื่อยืนยันตัวตนและรีเซ็ตรหัสผ่าน', 'Staff will call you to verify and reset your password.'), confirmButtonColor: 'var(--tu-red)' });
+        } catch (e) { Swal.fire(t('swal_err'), e.message, 'error'); }
+    };
+
+    // ---------- 📖 คู่มือ ----------
+    const MANUAL = () => [
+        ['fa-rocket', L('เริ่มต้นใช้งาน', 'Getting started'), L(
+            ['นักศึกษา มธ.: ไปที่แท็บ "บัญชี" กรอกรหัสนักศึกษา 10 หลักและรหัสผ่าน แล้วกด "สมัครสมาชิกใหม่" (ครั้งแรก) หรือ "เข้าสู่ระบบ"', 'บุคคลทั่วไป: กด "ใช้งานแบบบุคคลทั่วไป" ซื้อยาได้ทันที แต่ระบบจะไม่บันทึกประวัติ เครดิต หรือข้อมูลแพ้ยา', 'ติดตั้งเป็นแอป: Android กดปุ่ม "ติดตั้งแอป" ในหน้าบัญชี · iPhone กดปุ่มแชร์ใน Safari แล้วเลือก "เพิ่มไปยังหน้าจอโฮม"'],
+            ['TU students: open "Account", enter your 10-digit student ID and password, then tap "Register" (first time) or "Login".', 'Guests: tap "Continue as guest" to buy right away. History, credits and allergy data are not saved.', 'Install as an app: on Android tap "Install App" in Account · on iPhone tap Share in Safari → "Add to Home Screen".'])],
+        ['fa-magnifying-glass', L('ค้นหายา', 'Search'), L(
+            ['พิมพ์ชื่อยาหรืออาการในช่องค้นหาหน้าหลัก เช่น "ปวดหัว" "ท้องเสีย" "แผล"', 'ระบบแสดงเฉพาะยาที่ตรงกับคำค้น กดปุ่ม ✕ เพื่อล้างคำค้น'],
+            ['Type a medicine or symptom on the home page, e.g. "headache", "diarrhea", "wound".', 'Only matching items are shown. Tap ✕ to clear.'])],
+        ['fa-cart-shopping', L('สั่งซื้อและชำระเงิน', 'Ordering & payment'), L(
+            ['กดปุ่ม + ที่ยาที่ต้องการ แล้วกดแถบ "ดูตะกร้าสินค้า"', 'อ่านคำเตือนของยา ติ๊กยืนยันว่าไม่มีประวัติแพ้ยา แล้วกด "ชำระเงิน"', 'สแกน QR PromptPay ด้วยแอปธนาคารภายในเวลาที่กำหนด (3 นาที)', 'สมาชิกที่มีเครดิต ติ๊ก "ใช้เครดิต" เพื่อลดยอดชำระ ถ้าเครดิตพอ ไม่ต้องสแกน QR'],
+            ['Tap + on an item, then tap "View Cart".', 'Read the warnings, tick the allergy confirmation, and tap "Checkout".', 'Scan the PromptPay QR with your banking app within 3 minutes.', 'Members with credits can tick "Use credits". If credits cover the total, no QR is needed.'])],
+        ['fa-box-open', L('รับยาที่ตู้', 'Picking up'), L(
+            ['เมื่อชำระเงินสำเร็จ ระบบจะสั่งตู้จ่ายยาอัตโนมัติ ห้ามปิดหน้าจอระหว่างนี้', 'รับยาที่ช่องรับสินค้าด้านล่างของตู้', 'ดูใบเสร็จย้อนหลังได้ที่แท็บ "คำสั่งซื้อ" (เฉพาะสมาชิก)'],
+            ['After payment, the kiosk dispenses automatically. Keep this screen open.', 'Collect your medicine from the tray at the bottom of the kiosk.', 'Members can view receipts anytime in "Orders".'])],
+        ['fa-file-medical', L('ประวัติแพ้ยา', 'Drug allergies'), L(
+            ['ไปที่ "บัญชี" → "ประวัติแพ้ยา" เลือกยา/สารที่แพ้ หรือพิมพ์เพิ่มเอง', 'ยาที่มีส่วนผสมที่คุณแพ้ จะมีกรอบแดงและคำเตือน และระบบจะถามยืนยันก่อนใส่ตะกร้า', 'ระบบนี้ช่วยเตือนเท่านั้น ไม่แทนคำแนะนำจากแพทย์หรือเภสัชกร'],
+            ['Go to Account → Drug allergies and select or type your allergens.', 'Items containing them get a red border and warning, and you must confirm before adding.', 'This is a reminder only and does not replace advice from a doctor or pharmacist.'])],
+        ['fa-hand-holding-medical', L('บริจาคยาและเครดิต', 'Donations & credits'), L(
+            ['กด "บริจาคยา" กรอกชื่อยา จำนวน และวันหมดอายุ แล้วส่งคำขอ', `ยาต้องอยู่ในสภาพดี บรรจุภัณฑ์ไม่เสียหาย และเหลืออายุอย่างน้อย ${DONATION_MIN_MONTHS} เดือน`, 'นำยามาส่งที่จุดรับบริจาค เจ้าหน้าที่ตรวจแล้วจะให้เครดิตเข้าบัญชี (1 เครดิต = 1 บาท)', 'ใช้เครดิตแลกยาได้ตอนชำระเงิน ดูยอดเครดิตได้ในหน้าบัญชี'],
+            ['Tap "Donate", fill in the medicine name, quantity and expiry, then submit.', `Medicine must be in good condition, sealed, with at least ${DONATION_MIN_MONTHS} months before expiry.`, 'Drop it off. After staff verify it, credits are added to your account (1 credit = 1 THB).', 'Redeem credits at checkout. Your balance is shown in Account.'])],
+        ['fa-truck-medical', L('ปุ่มฉุกเฉิน SOS', 'SOS button'), L(
+            ['กดปุ่ม SOS สีแดงตรงกลางแถบด้านล่าง (ใช้ได้ทุกคน ไม่ต้องล็อกอิน)', 'อนุญาตให้แอปเข้าถึงตำแหน่ง แล้วเลือกระดับ: แดง วิกฤต · เหลือง เร่งด่วน · เขียว ไม่เร่งด่วน', 'ระบบส่งพิกัด GPS และรายละเอียดถึงเจ้าหน้าที่ทันที และแจ้งเมื่อมีคนรับเรื่อง', 'กรณีวิกฤต ให้โทร 1669 ควบคู่เสมอ'],
+            ['Tap the red SOS button in the middle of the bottom bar (works without login).', 'Allow location access, then choose: Red critical · Yellow urgent · Green non-urgent.', 'Your GPS location and details go to staff immediately, and you are notified when someone responds.', 'In a critical emergency, always call 1669 as well.'])],
+        ['fa-key', L('ลืมรหัสผ่าน', 'Forgot password'), L(
+            ['ในหน้าเข้าสู่ระบบ กด "ลืมรหัสผ่าน?" กรอกรหัสนักศึกษา ชื่อ และเบอร์โทร', 'เจ้าหน้าที่จะโทรยืนยันตัวตนและช่วยตั้งรหัสผ่านใหม่ ประวัติการซื้อและเครดิตยังอยู่ครบ'],
+            ['On the login screen tap "Forgot password?" and enter your student ID, name and phone.', 'Staff will call to verify you and help reset it. Your history and credits are kept.'])],
+        ['fa-star', L('ให้คะแนน แจ้งปัญหา ขอคืนเงิน', 'Feedback, issues & refunds'), L(
+            ['ให้คะแนนและคำติชมได้ที่ปุ่ม "ให้คะแนน" หน้าหลัก หรือในหน้าบัญชี', 'ตู้ขัดข้องหรือขอคืนเงิน: "บัญชี" → "แจ้งปัญหา / ขอคืนเงิน" และเตรียมสลิปโอนเงิน'],
+            ['Rate us from "Rate us" on Home or in Account.', 'Kiosk problems or refunds: Account → "Report Issue / Refund". Keep your payment slip.'])]
+    ];
+    window.openManual = () => { renderManual(); switchTab('view-manual', null); window.scrollTo(0, 0); };
+    function renderManual() {
+        document.getElementById('manual-content').innerHTML = MANUAL().map(([ic, title, steps], i) =>
+            `<details class="manual-sec" ${i === 0 ? 'open' : ''}><summary><i class="fa-solid ${ic} lead"></i>${title}<i class="fa-solid fa-chevron-down" style="margin-left:auto; color:#c7c7cc; font-size:12px;"></i></summary><ol>${steps.map(s => `<li>${s}</li>`).join('')}</ol></details>`).join('');
+    }
+
+    // ---------- ⭐ ความพึงพอใจ + คำติชม ----------
+    let fbRating = 0;
+    const FB_TOPICS = () => [['ease', L('ใช้งานง่าย', 'Ease of use')], ['speed', L('ความรวดเร็ว', 'Speed')], ['payment', L('การชำระเงิน', 'Payment')], ['kiosk', L('ตัวตู้/การรับยา', 'Kiosk & pickup')], ['stock', L('ความหลากหลายของยา', 'Medicine variety')], ['price', L('ราคา', 'Price')], ['other', L('อื่น ๆ', 'Other')]];
+    const STAR_LABELS = () => ['', L('ต้องปรับปรุง', 'Poor'), L('พอใช้', 'Fair'), L('ดี', 'Good'), L('ดีมาก', 'Very good'), L('ยอดเยี่ยม', 'Excellent')];
+    function renderStars() {
+        document.getElementById('fb-stars').innerHTML = [1, 2, 3, 4, 5].map(n => `<i class="fa-solid fa-star ${n <= fbRating ? 'on' : ''}" onclick="setRating(${n})"></i>`).join('');
+        document.getElementById('fb-star-label').innerText = STAR_LABELS()[fbRating] || '';
+    }
+    window.setRating = n => { fbRating = n; renderStars(); };
+    window.openFeedback = () => {
+        if (!requireMember()) return;
+        fbRating = 0; renderStars();
+        document.getElementById('fb-chips').innerHTML = FB_TOPICS().map(([k, l]) => `<span class="chip" data-key="${k}" onclick="this.classList.toggle('on')">${l}</span>`).join('');
+        document.getElementById('fb-text').value = '';
+        openSheet('fb-modal');
+    };
+    window.submitFeedback = async () => {
+        if (!fbRating) return Swal.fire({ icon: 'info', title: L('กรุณาให้คะแนนอย่างน้อย 1 ดาว', 'Please choose a star rating'), confirmButtonColor: 'var(--tu-red)' });
+        try {
+            await addDoc(collection(db, "feedback"), {
+                stuId: myId(), rating: fbRating,
+                topics: [...document.querySelectorAll('#fb-chips .chip.on')].map(c => c.dataset.key),
+                comment: document.getElementById('fb-text').value.trim(), createdAt: serverTimestamp()
+            });
+            closeSheet('fb-modal');
+            Swal.fire({ icon: 'success', title: L('ขอบคุณสำหรับความคิดเห็น!', 'Thanks for your feedback!'), showConfirmButton: false, timer: 1600 });
+        } catch (e) { Swal.fire(t('swal_err'), e.message, 'error'); }
+    };
+    function askFeedbackAfterOrder() {
+        if (!isMember()) return;
+        Swal.fire({ title: L('การใช้งานครั้งนี้เป็นอย่างไร?', 'How was your experience?'), text: L('ใช้เวลาไม่ถึง 10 วินาที', 'Takes less than 10 seconds'), icon: 'question', showCancelButton: true, confirmButtonText: L('ให้คะแนน', 'Rate now'), cancelButtonText: L('ไว้ทีหลัง', 'Later'), confirmButtonColor: 'var(--tu-red)' })
+            .then(r => { if (r.isConfirmed) openFeedback(); });
+    }
+
+    // ---------- 🎁 บริจาคยา ----------
+    const DON_STATUS = s => ({ pending: [L('รอตรวจสอบ', 'Pending'), '#e0a800'], approved: [L('อนุมัติแล้ว', 'Approved'), '#2e9e4f'], rejected: [L('ไม่ผ่าน', 'Rejected'), '#c51d23'] }[s] || [s, '#888']);
+    window.openDonate = async () => {
+        if (!requireMember()) return;
+        ['don-name', 'don-note', 'don-exp'].forEach(id => document.getElementById(id).value = '');
+        document.getElementById('don-qty').value = 1;
+        document.getElementById('don-confirm').checked = false;
+        openSheet('don-modal');
+        loadMyDonations();
+    };
+    async function loadMyDonations() {
+        const box = document.getElementById('my-donations');
+        box.innerHTML = '<div class="loader" style="width:24px; height:24px; margin:10px auto;"></div>';
+        try {
+            const snap = await getDocs(query(collection(db, "donations"), where("stuId", "==", myId())));
+            const list = []; snap.forEach(d => list.push(d.data()));
+            list.sort((a, b) => (b.createdAt ? b.createdAt.toMillis() : 0) - (a.createdAt ? a.createdAt.toMillis() : 0));
+            box.innerHTML = list.length ? list.map(d => { const [lbl, col] = DON_STATUS(d.status); return `<div style="display:flex; justify-content:space-between; align-items:center; padding:8px 0; border-bottom:1px solid #f2f2f4;"><div><b>${esc(d.medName)}</b> × ${esc(d.qty)}<br><small style="color:var(--text-sub);">${fmtTime(d.createdAt)}</small></div><div style="text-align:right;"><span class="lvl-pill" style="background:${col};">${lbl}</span>${d.creditsAwarded ? `<br><small style="color:#2e9e4f; font-weight:600;">+${d.creditsAwarded} ${L('เครดิต', 'credits')}</small>` : ''}</div></div>`; }).join('')
+                : `<p style="color:var(--text-sub); font-size:12px;">${L('ยังไม่มีคำขอ', 'No requests yet')}</p>`;
+        } catch (e) { box.innerHTML = ''; }
+    }
+    window.submitDonation = async () => {
+        const name = document.getElementById('don-name').value.trim();
+        const qty = parseInt(document.getElementById('don-qty').value);
+        const exp = document.getElementById('don-exp').value;
+        if (!name || !(qty > 0) || !exp) return Swal.fire({ icon: 'info', title: L('กรุณากรอกชื่อยา จำนวน และวันหมดอายุ', 'Fill in name, quantity and expiry'), confirmButtonColor: '#2e9e4f' });
+        const minExp = new Date(); minExp.setMonth(minExp.getMonth() + DONATION_MIN_MONTHS);
+        if (new Date(exp) < minExp) return Swal.fire({ icon: 'warning', title: L('ยาใกล้หมดอายุเกินไป', 'Expiry too soon'), text: L(`ยาที่บริจาคต้องเหลืออายุอย่างน้อย ${DONATION_MIN_MONTHS} เดือน`, `Donated medicine needs at least ${DONATION_MIN_MONTHS} months before expiry.`), confirmButtonColor: '#2e9e4f' });
+        if (!document.getElementById('don-confirm').checked) return Swal.fire({ icon: 'info', title: L('กรุณาติ๊กยืนยันสภาพยา', 'Please confirm the condition'), confirmButtonColor: '#2e9e4f' });
+        try {
+            await addDoc(collection(db, "donations"), { stuId: myId(), medName: name, qty, expDate: exp, note: document.getElementById('don-note').value.trim(), status: 'pending', createdAt: serverTimestamp() });
+            Swal.fire({ icon: 'success', title: L('ส่งคำขอบริจาคแล้ว', 'Donation submitted'), text: L('กรุณานำยามาส่งที่จุดรับบริจาค เครดิตจะเข้าบัญชีหลังเจ้าหน้าที่ตรวจสอบ', 'Please drop off the medicine. Credits are added after staff verify it.'), confirmButtonColor: '#2e9e4f' });
+            ['don-name', 'don-note', 'don-exp'].forEach(id => document.getElementById(id).value = '');
+            document.getElementById('don-confirm').checked = false;
+            loadMyDonations();
+        } catch (e) { Swal.fire(t('swal_err'), e.message, 'error'); }
+    };
+
+    // ---------- 🚨 ฉุกเฉิน SOS ----------
+    let sosLevel = null, gpsWatchId = null, lastPos = null, sosUnsub = null;
+    window.openEmergency = () => {
+        sosLevel = null; lastPos = null;
+        ['red', 'yellow', 'green'].forEach(l => document.getElementById('lv-' + l).className = 'level-card');
+        document.getElementById('sos-form').style.display = 'block';
+        document.getElementById('sos-sent').style.display = 'none';
+        document.getElementById('sos-note').value = '';
+        const phoneEl = document.getElementById('sos-phone');
+        const knownPhone = document.getElementById('displayPhone').innerText;
+        phoneEl.value = (isMember() && /^\d{9,10}$/.test(knownPhone)) ? knownPhone : '';
+        openSheet('sos-modal');
+        startGps();
+    };
+    window.selectLevel = lv => {
+        sosLevel = lv;
+        ['red', 'yellow', 'green'].forEach(l => document.getElementById('lv-' + l).className = 'level-card' + (l === lv ? ' sel-' + l : ''));
+        if (navigator.vibrate) navigator.vibrate(30);
+    };
+    function startGps() {
+        const box = document.getElementById('gps-box');
+        if (!navigator.geolocation) { box.innerHTML = `<i class="fa-solid fa-triangle-exclamation"></i> ${L('อุปกรณ์นี้ไม่รองรับ GPS', 'GPS not supported on this device')}`; return; }
+        box.innerHTML = `<i class="fa-solid fa-location-crosshairs fa-beat-fade"></i> ${t('gps_wait')}`;
+        gpsWatchId = navigator.geolocation.watchPosition(pos => {
+            lastPos = pos.coords;
+            const { latitude: la, longitude: lo, accuracy: ac } = pos.coords;
+            box.innerHTML = `<i class="fa-solid fa-location-dot" style="color:#2e9e4f;"></i> <b>${la.toFixed(5)}, ${lo.toFixed(5)}</b><br>${L('ความแม่นยำ', 'Accuracy')} ±${Math.round(ac)} ${L('เมตร', 'm')} · <a href="https://maps.google.com/?q=${la},${lo}" target="_blank" style="color:var(--tu-red);">${L('ดูบนแผนที่', 'View map')}</a>`;
+        }, err => {
+            box.innerHTML = `<i class="fa-solid fa-triangle-exclamation" style="color:#c51d23;"></i> ${err.code === 1 ? L('ไม่ได้รับอนุญาตให้เข้าถึงตำแหน่ง กรุณาเปิดสิทธิ์ Location ให้เบราว์เซอร์ หรือระบุสถานที่ในช่องรายละเอียด', 'Location permission denied. Enable it, or describe where you are below.') : L('หาตำแหน่งไม่ได้ กรุณาระบุสถานที่ในช่องรายละเอียด', 'Could not get location. Describe where you are below.')}`;
+        }, { enableHighAccuracy: true, timeout: 15000, maximumAge: 0 });
+    }
+    function stopGps() { if (gpsWatchId !== null) { navigator.geolocation.clearWatch(gpsWatchId); gpsWatchId = null; } }
+    window.sendEmergency = async () => {
+        if (!sosLevel) return Swal.fire({ icon: 'warning', title: L('กรุณาเลือกระดับความรุนแรง', 'Please choose a severity level'), confirmButtonColor: '#c51d23' });
+        const note = document.getElementById('sos-note').value.trim();
+        if (!lastPos && !note) return Swal.fire({ icon: 'warning', title: L('ยังไม่มีตำแหน่ง GPS', 'No GPS location yet'), text: L('กรุณารอสักครู่ หรือพิมพ์บอกสถานที่ในช่องรายละเอียด', 'Wait a moment, or describe your location in the details box.'), confirmButtonColor: '#c51d23' });
+        const btn = document.getElementById('btnSendSos'); btn.disabled = true; btn.style.opacity = .6;
+        try {
+            const ref = await addDoc(collection(db, "emergencies"), {
+                level: sosLevel,
+                lat: lastPos ? lastPos.latitude : null, lng: lastPos ? lastPos.longitude : null, accuracy: lastPos ? Math.round(lastPos.accuracy) : null,
+                note, phone: document.getElementById('sos-phone').value.trim(),
+                reporter: isMember() ? myId() : 'guest',
+                fullName: isMember() ? document.getElementById('displayFullName').innerText : '',
+                status: 'new', source: 'app', createdAt: serverTimestamp()
+            });
+            stopGps();
+            if (navigator.vibrate) navigator.vibrate([80, 60, 80]);
+            const col = { red: '#c51d23', yellow: '#e0a800', green: '#2e9e4f' }[sosLevel];
+            document.getElementById('sos-sent-icon').style.background = col;
+            document.getElementById('sos-sent-title').innerText = L('ส่งคำขอความช่วยเหลือแล้ว', 'Help request sent');
+            document.getElementById('sos-sent-desc').innerHTML = (sosLevel === 'red' ? `<b style="color:#c51d23;">${L('กรณีวิกฤต กรุณาโทร 1669 ทันที', 'Critical: please call 1669 now')}</b><br>` : '') +
+                `<span id="sos-live">${L('รอเจ้าหน้าที่รับเรื่อง...', 'Waiting for staff to respond...')}</span>`;
+            document.getElementById('sos-form').style.display = 'none';
+            document.getElementById('sos-sent').style.display = 'block';
+            if (sosUnsub) sosUnsub();
+            sosUnsub = onSnapshot(ref, s => {
+                const st = s.exists() ? s.data().status : '';
+                const live = document.getElementById('sos-live');
+                if (!live) return;
+                if (st === 'acknowledged') live.innerHTML = `<b style="color:#2e9e4f;"><i class="fa-solid fa-circle-check"></i> ${L('เจ้าหน้าที่รับเรื่องแล้ว กำลังประสานความช่วยเหลือ', 'Staff have responded and are coordinating help')}</b>`;
+                if (st === 'resolved') live.innerHTML = `<b style="color:#2e9e4f;">${L('ปิดเคสแล้ว', 'Case closed')}</b>`;
+            });
+        } catch (e) {
+            Swal.fire({ icon: 'error', title: L('ส่งไม่สำเร็จ', 'Could not send'), html: L('กรุณาโทร <b>1669</b> โดยตรง', 'Please call <b>1669</b> directly') + `<br><small>${esc(e.message)}</small>`, confirmButtonColor: '#c51d23' });
+        } finally { btn.disabled = false; btn.style.opacity = 1; }
+    };
+
+    // ---------- 🛠️ แอดมิน: ติดตามเรียลไทม์ ----------
+    const LV = { red: ['#c51d23', 'แดง · วิกฤต', 'Red · Critical'], yellow: ['#e0a800', 'เหลือง · เร่งด่วน', 'Yellow · Urgent'], green: ['#2e9e4f', 'เขียว · ไม่เร่งด่วน', 'Green · Non-urgent'] };
+    const alertedSos = new Set();
+    function startAdminWatchers() {
+        adminUnsubs.forEach(u => u()); adminUnsubs = [];
+
+        // 🚨 ฉุกเฉิน
+        adminUnsubs.push(onSnapshot(query(collection(db, "emergencies"), orderBy("createdAt", "desc"), limit(30)), snap => {
+            const list = []; snap.forEach(d => list.push({ id: d.id, ...d.data() }));
+            const open = list.filter(e => e.status === 'new');
+            const cnt = document.getElementById('admin-sos-count');
+            cnt.style.display = open.length ? 'inline-block' : 'none'; cnt.innerText = open.length + ' ' + L('ใหม่', 'new');
+            document.getElementById('admin-sos-list').innerHTML = list.length ? list.map(e => {
+                const [col, th, en] = LV[e.level] || ['#888', e.level, e.level];
+                const map = e.lat != null ? `<a href="https://maps.google.com/?q=${e.lat},${e.lng}" target="_blank" style="color:var(--tu-red); font-weight:600;"><i class="fa-solid fa-map-location-dot"></i> ${L('เปิดแผนที่', 'Open map')}</a> <small style="color:var(--text-sub);">±${e.accuracy}m</small>` : `<small style="color:#c51d23;">${L('ไม่มีพิกัด GPS', 'No GPS')}</small>`;
+                const stTxt = { new: L('ใหม่', 'New'), acknowledged: L('รับเรื่องแล้ว', 'Acknowledged'), resolved: L('ปิดเคส', 'Resolved') }[e.status] || e.status;
+                return `<div class="admin-list-item" style="${e.status === 'new' ? 'background:#fff5f5; margin:0 -10px; padding:12px 10px; border-radius:8px;' : ''}">
+                    <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:4px;"><span class="lvl-pill" style="background:${col};">${currentLang === 'en' ? en : th}</span><small style="color:var(--text-sub);">${fmtTime(e.createdAt)} · ${stTxt}</small></div>
+                    <div style="margin:4px 0;"><i class="fa-regular fa-user"></i> ${esc(e.reporter === 'guest' ? L('บุคคลทั่วไป', 'Guest') : e.reporter)} ${esc(e.fullName || '')} ${e.phone ? `· <a href="tel:${esc(e.phone)}" style="color:var(--tu-red);"><i class="fa-solid fa-phone"></i> ${esc(e.phone)}</a>` : ''}</div>
+                    ${e.note ? `<div style="color:#333; margin-bottom:4px;">“${esc(e.note)}”</div>` : ''}
+                    <div style="display:flex; justify-content:space-between; align-items:center; gap:8px; flex-wrap:wrap;">${map}
+                        <span>${e.status === 'new' ? `<button class="mini-btn" style="background:#c51d23; color:#fff;" onclick="setSosStatus('${e.id}','acknowledged')">${L('รับเรื่อง', 'Acknowledge')}</button>` : ''}
+                        ${e.status !== 'resolved' ? `<button class="mini-btn" style="background:#e5e5ea;" onclick="setSosStatus('${e.id}','resolved')">${L('ปิดเคส', 'Resolve')}</button>` : ''}</span></div>
+                </div>`;
+            }).join('') : `<p style="color:var(--text-sub); font-size:13px;">${L('ยังไม่มีการแจ้งเหตุ', 'No reports')}</p>`;
+            open.filter(e => !alertedSos.has(e.id)).forEach(e => {
+                alertedSos.add(e.id);
+                if (e.level !== 'green') {
+                    if (navigator.vibrate) navigator.vibrate([200, 100, 200]);
+                    Swal.fire({ icon: 'warning', title: L('🚨 มีการแจ้งเหตุใหม่', '🚨 New emergency'), html: `<b style="color:${LV[e.level][0]}">${currentLang === 'en' ? LV[e.level][2] : LV[e.level][1]}</b><br>${esc(e.note || '')}`, confirmButtonColor: '#c51d23' });
+                }
+            });
+        }));
+
+        // ⭐ ความพึงพอใจ
+        adminUnsubs.push(onSnapshot(query(collection(db, "feedback"), orderBy("createdAt", "desc"), limit(100)), snap => {
+            const list = []; snap.forEach(d => list.push(d.data()));
+            const n = list.length, avg = n ? list.reduce((s, f) => s + (f.rating || 0), 0) / n : 0;
+            const dist = [5, 4, 3, 2, 1].map(r => [r, list.filter(f => f.rating === r).length]);
+            const topicCount = {}; list.forEach(f => (f.topics || []).forEach(k => topicCount[k] = (topicCount[k] || 0) + 1));
+            const topicName = Object.fromEntries(FB_TOPICS());
+            document.getElementById('admin-fb-summary').innerHTML = n ? `
+                <div style="display:flex; gap:15px; align-items:center; margin-bottom:10px;">
+                    <div style="text-align:center;"><div style="font-size:32px; font-weight:700; color:#e0a800;">${avg.toFixed(1)}</div><small style="color:var(--text-sub);">${n} ${L('ความคิดเห็น', 'reviews')}</small></div>
+                    <div style="flex:1;">${dist.map(([r, c]) => `<div style="display:flex; align-items:center; gap:6px; font-size:11px;"><span style="width:10px;">${r}</span><div style="flex:1; height:6px; background:#f0f1f4; border-radius:3px; overflow:hidden;"><div style="width:${n ? c / n * 100 : 0}%; height:100%; background:#f6c026;"></div></div><span style="width:18px; text-align:right; color:var(--text-sub);">${c}</span></div>`).join('')}</div>
+                </div>
+                <div style="font-size:11px; color:var(--text-sub); margin-bottom:8px;">${Object.entries(topicCount).sort((a, b) => b[1] - a[1]).map(([k, c]) => `<span class="chip" style="cursor:default; padding:3px 8px; font-size:11px; margin:0 4px 4px 0; display:inline-block;">${esc(topicName[k] || k)} ${c}</span>`).join('')}</div>`
+                : `<p style="color:var(--text-sub); font-size:13px;">${L('ยังไม่มีคะแนน', 'No ratings yet')}</p>`;
+            document.getElementById('admin-fb-list').innerHTML = list.filter(f => f.comment).slice(0, 30).map(f => `<div class="admin-list-item"><div style="display:flex; justify-content:space-between;"><span style="color:#e0a800;">${'★'.repeat(f.rating || 0)}<span style="color:#ddd;">${'★'.repeat(5 - (f.rating || 0))}</span></span><small style="color:var(--text-sub);">${esc(f.stuId)} · ${fmtTime(f.createdAt)}</small></div><div style="margin-top:4px;">${esc(f.comment)}</div></div>`).join('');
+        }));
+
+        // 🎁 บริจาค
+        adminUnsubs.push(onSnapshot(query(collection(db, "donations"), orderBy("createdAt", "desc"), limit(50)), snap => {
+            const list = []; snap.forEach(d => list.push({ id: d.id, ...d.data() }));
+            document.getElementById('admin-don-list').innerHTML = list.length ? list.map(d => {
+                const [lbl, col] = DON_STATUS(d.status);
+                return `<div class="admin-list-item"><div style="display:flex; justify-content:space-between;"><b>${esc(d.medName)} × ${esc(d.qty)}</b><span class="lvl-pill" style="background:${col};">${lbl}</span></div>
+                    <div style="font-size:12px; color:var(--text-sub); margin:3px 0;"><i class="fa-regular fa-user"></i> ${esc(d.stuId)} · EXP ${esc(d.expDate)} · ${fmtTime(d.createdAt)}${d.note ? '<br>' + esc(d.note) : ''}${d.creditsAwarded ? ` · <b style="color:#2e9e4f;">+${d.creditsAwarded}</b>` : ''}</div>
+                    ${d.status === 'pending' ? `<div style="display:flex; gap:6px; justify-content:flex-end;"><button class="mini-btn" style="background:#e5e5ea;" onclick="rejectDonation('${d.id}')">${L('ไม่ผ่าน', 'Reject')}</button><button class="mini-btn" style="background:#2e9e4f; color:#fff;" onclick="approveDonation('${d.id}','${esc(d.stuId)}')">${L('อนุมัติ + ให้เครดิต', 'Approve + credit')}</button></div>` : ''}</div>`;
+            }).join('') : `<p style="color:var(--text-sub); font-size:13px;">${L('ยังไม่มีคำขอ', 'No requests')}</p>`;
+        }));
+
+        // 🔑 รีเซ็ตรหัสผ่าน
+        adminUnsubs.push(onSnapshot(query(collection(db, "resetRequests"), orderBy("createdAt", "desc"), limit(30)), snap => {
+            const list = []; snap.forEach(d => list.push({ id: d.id, ...d.data() }));
+            document.getElementById('admin-reset-list').innerHTML = (list.length ? list.map(r => `<div class="admin-list-item" style="${r.status === 'done' ? 'opacity:.5;' : ''}"><div style="display:flex; justify-content:space-between;"><b>${esc(r.stuId)}</b><small style="color:var(--text-sub);">${fmtTime(r.createdAt)}</small></div>
+                <div style="font-size:12px; margin:3px 0;">${esc(r.fullName)} · <a href="tel:${esc(r.phone)}" style="color:var(--tu-red);">${esc(r.phone)}</a></div>
+                ${r.status !== 'done' ? `<div style="text-align:right;"><button class="mini-btn" style="background:#1d1d1f; color:#fff;" onclick="doneReset('${r.id}')">${L('ดำเนินการแล้ว', 'Mark done')}</button></div>` : ''}</div>`).join('')
+                : `<p style="color:var(--text-sub); font-size:13px;">${L('ไม่มีคำขอ', 'No requests')}</p>`) +
+                `<p style="font-size:11px; color:var(--text-sub); margin-top:8px; line-height:1.5;"><i class="fa-solid fa-circle-info"></i> ${L('วิธีรีเซ็ต: โทรยืนยันตัวตน → ลบบัญชีรหัสนั้นใน Firebase Console › Authentication → แจ้งให้สมัครใหม่ด้วยรหัสนักศึกษาเดิม (ประวัติ เครดิต และข้อมูลแพ้ยายังอยู่ เพราะผูกกับรหัสนักศึกษา)', 'To reset: call to verify → delete that account in Firebase Console › Authentication → ask them to re-register with the same student ID (history, credits and allergies are kept, since they are keyed by student ID).')}</p>`;
+        }));
+    }
+    window.setSosStatus = (id, status) => updateDoc(doc(db, "emergencies", id), { status, [status + 'At']: serverTimestamp() });
+    window.doneReset = id => updateDoc(doc(db, "resetRequests", id), { status: 'done', doneAt: serverTimestamp() });
+    window.rejectDonation = async id => {
+        const { value: reason, isConfirmed } = await Swal.fire({ title: L('ไม่อนุมัติคำขอนี้?', 'Reject this request?'), input: 'text', inputPlaceholder: L('เหตุผล (ไม่บังคับ)', 'Reason (optional)'), showCancelButton: true, confirmButtonText: L('ยืนยัน', 'Confirm'), cancelButtonText: t('swal_btn_cancel'), confirmButtonColor: '#c51d23' });
+        if (isConfirmed) updateDoc(doc(db, "donations", id), { status: 'rejected', rejectReason: reason || '', reviewedAt: serverTimestamp() });
+    };
+    window.approveDonation = async (id, stuId) => {
+        const { value: amount } = await Swal.fire({
+            title: L('ให้เครดิตเท่าไร?', 'How many credits?'), text: L('1 เครดิต = 1 บาท', '1 credit = 1 THB'), input: 'number', inputValue: 10, inputAttributes: { min: 1, step: 1 },
+            showCancelButton: true, confirmButtonText: L('อนุมัติ', 'Approve'), cancelButtonText: t('swal_btn_cancel'), confirmButtonColor: '#2e9e4f',
+            inputValidator: v => (!v || parseInt(v) <= 0) ? L('กรุณาใส่จำนวนที่มากกว่า 0', 'Enter a number above 0') : undefined
+        });
+        if (!amount) return;
+        const credits = parseInt(amount);
+        try {
+            await runTransaction(db, async tx => {
+                const dRef = doc(db, "donations", id);
+                const dSnap = await tx.get(dRef);
+                if (!dSnap.exists() || dSnap.data().status !== 'pending') throw new Error(L('คำขอนี้ถูกดำเนินการไปแล้ว', 'Already processed'));
+                tx.update(dRef, { status: 'approved', creditsAwarded: credits, reviewedAt: serverTimestamp() });
+                tx.set(doc(db, "users", stuId), { credits: increment(credits) }, { merge: true });
+                tx.set(doc(collection(db, "creditLogs")), { stuId, amount: credits, reason: 'donation', donationId: id, createdAt: serverTimestamp() });
+            });
+            Swal.fire({ toast: true, position: 'top', icon: 'success', title: L(`ให้ ${credits} เครดิตแก่ ${stuId} แล้ว`, `Gave ${credits} credits to ${stuId}`), showConfirmButton: false, timer: 1800 });
+        } catch (e) { Swal.fire(t('swal_err'), e.message, 'error'); }
+    };
+    window.adminUpdateIngredients = async (id, val) => {
+        const list = val.split(',').map(s => s.trim().toLowerCase()).filter(Boolean);
+        await updateDoc(doc(db, "inventory", id), { ingredients: list });
+        Swal.fire({ toast: true, position: 'top', icon: 'success', title: L('อัปเดตส่วนผสมแล้ว', 'Ingredients updated'), showConfirmButton: false, timer: 1400 });
+    };
+
+    // ---------- ข้อความที่ต้องสร้างใหม่ตอนเปลี่ยนภาษา ----------
+    function renderV2Static() {
+        const rules = document.getElementById('don-rules-list');
+        if (rules) rules.innerHTML = [
+            L(`เหลืออายุอย่างน้อย ${DONATION_MIN_MONTHS} เดือน`, `At least ${DONATION_MIN_MONTHS} months before expiry`),
+            L('บรรจุภัณฑ์ไม่ฉีกขาด ฉลากอ่านออกชัดเจน', 'Packaging intact, label readable'),
+            L('เป็นยาสามัญประจำบ้าน หรือยาที่ซื้อได้ทั่วไป', 'Household / over-the-counter medicine only'),
+            L('ไม่รับยาที่ต้องแช่เย็น ยาอันตราย หรือยาควบคุมพิเศษ', 'No refrigerated, dangerous or controlled drugs')
+        ].map(s => `<li>${s}</li>`).join('');
+        renderAllergySummary();
+        renderCredits();
+        if (document.getElementById('view-manual').classList.contains('active')) renderManual();
+    }
 </script>
 </body>
 </html>
