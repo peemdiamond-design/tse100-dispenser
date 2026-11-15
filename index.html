@@ -249,6 +249,63 @@
         .lvl-pill { display: inline-block; padding: 2px 10px; border-radius: 12px; font-size: 11px; font-weight: 700; color: #fff; }
         .mini-btn { border: none; border-radius: 8px; padding: 6px 10px; font-size: 12px; font-weight: 600; cursor: pointer; }
         .back-link { display: inline-flex; align-items: center; gap: 6px; font-size: 13px; color: var(--text-sub); cursor: pointer; margin-bottom: 12px; }
+
+        /* ================= v3: ปรับหน้าตาให้เป็นระบบเดียวกัน ================= */
+        :root { --gutter: 16px; --radius: 18px; --line: #eceef2; --shadow: 0 1px 2px rgba(16,24,40,.04), 0 4px 14px rgba(16,24,40,.04); }
+        .header { padding: 12px var(--gutter); }
+        .location-text h1 { font-size: 16px; letter-spacing: -.1px; }
+        .promo { margin: 16px var(--gutter) 0; background: #fff; border: 1px solid var(--line); border-radius: var(--radius); padding: 14px; display: flex; align-items: center; gap: 12px; box-shadow: var(--shadow); cursor: pointer; }
+        .promo:active { transform: scale(.99); }
+        .promo-ic { width: 44px; height: 44px; border-radius: 14px; background: #e8f1fe; color: #1a66d2; display: flex; align-items: center; justify-content: center; font-size: 19px; flex-shrink: 0; }
+        .promo-tx h4 { font-size: 14px; font-weight: 600; color: var(--text-main); }
+        .promo-tx p { font-size: 12px; color: var(--text-sub); margin-top: 2px; }
+        .promo-go { margin-left: auto; color: #b0b4bd; font-size: 13px; }
+        .guest-banner { margin: 12px var(--gutter) 0; border-radius: 14px; }
+        .search-wrap { padding: 12px var(--gutter) 0; }
+        .search-wrap i { left: 32px; }
+        .search-input { border-color: var(--line); border-radius: 14px; box-shadow: var(--shadow); }
+        .quick-actions { padding: 12px var(--gutter) 0; gap: 10px; }
+        .qa-btn { border: 1px solid var(--line); border-radius: 16px; padding: 14px 6px 12px; box-shadow: var(--shadow); font-weight: 500; }
+        .qa-btn i { width: 40px; height: 40px; line-height: 40px; margin: 0 auto 8px; border-radius: 12px; background: #fdecec; font-size: 17px; }
+        .qa-btn:nth-child(2) i { background: #fff6dc; color: #b98500; }
+        .qa-btn:nth-child(3) i { background: #e8f1fe; color: #1a66d2; }
+        .section-head { display: flex; align-items: baseline; justify-content: space-between; padding: 22px var(--gutter) 0; }
+        .section-head h2 { font-size: 17px; font-weight: 600; }
+        .section-head span { font-size: 12px; color: var(--text-sub); }
+        .product-list { padding: 0 var(--gutter) 20px; gap: 12px; margin-top: 10px; }
+        article.product-card { display: block; }
+        .product-card { border: 1px solid var(--line); border-radius: var(--radius); padding: 14px; box-shadow: var(--shadow); }
+        .product-card.soldout { opacity: .55; }
+        .product-card.allergic { border: 1.5px solid var(--tu-red); }
+        .pc-top { display: flex; gap: 14px; align-items: flex-start; }
+        .pc-img { width: 72px; height: 72px; border-radius: 14px; background: #f4f5f7; overflow: hidden; flex-shrink: 0; }
+        .pc-img img { width: 100%; height: 100%; object-fit: cover; display: block; }
+        .pc-title { display: flex; align-items: flex-start; justify-content: space-between; gap: 8px; }
+        .pc-title h3 { font-size: 15px; font-weight: 600; line-height: 1.35; margin: 0; }
+        .pc-desc { font-size: 12px; color: var(--text-sub); margin-top: 2px; }
+        .pc-props { font-size: 13px; color: #3a3a3c; margin-top: 6px; line-height: 1.45; }
+        .stock-chip { flex-shrink: 0; font-size: 11px; font-weight: 600; padding: 3px 9px; border-radius: 999px; background: #eef7f0; color: #237a3b; white-space: nowrap; }
+        .stock-chip.low { background: #fff4d6; color: #8a6100; }
+        .stock-chip.out { background: #eceef2; color: #6b6f78; }
+        .pc-warn { display: flex; gap: 8px; align-items: flex-start; font-size: 12px; color: #a3191e; background: #fdf3f3; border-radius: 10px; padding: 8px 10px; margin-top: 12px; line-height: 1.45; }
+        .pc-warn i { margin-top: 2px; font-size: 11px; }
+        .allergy-flag { margin-top: 12px; border-radius: 10px; padding: 8px 10px; }
+        .pc-foot { display: flex; align-items: center; justify-content: space-between; gap: 10px; margin-top: 12px; padding-top: 12px; border-top: 1px solid #f1f2f5; }
+        .druginfo-btn { margin-top: 0; background: none; padding: 6px 0; color: #1a66d2; font-size: 13px; font-weight: 500; }
+        .pc-buy { display: flex; align-items: center; gap: 12px; }
+        .price { font-size: 18px; font-weight: 700; }
+        .add-btn { width: 38px; height: 38px; box-shadow: 0 2px 6px rgba(246,192,38,.45); }
+        .out-of-stock-btn { border-radius: 999px; }
+        .auth-container { margin: 16px var(--gutter); padding: 28px 20px 22px; border-radius: var(--radius); border: 1px solid var(--line); box-shadow: var(--shadow); }
+        .auth-logo { display: block; width: 64px; height: 64px; border-radius: 18px; margin: 0 auto 12px; box-shadow: 0 4px 12px rgba(197,29,35,.18); }
+        .auth-title { font-size: 19px; margin-bottom: 22px; }
+        .form-group input { border-color: var(--line); background-color: #f7f8fa; }
+        .btn-primary, .btn-secondary { border-radius: 14px; }
+        #orders-login-warning h3 { color: var(--text-main); font-size: 17px; font-weight: 600; margin-bottom: 4px; }
+        #orders-login-warning p { font-size: 13px; }
+        .empty-cta { width: auto; display: inline-flex; padding: 12px 28px; margin-top: 18px; }
+        #view-map > div:first-child h2, #orders-list-container > h3 { font-size: 18px !important; font-weight: 600; color: var(--text-main) !important; }
+        #view-map > div:first-child h2 i, #orders-list-container > h3 i { color: var(--tu-red); }
     </style>
 </head>
 <body>
@@ -274,17 +331,13 @@
     <div id="view-home" class="view-section active">
         
         <!-- แบนเนอร์ปรึกษาแพทย์ Tham-C -->
-        <div style="padding: 20px 20px 0;">
-            <div style="background: linear-gradient(135deg, #e3f2fd 0%, #bbdefb 100%); border-radius: 16px; padding: 15px; display: flex; align-items: center; gap: 15px; box-shadow: 0 4px 10px rgba(0,0,0,0.05); cursor: pointer; transition: transform 0.2s;" onclick="window.open('https://www.tham-c.com/th', '_blank')" onmousedown="this.style.transform='scale(0.98)'" onmouseup="this.style.transform='scale(1)'">
-                <div style="background: white; width: 45px; height: 45px; border-radius: 50%; display: flex; justify-content: center; align-items: center; flex-shrink: 0; box-shadow: 0 2px 5px rgba(0,0,0,0.1);">
-                    <i class="fa-solid fa-user-doctor" style="color: #1976d2; font-size: 20px;"></i>
-                </div>
-                <div>
-                    <h4 style="margin: 0; color: #1565c0; font-size: 14px; font-weight: 700;" data-i18n="thamc_title">ปรึกษาแพทย์ออนไลน์</h4>
-                    <p style="margin: 4px 0 0; color: #1d1d1f; font-size: 11px;" data-i18n="thamc_desc">ไม่แน่ใจอาการ? ปรึกษาหมอผ่าน Tham-C</p>
-                </div>
-                <i class="fa-solid fa-chevron-right" style="margin-left: auto; color: #1976d2;"></i>
+        <div class="promo" onclick="window.open('https://www.tham-c.com/th', '_blank')">
+            <div class="promo-ic"><i class="fa-solid fa-user-doctor"></i></div>
+            <div class="promo-tx">
+                <h4 data-i18n="thamc_title">ปรึกษาแพทย์ออนไลน์</h4>
+                <p data-i18n="thamc_desc">ไม่แน่ใจอาการ? ปรึกษาหมอผ่าน Tham-C</p>
             </div>
+            <i class="fa-solid fa-chevron-right promo-go"></i>
         </div>
 
         <!-- แบนเนอร์โหมดบุคคลทั่วไป -->
@@ -311,6 +364,7 @@
             <div class="loader"></div>
             <p style="color:var(--text-sub); font-size:14px; margin-top:10px;" data-i18n="loading_stock">กำลังโหลดสต๊อกยาแบบเรียลไทม์...</p>
         </div>
+        <div class="section-head" id="product-head" style="display:none;"><h2>ยาในตู้</h2><span id="product-count"></span></div>
         <div class="product-list" id="product-list-container"></div>
         <div id="search-empty" style="display:none; text-align:center; color:var(--text-sub); padding:30px 20px; font-size:14px;">
             <i class="fa-solid fa-magnifying-glass" style="font-size:36px; color:#ddd; margin-bottom:10px; display:block;"></i>
@@ -376,6 +430,7 @@
             <i class="fa-solid fa-receipt" style="font-size: 50px; color: #ddd; margin-bottom: 15px;"></i>
             <h3 data-i18n="order_history">ประวัติคำสั่งซื้อ</h3>
             <p data-i18n="pls_login">กรุณาเข้าสู่ระบบเพื่อดูข้อมูล</p>
+            <button class="btn-primary empty-cta" onclick="switchTab('view-account', document.getElementById('nav-account'))"><span data-i18n="btn_login">เข้าสู่ระบบ</span></button>
         </div>
         <div id="orders-list-container" style="display: none; padding: 20px;">
             <h3 style="margin-bottom: 15px; color: var(--tu-red);" data-i18n="your_orders">ประวัติการรับยาของคุณ</h3>
@@ -386,6 +441,7 @@
     <!-- VIEW: Account -->
     <div id="view-account" class="view-section">
         <div id="auth-section" class="auth-container">
+            <img class="auth-logo" src="assets/app-icon.png" alt="">
             <div class="auth-title" data-i18n="student_login">เข้าสู่ระบบนักศึกษา</div>
             <p id="auth-loading" data-i18n="auth_loading">กำลังประมวลผล...</p>
             <div class="form-group">
@@ -1121,6 +1177,9 @@
         const shown = inventory.filter(item => matchesSearch(item, searchTerm));
         document.getElementById('search-empty').style.display = (searchTerm && shown.length === 0) ? 'block' : 'none';
 
+        const head = document.getElementById('product-head');
+        if (head) { head.style.display = 'flex'; document.getElementById('product-count').innerText = L(`${shown.length} รายการ`, `${shown.length} items`); head.querySelector('h2').innerText = L('ยาในตู้', 'In this kiosk'); }
+
         shown.forEach(item => {
             const allergyHits = getAllergyHits(item);
             const cartItem = cart.find(c => c.id === item.id);
@@ -1136,29 +1195,28 @@
                 ? `<button class="out-of-stock-btn" disabled>${t('out_of_stock')}</button>`
                 : `<button class="add-btn" onclick="addToCart('${item.id}')"><i class="fa-solid fa-plus"></i></button>`;
 
-            const badgeHTML = item.stock <= 0 
-                ? `<div class="stock-badge" style="background: rgba(0,0,0,0.6); color: white;">${t('out_of_stock')}</div>` 
-                : `<div class="stock-badge" style="background: var(--tu-yellow); color: #000; font-weight: 600;">${t('left')} ${item.stock} ${t('pcs')}</div>`;
+            const low = item.stock > 0 && item.stock <= 3;
+            const badgeHTML = item.stock <= 0
+                ? `<span class="stock-chip out">${t('out_of_stock')}</span>`
+                : `<span class="stock-chip ${low ? 'low' : ''}">${t('left')} ${item.stock} ${t('pcs')}</span>`;
 
             container.innerHTML += `
-                <div class="product-card ${allergyHits.length ? 'allergic' : ''}" style="opacity: ${item.stock <= 0 ? '0.6' : '1'};">
-                    ${badgeHTML}
-                    <img src="${item.img}" style="width: 70px; height: 70px; border-radius: 12px; object-fit: cover;" onerror="this.src='https://cdn-icons-png.flaticon.com/512/822/822102.png'">
-                    <div class="prod-info">
-                        <h3>${pName}</h3>
-                        <p style="font-size: 12px; color: var(--text-sub);">${pDesc}</p>
-                        ${allergyHits.length ? `<div class="allergy-flag"><i class="fa-solid fa-triangle-exclamation" style="margin-top:2px;"></i><span>${L('คุณมีประวัติแพ้', 'You are allergic to')}: ${allergyHits.join(', ')}</span></div>` : ''}
-                        <div class="med-details">
-                            <p class="med-props"><i class="fa-solid fa-notes-medical med-icon"></i> <strong>${t('props')}</strong> ${pProps}</p>
-                            <p class="med-warn"><i class="fa-solid fa-triangle-exclamation med-icon"></i> <strong>${t('warn')}</strong> ${pWarn}</p>
-                        </div>
-                        <button class="druginfo-btn" onclick="showDrugInfo('${item.id}')"><i class="fa-solid fa-circle-info"></i> ${L('วิธีใช้ ข้อห้าม และควรพบแพทย์เมื่อไร', 'Dosage, cautions & when to see a doctor')}</button>
-                        <div class="price-row">
-                            <span class="price">฿${item.price}</span>
-                            ${btnHTML}
+                <article class="product-card ${allergyHits.length ? 'allergic' : ''} ${item.stock <= 0 ? 'soldout' : ''}">
+                    <div class="pc-top">
+                        <div class="pc-img"><img src="${item.img}" alt="" onerror="this.src='https://cdn-icons-png.flaticon.com/512/822/822102.png'"></div>
+                        <div class="prod-info">
+                            <div class="pc-title"><h3>${pName}</h3>${badgeHTML}</div>
+                            <p class="pc-desc">${pDesc}</p>
+                            <p class="pc-props">${pProps}</p>
                         </div>
                     </div>
-                </div>
+                    ${allergyHits.length ? `<div class="allergy-flag"><i class="fa-solid fa-triangle-exclamation"></i><span>${L('คุณมีประวัติแพ้', 'You are allergic to')}: ${allergyHits.join(', ')}</span></div>` : ''}
+                    <p class="pc-warn"><i class="fa-solid fa-triangle-exclamation"></i><span>${pWarn}</span></p>
+                    <div class="pc-foot">
+                        <button class="druginfo-btn" onclick="showDrugInfo('${item.id}')"><i class="fa-solid fa-circle-info"></i> ${L('วิธีใช้และข้อห้าม', 'How to use')}</button>
+                        <div class="pc-buy"><span class="price">฿${item.price}</span>${btnHTML}</div>
+                    </div>
+                </article>
             `;
         });
         renderAdminStock();
@@ -1200,9 +1258,6 @@
         }
 
         const cartItem = cart.find(c => c.id === id);
-        // 💊 v3: ถามอาการก่อนหยิบยานี้ครั้งแรก และจำกัดจำนวนต่อวัน
-        if (!(await withinDailyLimit(id, (cartItem ? cartItem.qty : 0) + 1))) return;
-        if (!cartItem && !(await runTriage(id))) return;
         if (cartItem) cartItem.qty += 1;
         else cart.push({ ...product, qty: 1 });
         
@@ -1216,12 +1271,11 @@
         Swal.fire({ toast: true, position: 'top', icon: 'success', title: t('swal_added'), showConfirmButton: false, timer: 1000 });
     }
 
-    window.updateItemQty = async function(id, delta) {
+    window.updateItemQty = function(id, delta) {
         const cartIndex = cart.findIndex(c => c.id === id);
         if (cartIndex > -1) {
             const product = inventory.find(p => p.id === id);
             let newQty = cart[cartIndex].qty + delta;
-            if (delta > 0 && !(await withinDailyLimit(id, newQty))) return;
             if (newQty > product.stock) return Swal.fire({ toast: true, position: 'top', icon: 'error', title: t('swal_stock_err'), showConfirmButton: false, timer: 1500 });
             if (newQty <= 0) cart.splice(cartIndex, 1);
             else cart[cartIndex].qty = newQty;
@@ -1454,8 +1508,6 @@
 
     async function processSuccessfulOrder(chargeId, itemName, itemPrice) {
         isPaymentSuccess = true;
-        const orderItems = cart.map(c => ({ id: c.id, qty: c.qty }));
-        recordBought(orderItems);
 
         document.getElementById('payment-ui').style.display = 'none';
         document.getElementById('hardware-sync-ui').style.display = 'flex';
@@ -1476,7 +1528,7 @@
                     renderCredits();
                 }
                 await addDoc(collection(db, "orders"), {
-                    stuId: stuId, itemName: itemName, price: itemPrice - creditUsed, creditUsed: creditUsed, fullPrice: itemPrice, items: orderItems,
+                    stuId: stuId, itemName: itemName, price: itemPrice - creditUsed, creditUsed: creditUsed, fullPrice: itemPrice,
                     chargeId: chargeId, status: "completed", createdAt: serverTimestamp()
                 });
             } catch (e) { }
@@ -1919,13 +1971,9 @@
         p4: { ingredients: ['menthol', 'camphor', 'borneol', 'eucalyptus'], tags: ['เวียนหัว', 'วิงเวียน', 'คัดจมูก', 'หน้ามืด', 'dizzy', 'nasal', 'congestion'] }
     };
     // ================================================================
-    // 💊 v3: ข้อมูลยา / จำกัดจำนวนต่อวัน / ถามอาการก่อนซื้อ
+    // 💊 v3: ข้อมูลยาแต่ละตัว (วิธีใช้ / ข้อห้าม / ควรพบแพทย์เมื่อไร)
     // สรุปจากฉลากยาสามัญประจำบ้าน ผู้ใช้ต้องอ่านฉลากจริงบนกล่องทุกครั้ง
     // ================================================================
-    const DAILY_LIMIT = { p1: 1, p2: 2, p3: 3, p4: 2 };   // แผง/ชิ้น ต่อคน ต่อวัน
-    const DEFAULT_DAILY_LIMIT = 2;
-    const dailyLimit = id => DAILY_LIMIT[id] ?? DEFAULT_DAILY_LIMIT;
-
     const DRUG_INFO = {
         p1: {
             dose: [['ผู้ใหญ่และเด็กอายุ 12 ปีขึ้นไป: ครั้งละ 1–2 เม็ด ทุก 4–6 ชั่วโมง เมื่อมีอาการ', 'Adults and children 12+: 1–2 tablets every 4–6 hours as needed'],
@@ -1966,23 +2014,6 @@
         }
     };
 
-    // คำถามก่อนซื้อ: lvl 'er' = ฉุกเฉิน (โทร 1669 ไม่ขาย), 'dr' = ควรพบแพทย์ (แนะนำไม่ซื้อ), 'stop' = ไม่ควรซื้อยานี้
-    const TRIAGE = {
-        p1: [['er', 'ไข้สูงร่วมกับซึม สับสน ชัก คอแข็ง หรือหายใจลำบาก', 'High fever with drowsiness, confusion, seizure, stiff neck or trouble breathing'],
-             ['er', 'ปวดหัวรุนแรงเฉียบพลัน แบบที่ไม่เคยเป็นมาก่อน', 'Sudden, severe headache unlike any before'],
-             ['dr', 'มีไข้ติดต่อกันมาเกิน 3 วันแล้ว', 'Fever for more than 3 days'],
-             ['dr', 'มีผื่น จุดเลือดออก หรือเลือดออกตามไรฟัน', 'Rash, red spots, or bleeding gums'],
-             ['stop', 'กำลังกินยาอื่นที่มีพาราเซตามอลอยู่ หรือเป็นโรคตับ', 'Already taking another paracetamol product, or have liver disease']],
-        p2: [['er', 'สงสัยว่ากินสารพิษ สารเคมี หรือกินยาเกินขนาด', 'Suspect poisoning, chemical ingestion or overdose'],
-             ['dr', 'ถ่ายเป็นเลือด หรือมีไข้สูงร่วมด้วย', 'Blood in stool, or high fever'],
-             ['dr', 'ปากแห้ง ปัสสาวะน้อย อ่อนเพลียมาก หรือท้องเสียเกิน 2 วัน', 'Dry mouth, little urine, very weak, or diarrhoea for more than 2 days']],
-        p3: [['er', 'เลือดไหลไม่หยุดหลังกดแผลไว้ 10 นาที', 'Bleeding does not stop after 10 minutes of pressure'],
-             ['dr', 'แผลลึก กว้าง หรือมีสิ่งแปลกปลอมฝังอยู่', 'Deep or wide wound, or something stuck in it'],
-             ['dr', 'ถูกสัตว์กัดหรือข่วน', 'Animal bite or scratch']],
-        p4: [['er', 'เจ็บแน่นหน้าอก ใจสั่น หรือเป็นลมหมดสติ', 'Chest pain, palpitations or fainting'],
-             ['er', 'แขนขาอ่อนแรงซีกเดียว พูดไม่ชัด หรือหน้าเบี้ยว', 'Weakness on one side, slurred speech or drooping face']]
-    };
-
     window.showDrugInfo = id => {
         const item = inventory.find(p => p.id === id); const info = DRUG_INFO[id];
         const name = item ? (currentLang === 'en' && item.nameEn ? item.nameEn : item.name) : '';
@@ -1992,97 +2023,12 @@
             <b style="color:#e0a800;"><i class="fa-solid fa-ban"></i> ${L('ข้อห้าม / ข้อควรระวัง', 'Do not use / cautions')}</b>${li(info.avoid)}
             <b style="color:#c51d23;"><i class="fa-solid fa-user-doctor"></i> ${L('ควรไปพบแพทย์เมื่อ', 'See a doctor if')}</b>${li(info.doctor)}
             <div style="background:#f6f7f9; border-radius:10px; padding:10px; font-size:12px; color:#666;">
-              ${L(`ซื้อได้ไม่เกิน <b>${dailyLimit(id)}</b> ชิ้นต่อคนต่อวัน · ข้อมูลสรุปจากฉลากยาสามัญประจำบ้าน กรุณาอ่านฉลากบนกล่องทุกครั้ง หากไม่แน่ใจปรึกษาเภสัชกร`,
-                  `Limit <b>${dailyLimit(id)}</b> per person per day · Summarised from the household-remedy label. Always read the label on the box and ask a pharmacist if unsure.`)}
+              ${L('ข้อมูลสรุปจากฉลากยาสามัญประจำบ้าน กรุณาอ่านฉลากบนกล่องทุกครั้ง หากไม่แน่ใจปรึกษาเภสัชกร', 'Summarised from the household-remedy label. Always read the label on the box and ask a pharmacist if unsure.')}
             </div></div>`
             : L('ยังไม่มีข้อมูลสำหรับยานี้ กรุณาอ่านฉลากบนกล่อง', 'No details yet. Please read the label on the box.');
         Swal.fire({ title: name, html, confirmButtonText: L('เข้าใจแล้ว', 'Got it'), confirmButtonColor: 'var(--tu-red)' });
     };
 
-    // คืนค่า true ถ้าผ่าน (ซื้อต่อได้)
-    async function runTriage(id) {
-        const qs = TRIAGE[id]; if (!qs || !qs.length) return true;
-        const item = inventory.find(p => p.id === id);
-        const name = item ? (currentLang === 'en' && item.nameEn ? item.nameEn : item.name) : '';
-        const res = await Swal.fire({
-            title: L('ก่อนซื้อ ขอถามอาการสั้น ๆ', 'A quick check before you buy'),
-            html: `<div style="text-align:left; font-size:14px;"><p style="margin:0 0 10px; color:#666;">${L(`มีข้อไหนตรงกับคุณบ้าง (สำหรับ ${name})`, `Do any of these apply to you? (${name})`)}</p>` +
-                qs.map((q, i) => `<label style="display:flex; gap:10px; align-items:flex-start; padding:10px; border:1px solid #eee; border-radius:10px; margin-bottom:8px; cursor:pointer;"><input type="checkbox" id="tri-${i}" style="margin-top:3px; width:18px; height:18px;"><span>${L(q[1], q[2])}</span></label>`).join('') +
-                `</div>`,
-            showCancelButton: true, confirmButtonText: L('ถัดไป', 'Next'), cancelButtonText: t('swal_btn_cancel'), confirmButtonColor: 'var(--tu-red)',
-            preConfirm: () => qs.map((q, i) => document.getElementById('tri-' + i).checked ? q[0] : null).filter(Boolean)
-        });
-        if (!res.isConfirmed) return false;
-        const hit = res.value || [];
-        if (hit.includes('er')) {
-            const r = await Swal.fire({
-                icon: 'error', title: L('อาการนี้ควรได้รับการรักษาทันที', 'This needs urgent care'),
-                html: L('ยาในตู้ไม่เหมาะกับอาการนี้ กรุณา<b>โทร 1669</b> หรือกดแจ้งเหตุฉุกเฉินเพื่อให้เจ้าหน้าที่ช่วยเหลือ', 'Medicine from the kiosk is not suitable. Please <b>call 1669</b> or send an SOS so staff can help.'),
-                showDenyButton: true, showCancelButton: true,
-                confirmButtonText: '<i class="fa-solid fa-phone"></i> ' + L('โทร 1669', 'Call 1669'), denyButtonText: L('แจ้ง SOS', 'Send SOS'), cancelButtonText: L('ปิด', 'Close'),
-                confirmButtonColor: '#c51d23', denyButtonColor: '#e0a800'
-            });
-            if (r.isConfirmed) location.href = 'tel:1669';
-            else if (r.isDenied && typeof window.openEmergency === 'function') window.openEmergency();
-            return false;
-        }
-        if (hit.includes('stop')) {
-            await Swal.fire({ icon: 'warning', title: L('ไม่แนะนำให้ซื้อยานี้', 'Not recommended'), html: L('เสี่ยงได้รับยาเกินขนาดหรือเป็นอันตรายต่อตับ กรุณาปรึกษาเภสัชกรหรือแพทย์ก่อน', 'Risk of overdose or liver harm. Please talk to a pharmacist or doctor first.'), confirmButtonColor: 'var(--tu-red)' });
-            return false;
-        }
-        if (hit.includes('dr')) {
-            const r = await Swal.fire({
-                icon: 'warning', title: L('แนะนำให้ไปพบแพทย์', 'Please see a doctor'),
-                html: L('อาการนี้ควรให้แพทย์หรือพยาบาลตรวจ ยาในตู้ช่วยบรรเทาได้เพียงชั่วคราว<br>ไปที่ห้องพยาบาลหรือโรงพยาบาลใกล้ที่สุด หากอาการแย่ลงโทร 1669', 'This should be checked by a doctor or nurse; kiosk medicine only gives short-term relief.<br>Go to the nearest clinic or hospital. If it gets worse, call 1669.'),
-                showCancelButton: true, confirmButtonText: L('เข้าใจแล้ว ยังต้องการซื้อ', 'I understand, buy anyway'), cancelButtonText: L('ไม่ซื้อ', 'Do not buy'),
-                confirmButtonColor: '#888', cancelButtonColor: 'var(--tu-red)', reverseButtons: true, focusCancel: true
-            });
-            return r.isConfirmed;
-        }
-        return true;
-    }
-
-    // ---- จำนวนที่ซื้อไปแล้ววันนี้ (สมาชิก: จากประวัติคำสั่งซื้อ, บุคคลทั่วไป: จากเครื่องนี้) ----
-    const todayKey = () => { const d = new Date(); return `${d.getFullYear()}-${d.getMonth() + 1}-${d.getDate()}`; };
-    let boughtCache = { key: '', who: '', counts: null };
-    function guestCounts() {
-        try { const s = JSON.parse(localStorage.getItem('rx_bought') || '{}'); return s.day === todayKey() ? (s.counts || {}) : {}; } catch (e) { return {}; }
-    }
-    async function boughtTodayCounts() {
-        const who = auth.currentUser ? auth.currentUser.email.split('@')[0] : 'guest';
-        if (who === 'guest') return guestCounts();
-        if (boughtCache.key === todayKey() && boughtCache.who === who && boughtCache.counts) return boughtCache.counts;
-        const counts = {};
-        try {
-            const start = new Date(); start.setHours(0, 0, 0, 0);
-            const snap = await getDocs(query(collection(db, "orders"), where("stuId", "==", who)));
-            snap.forEach(d => {
-                const o = d.data(); const at = o.createdAt && o.createdAt.toDate ? o.createdAt.toDate() : null;
-                if (at && at >= start && Array.isArray(o.items)) o.items.forEach(it => { counts[it.id] = (counts[it.id] || 0) + (it.qty || 0); });
-            });
-        } catch (e) { console.warn('daily limit lookup failed', e); }
-        boughtCache = { key: todayKey(), who, counts };
-        return counts;
-    }
-    function recordBought(items) {
-        if (auth.currentUser) {
-            if (boughtCache.counts && boughtCache.key === todayKey()) items.forEach(it => { boughtCache.counts[it.id] = (boughtCache.counts[it.id] || 0) + it.qty; });
-        } else {
-            const c = guestCounts(); items.forEach(it => { c[it.id] = (c[it.id] || 0) + it.qty; });
-            try { localStorage.setItem('rx_bought', JSON.stringify({ day: todayKey(), counts: c })); } catch (e) {}
-        }
-    }
-    // คืนค่า true ถ้าเพิ่มอีก 1 ชิ้นได้
-    async function withinDailyLimit(id, qtyAfter) {
-        const already = (await boughtTodayCounts())[id] || 0;
-        const limit = dailyLimit(id);
-        if (already + qtyAfter <= limit) return true;
-        Swal.fire({ icon: 'info', title: L('ถึงจำนวนสูงสุดต่อวันแล้ว', 'Daily limit reached'),
-            html: L(`ยานี้ซื้อได้ไม่เกิน <b>${limit}</b> ชิ้นต่อคนต่อวัน (วันนี้ซื้อไปแล้ว ${already})<br>เพื่อป้องกันการใช้ยาเกินขนาด หากยังมีอาการควรไปพบแพทย์`,
-                    `Limit <b>${limit}</b> per person per day (already bought today: ${already})<br>This helps prevent overdose. If symptoms continue, please see a doctor.`),
-            confirmButtonColor: 'var(--tu-red)' });
-        return false;
-    }
 
     const ALLERGENS = [
         { key: 'paracetamol', th: 'พาราเซตามอล', en: 'Paracetamol' },
