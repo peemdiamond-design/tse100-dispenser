@@ -1,10 +1,11 @@
 {
   "name": "tse100",
   "version": "1.0.0",
-  "description": "",
-  "main": "index.js",
+  "description": "TU Smart Rx backend — PromptPay (Omise) + signed MQTT dispense commands",
+  "main": "server.js",
   "scripts": {
-    "test": "echo \"Error: no test specified\" && exit 1"
+    "start": "node server.js",
+    "test": "node --test test/core.test.js"
   },
   "keywords": [],
   "author": "",
@@ -12,7 +13,13 @@
   "type": "commonjs",
   "dependencies": {
     "cors": "^2.8.6",
+    "dotenv": "^16.4.5",
     "express": "^5.2.1",
+    "firebase-admin": "^12.7.0",
+    "mqtt": "^5.10.1",
     "omise": "^1.1.0"
+  },
+  "engines": {
+    "node": ">=18"
   }
 }

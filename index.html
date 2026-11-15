@@ -13,7 +13,6 @@
     <link href="https://fonts.googleapis.com/css2?family=Prompt:wght@300;400;500;600;700&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     
-    <script src="https://unpkg.com/mqtt/dist/mqtt.min.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
     <style>
         :root { 
@@ -1019,24 +1018,34 @@
     const auth = getAuth(app);
     const db = getFirestore(app);
     const FAKE_DOMAIN = "@tse.tu.ac.th";
+    const BACKEND_URL = 'https://api.peemcn25.dev';
     const ADMIN_ID = "6910616249"; 
 
-    const mqttClient = mqtt.connect('wss://broker.emqx.io:8084/mqtt');
+    // 🔒 แอปบนเว็บไม่ต่อ MQTT แล้ว — มีแต่เซิร์ฟเวอร์ที่สั่งตู้ได้ (คำสั่งมีลายเซ็น)
+    //    สถานะ Online/Offline ในหน้าแอดมิน ถามจาก backend แทน
     const mqttBadge = document.getElementById('mqtt-status-badge');
-    
-    mqttClient.on('connect', () => {
-        mqttBadge.className = 'badge-status status-online';
-        document.getElementById('mqtt-status-text').innerText = t('admin_online');
-    });
-    mqttClient.on('offline', () => {
-        mqttBadge.className = 'badge-status status-offline';
-        document.getElementById('mqtt-status-text').innerText = t('admin_offline');
-    });
-    mqttClient.on('error', () => {
-        mqttBadge.className = 'badge-status status-offline';
-        document.getElementById('mqtt-status-text').innerText = t('admin_offline');
-    });
-    
+    async function refreshKioskStatus() {
+        let online = false;
+        try {
+            const r = await fetch(`${BACKEND_URL}/api/status`, { cache: 'no-store' });
+            const d = await r.json();
+            online = !!(d.mqtt && d.kiosk && d.kiosk.online);
+        } catch (e) { }
+        mqttBadge.className = 'badge-status ' + (online ? 'status-online' : 'status-offline');
+        document.getElementById('mqtt-status-text').innerText = t(online ? 'admin_online' : 'admin_offline');
+    }
+    async function authHeaders() {
+        const h = { 'Content-Type': 'application/json' };
+        if (auth.currentUser) h.Authorization = 'Bearer ' + await auth.currentUser.getIdToken();
+        return h;
+    }
+    const API_ERR = code => ({
+        below_minimum: L('ยอดชำระขั้นต่ำผ่าน PromptPay คือ 20 บาท กรุณาเลือกยาเพิ่ม', 'Minimum PromptPay amount is 20 THB. Please add more items.'),
+        credit_insufficient: L('เครดิตไม่พอ', 'Not enough credits'),
+        kiosk_unreachable: L('ติดต่อตู้ไม่ได้ในขณะนี้ กรุณาลองใหม่', 'The kiosk is unreachable right now. Please try again.'),
+        login_required: L('กรุณาเข้าสู่ระบบ', 'Please log in')
+    }[code] || L('เกิดข้อผิดพลาด ไม่สามารถเชื่อมต่อระบบได้', 'Connection Error'));
+
     let inventory = []; 
     let cart = [];
     let adminGlobalOrdersData = [];
@@ -1287,7 +1296,6 @@
         } else warn.style.display = 'none';
     }
 
-    const BACKEND_URL = 'https://api.peemcn25.dev'; 
     let timerInterval, paymentCheckInterval;
     let isPaymentSuccess = false;
 
@@ -1335,9 +1343,17 @@
         const payable = totalPrice - pendingCreditUse;
         if (pendingCreditUse > 0 && payable === 0) {
             // เครดิตพอจ่ายทั้งหมด ไม่ต้องสแกน QR
-            document.getElementById('payment-ui').style.display = 'none';
-            document.getElementById('payment-modal').style.display = 'flex';
-            processSuccessfulOrder('CREDIT-' + Date.now(), systemItemName, totalPrice);
+            try {
+                const r = await fetch(`${BACKEND_URL}/api/redeem-credit`, { method: 'POST', headers: await authHeaders(), body: JSON.stringify({ items: cart.map(i => ({ id: i.id, qty: i.qty })) }) });
+                const d = await r.json();
+                if (!r.ok) throw new Error(d.error);
+                document.getElementById('payment-ui').style.display = 'none';
+                document.getElementById('payment-modal').style.display = 'flex';
+                processSuccessfulOrder(d.ref, systemItemName, totalPrice, d.creditUse);
+            } catch (e) {
+                await restoreStock();
+                Swal.fire({ icon: 'error', title: t('swal_err'), text: API_ERR(e.message), confirmButtonColor: 'var(--tu-red)' });
+            }
             return;
         }
 
@@ -1359,22 +1375,25 @@
         try {
             const response = await fetch(`${BACKEND_URL}/api/create-qr`, {
                 method: 'POST',
-                headers: { 'Content-Type': 'application/json' },
-                body: JSON.stringify({ price: payable, itemName: "ยา " + cart.length + " รายการ" })
+                headers: await authHeaders(),
+                body: JSON.stringify({ items: cart.map(i => ({ id: i.id, qty: i.qty })), creditUse: pendingCreditUse })
             });
             const data = await response.json();
+            if (!response.ok) { const e = new Error(data.error); e.api = true; throw e; }
 
             if (data.qrImage) {
+                // ยอดจริงคำนวณที่เซิร์ฟเวอร์ (อาจปรับเครดิตให้ยอดโอนไม่ต่ำกว่าขั้นต่ำ)
+                pendingCreditUse = data.creditUse || 0;
+                document.getElementById('summary-price').innerText = pendingCreditUse ? `฿${data.payable}.00 (${L('หักเครดิต', 'credits')} ${pendingCreditUse})` : `฿${data.payable}.00`;
                 loader.style.display = 'none';
                 qrImg.src = data.qrImage;
                 qrImg.style.display = 'block';
                 statusTxt.innerText = currentLang === 'th' ? 'สแกนคิวอาร์โค้ดเพื่อชำระเงินและรับยา' : 'Scan QR Code to pay and dispense';
-                mqttClient.publish("tse100/status", "USER_PAYING");
                 startCheckingPayment(data.chargeId, systemItemName, totalPrice);
             } else throw new Error();
         } catch (error) {
             loader.style.display = 'none';
-            statusTxt.innerText = currentLang === 'th' ? 'เกิดข้อผิดพลาด ไม่สามารถเชื่อมต่อระบบได้' : 'Connection Error';
+            statusTxt.innerText = error.api ? API_ERR(error.message) : (currentLang === 'th' ? 'เกิดข้อผิดพลาด ไม่สามารถเชื่อมต่อระบบได้' : 'Connection Error');
             
             restoreStock(); // 🔄 คืนสต๊อกถ้า API มีปัญหา
 
@@ -1439,34 +1458,35 @@
                 const response = await fetch(`${BACKEND_URL}/api/check-payment/${chargeId}`);
                 const data = await response.json();
                 if (data.status === 'success') {
+                    // เซิร์ฟเวอร์ยืนยันกับ Omise แล้ว และส่งคำสั่ง (มีลายเซ็น) ไปที่ตู้เรียบร้อย
                     clearInterval(paymentCheckInterval); clearInterval(timerInterval);
-                    processSuccessfulOrder(chargeId, itemName, itemPrice);
+                    processSuccessfulOrder(chargeId, itemName, itemPrice, data.creditUse || 0);
+                } else if (data.error === 'kiosk_unreachable' || data.error === 'publish_failed') {
+                    // จ่ายเงินแล้ว แต่ตู้ยังไม่ตอบ → ห้ามคืนสต๊อก และลองใหม่อัตโนมัติ (เซิร์ฟเวอร์ส่งซ้ำได้ ตู้กันการจ่ายซ้ำเอง)
+                    isPaymentSuccess = true; clearInterval(timerInterval);
+                    document.getElementById('qr-status').innerText = L('ชำระเงินแล้ว กำลังติดต่อตู้... ห้ามปิดหน้าจอ', 'Payment received. Contacting the kiosk... keep this screen open');
+                } else if (data.error) {
+                    clearInterval(paymentCheckInterval); clearInterval(timerInterval);
+                    Swal.fire({ icon: 'error', title: t('swal_err'), text: API_ERR(data.error) + L(' (ชำระเงินแล้ว กรุณาแจ้งเจ้าหน้าที่พร้อม Ref: ', ' (Payment received — contact staff with Ref: ') + chargeId + ')', confirmButtonColor: 'var(--tu-red)' });
                 }
             } catch (error) {}
         }, 3000); 
     }
 
-    async function processSuccessfulOrder(chargeId, itemName, itemPrice) {
+    async function processSuccessfulOrder(chargeId, itemName, itemPrice, serverCreditUse = 0) {
         isPaymentSuccess = true;
 
         document.getElementById('payment-ui').style.display = 'none';
         document.getElementById('hardware-sync-ui').style.display = 'flex';
         
-        mqttClient.publish("tse100/dispense", "PAYMENT_SUCCESS");
-
-        const creditUsed = pendingCreditUse || 0;
+        // 🔒 คำสั่งจ่ายยาถูกส่งจากเซิร์ฟเวอร์แล้ว (แอปส่งเองไม่ได้)
+        const creditUsed = serverCreditUse || 0;
         pendingCreditUse = 0;
 
         if (auth.currentUser) {
             const stuId = auth.currentUser.email.split('@')[0];
             try {
-                // 💚 v2: หักเครดิตที่ใช้ไป
-                if (creditUsed > 0) {
-                    await updateDoc(doc(db, "users", stuId), { credits: increment(-creditUsed) });
-                    await addDoc(collection(db, "creditLogs"), { stuId, amount: -creditUsed, reason: 'redeem', chargeId, createdAt: serverTimestamp() });
-                    userCredits = Math.max(0, userCredits - creditUsed);
-                    renderCredits();
-                }
+                // 💚 เครดิตถูกหักที่เซิร์ฟเวอร์แล้ว (ยอดใหม่จะอัปเดตเองผ่าน onSnapshot)
                 await addDoc(collection(db, "orders"), {
                     stuId: stuId, itemName: itemName, price: itemPrice - creditUsed, creditUsed: creditUsed, fullPrice: itemPrice,
                     chargeId: chargeId, status: "completed", createdAt: serverTimestamp()
@@ -1521,6 +1541,8 @@
                 switchTab('view-admin', document.getElementById('nav-admin'));
                 loadAdminDashboard();
                 startAdminWatchers(); // v2: ฉุกเฉิน / ติชม / บริจาค / รีเซ็ตรหัส
+                refreshKioskStatus();
+                if (!window.__kioskStatusTimer) window.__kioskStatusTimer = setInterval(refreshKioskStatus, 15000);
                 setGuestUI(false);
             } else {
                 document.getElementById('nav-account').style.display = 'flex';
@@ -1811,9 +1833,15 @@
         document.body.appendChild(link); link.click(); document.body.removeChild(link);
     }
 
-    window.testDispense = function() {
-        mqttClient.publish("tse100/dispense", "PAYMENT_SUCCESS");
-        Swal.fire({ toast: true, position: 'top', icon: 'success', title: currentLang==='th'?'ส่งสัญญาณไปที่ตู้แล้ว':'Command Sent', showConfirmButton: false, timer: 1500 });
+    window.testDispense = async function() {
+        try {
+            const r = await fetch(`${BACKEND_URL}/api/test-dispense`, { method: 'POST', headers: await authHeaders() });
+            const d = await r.json();
+            if (!r.ok) throw new Error(d.error);
+            Swal.fire({ toast: true, position: 'top', icon: 'success', title: currentLang==='th'?'ส่งสัญญาณไปที่ตู้แล้ว':'Command Sent', showConfirmButton: false, timer: 1500 });
+        } catch (e) {
+            Swal.fire({ icon: 'error', title: t('swal_err'), text: API_ERR(e.message), confirmButtonColor: 'var(--tu-red)' });
+        }
     }
 
     async function loadOrders(stuId) {

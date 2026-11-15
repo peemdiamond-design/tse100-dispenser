@@ -1,367 +1,214 @@
-Last login: Wed Oct  7 09:19:01 on console
-peempongpetch@Mac-mini--peem ~ % หห้ ยำำทแื25๑100.112.145.98
-zsh: command not found: หห้
-peempongpetch@Mac-mini--peem ~ % ssh peemcn25@100.112.145.98
-peemcn25@100.112.145.98's password: 
-Welcome to Ubuntu 26.04.1 LTS (GNU/Linux 7.0.0-28-generic x86_64)
-
- * Documentation:  https://docs.ubuntu.com
- * Management:     https://landscape.canonical.com
- * Support:        https://ubuntu.com/pro
-
- System information as of Wed Oct  7 02:40:23 AM UTC 2026
-
-  System load:             0.03
-  Usage of /:              2.5% of 913.32GB
-  Memory usage:            20%
-  Swap usage:              0%
-  Temperature:             39.0 C
-  Processes:               424
-  Users logged in:         0
-  IPv4 address for enp5s0: 192.168.1.93
-  IPv6 address for enp5s0: 2001:fb1:c2:7aa8:2e0:4fff:fe3e:783f
-
- * Canonical Workshop gives developers fast, composable, reproducible, and
-   secure developer environments that are perfect for agentic workflows.
-
-   https://ubuntu.com/workshop
-
-Expanded Security Maintenance for Applications is not enabled.
-
-4 updates can be applied immediately.
-4 of these updates are standard security updates.
-To see these additional updates run: apt list --upgradable
-
-4 additional security updates can be applied with ESM Apps.
-Learn more about enabling ESM Apps service at https://ubuntu.com/esm
-
-
-*** System restart required ***
-Last login: Tue Oct  6 18:54:32 2026 from 100.111.181.98
-peemcn25@101-server:~$ npm init -y
-Wrote to /home/peemcn25/package.json:
-
-{
-  "name": "peemcn25",
-  "version": "1.0.0",
-  "description": "",
-  "main": "index.js",
-  "scripts": {
-    "test": "echo \"Error: no test specified\" && exit 1"
-  },
-  "keywords": [],
-  "author": "",
-  "license": "ISC"
-}
-
-
-peemcn25@101-server:~$ npm install express cors mqtt omise
-
-added 119 packages, and audited 120 packages in 5s
-
-34 packages are looking for funding
-  run `npm fund` for details
-
-found 0 vulnerabilities
-peemcn25@101-server:~$ สห
-สห: command not found
-peemcn25@101-server:~$ ls
-docker  get-docker.sh  gitea_data  homepage_config  node_modules  package-lock.json  package.json  projects  push-server  test-actions-push
-peemcn25@101-server:~$ cd projects
-peemcn25@101-server:~/projects$ ls
-peemcn25@101-server:~/projects$ ls
-peemcn25@101-server:~/projects$ cd
-peemcn25@101-server:~$ mkdir tse-backend
-peemcn25@101-server:~$ ls
-docker  get-docker.sh  gitea_data  homepage_config  node_modules  package-lock.json  package.json  projects  push-server  test-actions-push  tse-backend
-peemcn25@101-server:~$ cd tse-backend
-peemcn25@101-server:~/tse-backend$ npm init -y
-npm install express cors mqtt omise
-Wrote to /home/peemcn25/tse-backend/package.json:
-
-{
-  "name": "tse-backend",
-  "version": "1.0.0",
-  "description": "",
-  "main": "index.js",
-  "scripts": {
-    "test": "echo \"Error: no test specified\" && exit 1"
-  },
-  "keywords": [],
-  "author": "",
-  "license": "ISC"
-}
-
-
-
-added 119 packages, and audited 120 packages in 2s
-
-34 packages are looking for funding
-  run `npm fund` for details
-
-found 0 vulnerabilities
-peemcn25@101-server:~/tse-backend$ nano server.js
-peemcn25@101-server:~/tse-backend$ nano package.json
-peemcn25@101-server:~/tse-backend$ npm start
-
-> tse-backend@1.0.0 start
-> node server.js
-
-✅ Backend รันแล้วที่พอร์ต 5000
-✅ เชื่อมต่อ MQTT Broker สำเร็จ พร้อมสั่งงานตู้ยา!
-^C
-peemcn25@101-server:~/tse-backend$ npm install -g pm2
-npm ERR! code EACCES
-npm ERR! syscall rename
-npm ERR! path /usr/local/lib/node_modules/pm2
-npm ERR! dest /usr/local/lib/node_modules/.pm2-0kfCfexq
-npm ERR! errno -13
-npm ERR! Error: EACCES: permission denied, rename '/usr/local/lib/node_modules/pm2' -> '/usr/local/lib/node_modules/.pm2-0kfCfexq'
-npm ERR!     at async Object.rename (node:internal/fs/promises:781:10)
-npm ERR!     at async moveFile (/usr/share/nodejs/@npmcli/fs/lib/move-file.js:30:5)
-npm ERR!     at async Promise.allSettled (index 0)
-npm ERR!     at async [reifyPackages] (/usr/share/nodejs/@npmcli/arborist/lib/arborist/reify.js:234:11)
-npm ERR!     at async Arborist.reify (/usr/share/nodejs/@npmcli/arborist/lib/arborist/reify.js:158:5)
-npm ERR!     at async Install.exec (/usr/share/nodejs/npm/lib/commands/install.js:146:5)
-npm ERR!     at async module.exports (/usr/share/nodejs/npm/lib/cli.js:133:5)
-npm ERR!  Error: EACCES: permission denied, rename '/usr/local/lib/node_modules/pm2' -> '/usr/local/lib/node_modules/.pm2-0kfCfexq'
-npm ERR!     at async Object.rename (node:internal/fs/promises:781:10)
-npm ERR!     at async moveFile (/usr/share/nodejs/@npmcli/fs/lib/move-file.js:30:5)
-npm ERR!     at async Promise.allSettled (index 0)
-npm ERR!     at async [reifyPackages] (/usr/share/nodejs/@npmcli/arborist/lib/arborist/reify.js:234:11)
-npm ERR!     at async Arborist.reify (/usr/share/nodejs/@npmcli/arborist/lib/arborist/reify.js:158:5)
-npm ERR!     at async Install.exec (/usr/share/nodejs/npm/lib/commands/install.js:146:5)
-npm ERR!     at async module.exports (/usr/share/nodejs/npm/lib/cli.js:133:5) {
-npm ERR!   errno: -13,
-npm ERR!   code: 'EACCES',
-npm ERR!   syscall: 'rename',
-npm ERR!   path: '/usr/local/lib/node_modules/pm2',
-npm ERR!   dest: '/usr/local/lib/node_modules/.pm2-0kfCfexq'
-npm ERR! }
-npm ERR! 
-npm ERR! The operation was rejected by your operating system.
-npm ERR! It is likely you do not have the permissions to access this file as the current user
-npm ERR! 
-npm ERR! If you believe this might be a permissions issue, please double-check the
-npm ERR! permissions of the file and its containing directories, or try running
-npm ERR! the command again as root/Administrator.
-
-npm ERR! A complete log of this run can be found in:
-npm ERR!     /home/peemcn25/.npm/_logs/2026-10-07T03_13_03_230Z-debug-0.log
-peemcn25@101-server:~/tse-backend$ sudo npm install -g pm2
-[sudo: authenticate] Password:       
-
-changed 77 packages in 3s
-
-8 packages are looking for funding
-  run `npm fund` for details
-peemcn25@101-server:~/tse-backend$ pm2 start server.js --name "tse-backend"
-[PM2] Starting /home/peemcn25/tse-backend/server.js in fork_mode (1 instance)
-[PM2] Done.
-┌────┬────────────────┬─────────────┬─────────┬─────────┬──────────┬────────┬──────┬───────────┬──────────┬──────────┬──────────┬──────────┐
-│ id │ name           │ namespace   │ version │ mode    │ pid      │ uptime │ ↺    │ status    │ cpu      │ mem      │ user     │ watching │
-├────┼────────────────┼─────────────┼─────────┼─────────┼──────────┼────────┼──────┼───────────┼──────────┼──────────┼──────────┼──────────┤
-│ 0  │ push-api       │ default     │ 1.0.0   │ fork    │ 400723   │ 40D    │ 0    │ online    │ 0%       │ 75.2mb   │ peemcn25 │ disabled │
-│ 1  │ tse-backend    │ default     │ 1.0.0   │ fork    │ 40627    │ 0s     │ 0    │ online    │ 0%       │ 16.8mb   │ peemcn25 │ disabled │
-└────┴────────────────┴─────────────┴─────────┴─────────┴──────────┴────────┴──────┴───────────┴──────────┴──────────┴──────────┴──────────┘
-host metrics | cpu: 0.8% | ram usage: 16.2% | enp5s0: ⇓ 0.049mb/s ⇑ 0.006mb/s drop 12/min | tailscale0: ⇓ 0.001mb/s ⇑ 0.001mb/s | disk: ⇓ 0.087mb/s ⇑ 0.31mb/s
-peemcn25@101-server:~/tse-backend$ nano server.js
-peemcn25@101-server:~/tse-backend$ nano server.js
-peemcn25@101-server:~/tse-backend$ 
-peemcn25@101-server:~/tse-backend$ sudo pm2 restart tse-backend
-
-                        -------------
-
-__/\\\\\\\\\\\\\____/\\\\____________/\\\\____/\\\\\\\\\_____
- _\/\\\/////////\\\_\/\\\\\\________/\\\\\\__/\\\///////\\\___
-  _\/\\\_______\/\\\_\/\\\//\\\____/\\\//\\\_\///______\//\\\__
-   _\/\\\\\\\\\\\\\/__\/\\\\///\\\/\\\/_\/\\\___________/\\\/___
-    _\/\\\/////////____\/\\\__\///\\\/___\/\\\________/\\\//_____
-     _\/\\\_____________\/\\\____\///_____\/\\\_____/\\\//________
-      _\/\\\_____________\/\\\_____________\/\\\___/\\\/___________
-       _\/\\\_____________\/\\\_____________\/\\\__/\\\\\\\\\\\\\\\_
-        _\///______________\///______________\///__\///////////////__
-
-
-                          Runtime Edition
-
-        PM2 is a Production Process Manager for Node.js applications
-                     with a built-in Load Balancer.
-
-                Start and Daemonize any application:
-                $ pm2 start app.js
-
-                Load Balance 4 instances of api.js:
-                $ pm2 start api.js -i 4
-
-                Monitor in production:
-                $ pm2 monitor
-
-                Make pm2 auto-boot at server restart:
-                $ pm2 startup
-
-                To go further checkout:
-                http://pm2.io/
-
-
-                        -------------
-
-[PM2] Spawning PM2 daemon with pm2_home=/root/.pm2
-[PM2] PM2 Successfully daemonized
-Use --update-env to update environment variables
-[PM2][ERROR] Process or Namespace tse-backend not found
-peemcn25@101-server:~/tse-backend$ pm2 delete tse-backend
-[PM2] Applying action deleteProcessId on app [tse-backend](ids: [ 1 ])
-[PM2] [tse-backend](1) ✓
-┌────┬─────────────┬─────────────┬─────────┬─────────┬──────────┬────────┬──────┬───────────┬──────────┬──────────┬──────────┬──────────┐
-│ id │ name        │ namespace   │ version │ mode    │ pid      │ uptime │ ↺    │ status    │ cpu      │ mem      │ user     │ watching │
-├────┼─────────────┼─────────────┼─────────┼─────────┼──────────┼────────┼──────┼───────────┼──────────┼──────────┼──────────┼──────────┤
-│ 0  │ push-api    │ default     │ 1.0.0   │ fork    │ 400723   │ 40D    │ 0    │ online    │ 0%       │ 77.5mb   │ peemcn25 │ disabled │
-└────┴─────────────┴─────────────┴─────────┴─────────┴──────────┴────────┴──────┴───────────┴──────────┴──────────┴──────────┴──────────┘
-host metrics | cpu: 0.8% | ram usage: 16.6% | enp5s0: ⇓ 0.007mb/s ⇑ 0.003mb/s drop 12/min | tailscale0: ⇓ 0.002mb/s ⇑ 0.001mb/s | disk: ⇓ 0mb/s ⇑ 0.26mb/s
-peemcn25@101-server:~/tse-backend$ sudo pm2 start server.js --name "tse-backend"
-[PM2] Starting /home/peemcn25/tse-backend/server.js in fork_mode (1 instance)
-[PM2] Done.
-┌────┬────────────────┬─────────────┬─────────┬─────────┬──────────┬────────┬──────┬───────────┬──────────┬──────────┬──────────┬──────────┐
-│ id │ name           │ namespace   │ version │ mode    │ pid      │ uptime │ ↺    │ status    │ cpu      │ mem      │ user     │ watching │
-├────┼────────────────┼─────────────┼─────────┼─────────┼──────────┼────────┼──────┼───────────┼──────────┼──────────┼──────────┼──────────┤
-│ 0  │ tse-backend    │ default     │ 1.0.0   │ fork    │ 50545    │ 0s     │ 0    │ online    │ 0%       │ 32.4mb   │ root     │ disabled │
-└────┴────────────────┴─────────────┴─────────┴─────────┴──────────┴────────┴──────┴───────────┴──────────┴──────────┴──────────┴──────────┘
-host metrics | cpu: 0.7% | ram usage: 16.6% | enp5s0: ⇓ 0.002mb/s ⇑ 0mb/s drop 12/min | disk: ⇓ 0mb/s ⇑ 0.042mb/s
-peemcn25@101-server:~/tse-backend$ sudo pm2 logs tse-backend
-[TAILING] Tailing last 15 lines for [tse-backend] process (change the value with --lines option)
-/root/.pm2/logs/tse-backend-error.log last 15 lines:
-/root/.pm2/logs/tse-backend-out.log last 15 lines:
-0|tse-back | ✅ Backend รันแล้วที่พอร์ต 80
-0|tse-back | ✅ เชื่อมต่อ MQTT Broker สำเร็จ พร้อมสั่งงานตู้ยา!
-
-^C
-peemcn25@101-server:~/tse-backend$ sudo ufw allow 80
-Rules updated
-Rules updated (v6)
-peemcn25@101-server:~/tse-backend$ curl ifconfig.me
-2001:fb1:c2:7aa8:2e0:4fff:fe3e:783fpeemcn25@101-server:~/tse-backend$ curl -4 ifconfig.me
-58.8.175.17peemcn25@101-server:~/tse-backend$ curl http://localhost:80
-<!DOCTYPE html>
-<html lang="en">
-<head>
-<meta charset="utf-8">
-<title>Error</title>
-</head>
-<body>
-<pre>Cannot GET /</pre>
-</body>
-</html>
-peemcn25@101-server:~/tse-backend$ curl http://localhost:80
-<!DOCTYPE html>
-<html lang="en">
-<head>
-<meta charset="utf-8">
-<title>Error</title>
-</head>
-<body>
-<pre>Cannot GET /</pre>
-</body>
-</html>
-peemcn25@101-server:~/tse-backend$ sudo ufw allow 80/tcp
-sudo ufw reload
-Rules updated
-Rules updated (v6)
-Firewall not enabled (skipping reload)
-peemcn25@101-server:~/tse-backend$ sudo pm2 logs tse-backend
-[TAILING] Tailing last 15 lines for [tse-backend] process (change the value with --lines option)
-/root/.pm2/logs/tse-backend-error.log last 15 lines:
-/root/.pm2/logs/tse-backend-out.log last 15 lines:
-0|tse-back | ✅ Backend รันแล้วที่พอร์ต 80
-0|tse-back | ✅ เชื่อมต่อ MQTT Broker สำเร็จ พร้อมสั่งงานตู้ยา!
-
-^C            
-peemcn25@101-server:~/tse-backend$ nano server.js
-peemcn25@101-server:~/tse-backend$ nano server.js
-peemcn25@101-server:~/tse-backend$ sudo pm2 restart tse-backend
-Use --update-env to update environment variables
-[PM2] Applying action restartProcessId on app [tse-backend](ids: [ 0 ])
-[PM2] [tse-backend](0) ✓
-┌────┬────────────────┬─────────────┬─────────┬─────────┬──────────┬────────┬──────┬───────────┬──────────┬──────────┬──────────┬──────────┐
-│ id │ name           │ namespace   │ version │ mode    │ pid      │ uptime │ ↺    │ status    │ cpu      │ mem      │ user     │ watching │
-├────┼────────────────┼─────────────┼─────────┼─────────┼──────────┼────────┼──────┼───────────┼──────────┼──────────┼──────────┼──────────┤
-│ 0  │ tse-backend    │ default     │ 1.0.0   │ fork    │ 61193    │ 0s     │ 1    │ online    │ 0%       │ 11.7mb   │ root     │ disabled │
-└────┴────────────────┴─────────────┴─────────┴─────────┴──────────┴────────┴──────┴───────────┴──────────┴──────────┴──────────┴──────────┘
-host metrics | cpu: 0.6% | ram usage: 16.6% | enp5s0: ⇓ 0.012mb/s ⇑ 0.007mb/s drop 12/min | tailscale0: ⇓ 0.004mb/s ⇑ 0.003mb/s | disk: ⇓ 0.023mb/s ⇑ 0.022mb/s
-peemcn25@101-server:~/tse-backend$ sudo pm2 logs tse-backend
-[TAILING] Tailing last 15 lines for [tse-backend] process (change the value with --lines option)
-/root/.pm2/logs/tse-backend-error.log last 15 lines:
-/root/.pm2/logs/tse-backend-out.log last 15 lines:
-0|tse-back | ✅ Backend รันแล้วที่พอร์ต 80
-0|tse-back | ✅ เชื่อมต่อ MQTT Broker สำเร็จ พร้อมสั่งงานตู้ยา!
-0|tse-back | ✅ Backend รันแล้วที่พอร์ต 80
-0|tse-back | ✅ เชื่อมต่อ MQTT Broker สำเร็จ พร้อมสั่งงานตู้ยา!
-
-^C
-peemcn25@101-server:~/tse-backend$ curl -X POST https://api.peemcn25.dev/api/create-qr
-curl: (7) Failed to connect to api.peemcn25.dev port 443 after 85 ms: Could not connect to server
-peemcn25@101-server:~/tse-backend$ curl -X POST https://api.peemcn25.dev/api/create-qr
-curl: (7) Failed to connect to api.peemcn25.dev port 443 after 3 ms: Could not connect to server
-peemcn25@101-server:~/tse-backend$ curl -X POST http://localhost:80/api/create-qr
-{"chargeId":"chrg_test_699eih2xtoijpvtx8a8","qrImage":"https://api.omise.co/charges/chrg_test_699eih2xtoijpvtx8a8/documents/docu_test_699eih46xoz73dxpj0k/downloads/7C0E69AED9389BB7"}peemcn25@101-server:~/tse-backennano server.js
-
-  GNU nano 8.7.1                                                                        server.js                                                                                  
+// ===================================================================
+// TU Smart Rx — Backend (Node.js + Express)
+//
+// หลักความปลอดภัย:
+//   • เซิร์ฟเวอร์นี้เป็น "ที่เดียว" ที่สั่งตู้จ่ายยาได้ แอปบนเว็บไม่ได้ต่อ MQTT แล้ว
+//   • สั่งจ่ายยาหลังตรวจกับ Omise ว่าจ่ายเงินสำเร็จจริง หรือหักเครดิตใน Firestore สำเร็จแล้วเท่านั้น
+//   • ทุกคำสั่งมีลายเซ็น HMAC + เวลา + ID ไม่ซ้ำ ตู้จะไม่รับคำสั่งปลอมหรือคำสั่งเก่า
+//   • คีย์ทุกตัวอ่านจากไฟล์ .env (ห้าม commit) ดูตัวอย่างใน .env.example
+//   • หนึ่ง charge / หนึ่งคำสั่งซื้อ = จ่ายยาได้ครั้งเดียว (บันทึกใน Firestore: dispenses/{id})
+// ===================================================================
+require('dotenv').config();
+const path = require('path');
+const crypto = require('crypto');
 const express = require('express');
 const cors = require('cors');
-const mqtt = require('mqtt'); // โมดูล MQTT
+const mqtt = require('mqtt');
+const admin = require('firebase-admin');
+const { signCommand, validateItems, computeTotal, splitPayment, httpError } = require('./lib/core');
+
+// ---------- 1. ตั้งค่า ----------
+function need(key) {
+    const v = process.env[key];
+    if (!v) { console.error(`❌ ไม่พบค่า ${key} ในไฟล์ .env (ดู .env.example)`); process.exit(1); }
+    return v;
+}
+const PORT = parseInt(process.env.PORT || '80', 10);
+const ADMIN_ID = process.env.ADMIN_ID || '6910616249';
+const FAKE_DOMAIN = '@tse.tu.ac.th';
+const DISPENSE_SECRET = need('DISPENSE_SECRET');
+if (DISPENSE_SECRET.length < 32) { console.error('❌ DISPENSE_SECRET ต้องยาวอย่างน้อย 32 ตัวอักษร (ใช้: openssl rand -hex 32)'); process.exit(1); }
+const TOPIC_CMD = process.env.MQTT_TOPIC_CMD || 'tse100/kiosk1/cmd';
+const TOPIC_STATUS = process.env.MQTT_TOPIC_STATUS || 'tse100/kiosk1/status';
+const OMISE_MIN_AMOUNT = parseInt(process.env.OMISE_MIN_AMOUNT || '20', 10); // บาท
+const RETURN_URI = process.env.RETURN_URI || 'https://tuya.peemcn25.dev';
+const ALLOWED_ORIGINS = (process.env.ALLOWED_ORIGINS || 'https://tuya.peemcn25.dev').split(',').map(s => s.trim()).filter(Boolean);
+
 const omise = require('omise')({
-    publicKey: 'pkey_test_68yjm1vzidi0j5gejzy',
-    secretKey: 'skey_test_68yjsgwrdgq1ortftyk',
+    publicKey: need('OMISE_PUBLIC_KEY'),
+    secretKey: need('OMISE_SECRET_KEY'),
     omiseVersion: '2019-05-29'
 });
 
+admin.initializeApp({ credential: admin.credential.cert(require(path.resolve(need('FIREBASE_SERVICE_ACCOUNT')))) });
+const db = admin.firestore();
+const FieldValue = admin.firestore.FieldValue;
+
 const app = express();
-app.use(cors());
-app.use(express.json());
+app.set('trust proxy', true); // อยู่หลัง Cloudflare
+app.use(cors({ origin: ALLOWED_ORIGINS }));
+app.use(express.json({ limit: '20kb' }));
 
-// -----------------------------------------------------
-// 1. ตั้งค่าการเชื่อมต่อ MQTT
-const mqttClient = mqtt.connect('mqtt://broker.hivemq.com'); 
-const MQTT_TOPIC = 'tse100/dispense';
-
+// ---------- 2. MQTT (broker ส่วนตัว + username/password + TLS) ----------
+const kiosk = { online: false, lastSeen: null, lastMessage: null };
+const mqttClient = mqtt.connect(need('MQTT_URL'), {
+    username: process.env.MQTT_USERNAME || undefined,
+    password: process.env.MQTT_PASSWORD || undefined,
+    clientId: 'tse-backend-' + crypto.randomBytes(4).toString('hex'),
+    reconnectPeriod: 3000,
+    connectTimeout: 10000
+});
 mqttClient.on('connect', () => {
-    console.log('✅ เชื่อมต่อ MQTT Broker สำเร็จ พร้อมสั่งงานตู้ยา!');
+    console.log(`✅ เชื่อมต่อ MQTT สำเร็จ (${process.env.MQTT_URL.replace(/\/\/.*@/, '//')})`);
+    mqttClient.subscribe(TOPIC_STATUS, { qos: 1 });
+});
+mqttClient.on('error', err => console.error('❌ MQTT Error:', err.message));
+mqttClient.on('message', (topic, buf) => {
+    if (topic !== TOPIC_STATUS) return;
+    const msg = buf.toString().slice(0, 120);
+    kiosk.lastSeen = Date.now(); kiosk.lastMessage = msg;
+    kiosk.online = msg !== 'OFFLINE';
+    const m = msg.match(/^DISPENSED\|([A-Za-z0-9_\-]{1,64})$/);
+    if (m) db.collection('dispenses').doc(m[1]).set({ dispensedAt: FieldValue.serverTimestamp() }, { merge: true }).catch(() => {});
 });
 
-mqttClient.on('error', (err) => {
-    console.error('❌ MQTT Error:', err);
-});
-// -----------------------------------------------------
+function publishCommand(cmd, id) {
+    return new Promise((resolve, reject) => {
+        if (!mqttClient.connected) return reject(httpError(503, 'kiosk_unreachable'));
+        const payload = signCommand(DISPENSE_SECRET, cmd, id, Math.floor(Date.now() / 1000));
+        mqttClient.publish(TOPIC_CMD, payload, { qos: 1 }, err => err ? reject(httpError(503, 'publish_failed')) : resolve());
+    });
+}
 
-// API สำหรับสร้าง QR Code
-app.post('/api/create-qr', async (req, res) => {
+// ---------- 3. ตัวช่วย ----------
+// ตรวจ Firebase ID token ที่แอปส่งมาใน header Authorization: Bearer <token>
+async function getUser(req) {
+    const h = req.headers.authorization || '';
+    if (!h.startsWith('Bearer ')) return null;
     try {
-        const source = await omise.sources.create({
-            type: 'promptpay',
-            amount: 2000, // 20.00 บาท
-            currency: 'thb'
-        });
-        
-        const charge = await omise.charges.create({
-            amount: 2000,
-            currency: 'thb',
-            source: source.id,
-            return_uri: 'https://tuya.peemcn25.dev' 
-        });
+        const tok = await admin.auth().verifyIdToken(h.slice(7));
+        const email = tok.email || '';
+        if (!email.endsWith(FAKE_DOMAIN)) return null;
+        const stuId = email.slice(0, -FAKE_DOMAIN.length);
+        return { uid: tok.uid, stuId, isAdmin: stuId === ADMIN_ID };
+    } catch { return null; }
+}
 
-        // เช็กให้ชัวร์ว่า Omise มีรูป QR คืนมาให้จริงๆ ถึงค่อยส่งไปหน้าเว็บ
-        if (charge.source && charge.source.scannable_code && charge.source.scannable_code.image) {
-             res.json({
-                 chargeId: charge.id,
-                 qrImage: charge.source.scannable_code.image.download_uri
-             });
-        } else {
-             console.log("⚠️ Omise สร้าง QR ช้า กำลังพยายามดึงใหม่...");
-             // ทริก: ถ้ายังไม่มา ลองดึง Charge เดิมซ้ำอีกรอบ
-             const chargeRetry = await omise.charges.retrieve(charge.id);
-             res.json({
-                 chargeId: chargeRetry.id,
-                 qrImage: chargeRetry.source.scannable_code.image.download_uri
-                                                                                 [ Read 82 lines ]
-^G Help          ^O Write Out     ^F Where Is      ^K Cut           ^T Execute       ^C Location      M-U Undo         M-A Set Mark     M-] To Bracket   M-B Previous
-^X Exit          ^R Read File     ^\ Replace       ^U Paste         ^J Justify       ^/ Go To Line    M-E Redo         M-6 Copy         ^B Where Was     M-F Next
+async function priceMap(items) {
+    const snaps = await db.getAll(...items.map(i => db.collection('inventory').doc(i.id)));
+    const map = {};
+    snaps.forEach(s => { if (s.exists) map[s.id] = parseInt(s.data().price, 10); });
+    return map;
+}
+
+// rate limit แบบง่าย (ต่อ IP)
+const hits = new Map();
+function rateLimit(max, windowMs) {
+    return (req, res, next) => {
+        const key = req.ip + req.path.split('/').slice(0, 3).join('/');
+        const now = Date.now();
+        const arr = (hits.get(key) || []).filter(t => now - t < windowMs);
+        if (arr.length >= max) return res.status(429).json({ error: 'too_many_requests' });
+        arr.push(now); hits.set(key, arr); next();
+    };
+}
+setInterval(() => { const now = Date.now(); for (const [k, a] of hits) if (!a.some(t => now - t < 120000)) hits.delete(k); }, 60000).unref();
+
+const wrap = fn => (req, res) => fn(req, res).catch(err => {
+    if (!err.status) console.error('❌', req.method, req.path, err);
+    res.status(err.status || 500).json({ error: err.code || 'server_error', ...(err.minAmount ? { minAmount: err.minAmount } : {}) });
+});
+
+// ทำรายการจ่ายยาแบบ "ครั้งเดียวเท่านั้น": หักเครดิต (ถ้ามี) + จองสิทธิ์จ่ายยา ใน transaction เดียว
+//   คืนค่า true ถ้าต้องส่งคำสั่งไปตู้ (ยังไม่เคยส่งสำเร็จ)
+async function reserveDispense(id, { stuId, creditUse, type, amountPaid }) {
+    const ref = db.collection('dispenses').doc(id);
+    return db.runTransaction(async tx => {
+        const snap = await tx.get(ref);
+        if (snap.exists) return !snap.data().published; // เคยจองแล้ว: ส่งซ้ำเฉพาะกรณีครั้งก่อนส่งไม่ออก
+        if (creditUse > 0) {
+            const uRef = db.collection('users').doc(stuId);
+            const u = await tx.get(uRef);
+            const have = u.exists ? parseInt(u.data().credits || 0, 10) : 0;
+            if (have < creditUse) throw httpError(409, 'credit_insufficient');
+            tx.update(uRef, { credits: FieldValue.increment(-creditUse) });
+            tx.set(db.collection('creditLogs').doc(), { stuId, amount: -creditUse, reason: 'redeem', ref: id, createdAt: FieldValue.serverTimestamp() });
+        }
+        tx.set(ref, { type, stuId: stuId || 'guest', creditUse: creditUse || 0, amountPaid: amountPaid || 0, published: false, createdAt: FieldValue.serverTimestamp() });
+        return true;
+    });
+}
+async function dispense(id, info) {
+    const mustSend = await reserveDispense(id, info);
+    if (!mustSend) return { already: true };
+    await publishCommand('DISPENSE', id);
+    await db.collection('dispenses').doc(id).update({ published: true, publishedAt: FieldValue.serverTimestamp() });
+    return { already: false };
+}
+
+// ---------- 4. API ----------
+// สร้าง QR PromptPay — ยอดคำนวณจากราคาใน Firestore เท่านั้น
+app.post('/api/create-qr', rateLimit(15, 60000), wrap(async (req, res) => {
+    const items = validateItems(req.body.items);
+    const user = await getUser(req);
+    const total = computeTotal(items, await priceMap(items));
+    let available = 0;
+    if (user && !user.isAdmin && req.body.creditUse > 0) {
+        const u = await db.collection('users').doc(user.stuId).get();
+        available = u.exists ? parseInt(u.data().credits || 0, 10) : 0;
+    }
+    const split = splitPayment(total, user && !user.isAdmin ? req.body.creditUse : 0, available, OMISE_MIN_AMOUNT);
+    if (split.payable === 0) throw httpError(400, 'use_redeem_credit');
+
+    const source = await omise.sources.create({ type: 'promptpay', amount: split.payable * 100, currency: 'thb' });
+    let charge = await omise.charges.create({
+        amount: split.payable * 100, currency: 'thb', source: source.id, return_uri: RETURN_URI,
+        metadata: { stuId: user ? user.stuId : 'guest', creditUse: String(split.creditUse), total: String(total), items: JSON.stringify(items) }
+    });
+    if (!(charge.source && charge.source.scannable_code)) charge = await omise.charges.retrieve(charge.id);
+    publishCommand('PENDING', charge.id).catch(() => {}); // ให้จอตู้ขึ้น "รอชำระเงิน" (ไม่สำคัญถ้าส่งไม่ออก)
+    res.json({ chargeId: charge.id, qrImage: charge.source.scannable_code.image.download_uri, ...split });
+}));
+
+// ตรวจสถานะการจ่ายเงิน — ถ้าสำเร็จ เซิร์ฟเวอร์สั่งตู้เอง (แอปสั่งตู้ไม่ได้แล้ว)
+app.get('/api/check-payment/:chargeId', rateLimit(40, 60000), wrap(async (req, res) => {
+    const id = req.params.chargeId;
+    if (!/^chrg_[A-Za-z0-9_]{1,60}$/.test(id)) throw httpError(400, 'invalid_charge');
+    const charge = await omise.charges.retrieve(id);
+    if (charge.status !== 'successful') return res.json({ status: charge.status === 'pending' ? 'pending' : charge.status });
+    const meta = charge.metadata || {};
+    const result = await dispense(id, {
+        type: 'omise', stuId: meta.stuId && meta.stuId !== 'guest' ? meta.stuId : null,
+        creditUse: parseInt(meta.creditUse || '0', 10), amountPaid: charge.amount / 100
+    });
+    res.json({ status: 'success', creditUse: parseInt(meta.creditUse || '0', 10), ...result });
+}));
+
+// จ่ายด้วยเครดิตทั้งหมด (ต้องล็อกอิน)
+app.post('/api/redeem-credit', rateLimit(10, 60000), wrap(async (req, res) => {
+    const user = await getUser(req);
+    if (!user || user.isAdmin) throw httpError(401, 'login_required');
+    const items = validateItems(req.body.items);
+    const total = computeTotal(items, await priceMap(items));
+    if (total <= 0) throw httpError(400, 'invalid_total');
+    const id = 'credit_' + crypto.randomBytes(9).toString('hex');
+    const result = await dispense(id, { type: 'credit', stuId: user.stuId, creditUse: total, amountPaid: 0 });
+    res.json({ status: 'success', ref: id, creditUse: total, ...result });
+}));
+
+// ปุ่มทดสอบมอเตอร์ของแอดมิน
+app.post('/api/test-dispense', rateLimit(10, 60000), wrap(async (req, res) => {
+    const user = await getUser(req);
+    if (!user || !user.isAdmin) throw httpError(403, 'admin_only');
+    const id = 'test_' + crypto.randomBytes(9).toString('hex');
+    await dispense(id, { type: 'test', stuId: user.stuId, creditUse: 0 });
+    res.json({ status: 'sent', ref: id });
+}));
+
+// สถานะระบบ (หน้าแอดมินใช้แสดง Online/Offline)
+app.get('/api/status', (req, res) => {
+    const fresh = kiosk.lastSeen && Date.now() - kiosk.lastSeen < 3 * 60 * 1000;
+    res.json({ server: true, mqtt: mqttClient.connected, kiosk: { online: !!(kiosk.online && fresh), lastSeen: kiosk.lastSeen } });
+});
+
+app.listen(PORT, () => console.log(`✅ Backend รันแล้วที่พอร์ต ${PORT}`));

@@ -1,1 +1,8 @@
 node_modules/
+
+# 🔒 ไฟล์ลับ ห้าม commit
+.env
+*.serviceAccount.json
+serviceAccountKey*.json
+firebase-adminsdk*.json
+secrets.h
