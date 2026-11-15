@@ -1200,9 +1200,6 @@
         }
 
         const cartItem = cart.find(c => c.id === id);
-        // 💊 v3: ถามอาการก่อนหยิบยานี้ครั้งแรก และจำกัดจำนวนต่อวัน
-        if (!(await withinDailyLimit(id, (cartItem ? cartItem.qty : 0) + 1))) return;
-        if (!cartItem && !(await runTriage(id))) return;
         if (cartItem) cartItem.qty += 1;
         else cart.push({ ...product, qty: 1 });
         
@@ -1216,12 +1213,11 @@
         Swal.fire({ toast: true, position: 'top', icon: 'success', title: t('swal_added'), showConfirmButton: false, timer: 1000 });
     }
 
-    window.updateItemQty = async function(id, delta) {
+    window.updateItemQty = function(id, delta) {
         const cartIndex = cart.findIndex(c => c.id === id);
         if (cartIndex > -1) {
             const product = inventory.find(p => p.id === id);
             let newQty = cart[cartIndex].qty + delta;
-            if (delta > 0 && !(await withinDailyLimit(id, newQty))) return;
             if (newQty > product.stock) return Swal.fire({ toast: true, position: 'top', icon: 'error', title: t('swal_stock_err'), showConfirmButton: false, timer: 1500 });
             if (newQty <= 0) cart.splice(cartIndex, 1);
             else cart[cartIndex].qty = newQty;
@@ -1454,8 +1450,6 @@
 
     async function processSuccessfulOrder(chargeId, itemName, itemPrice) {
         isPaymentSuccess = true;
-        const orderItems = cart.map(c => ({ id: c.id, qty: c.qty }));
-        recordBought(orderItems);
 
         document.getElementById('payment-ui').style.display = 'none';
         document.getElementById('hardware-sync-ui').style.display = 'flex';
@@ -1476,7 +1470,7 @@
                     renderCredits();
                 }
                 await addDoc(collection(db, "orders"), {
-                    stuId: stuId, itemName: itemName, price: itemPrice - creditUsed, creditUsed: creditUsed, fullPrice: itemPrice, items: orderItems,
+                    stuId: stuId, itemName: itemName, price: itemPrice - creditUsed, creditUsed: creditUsed, fullPrice: itemPrice,
                     chargeId: chargeId, status: "completed", createdAt: serverTimestamp()
                 });
             } catch (e) { }
@@ -1919,13 +1913,9 @@
         p4: { ingredients: ['menthol', 'camphor', 'borneol', 'eucalyptus'], tags: ['เวียนหัว', 'วิงเวียน', 'คัดจมูก', 'หน้ามืด', 'dizzy', 'nasal', 'congestion'] }
     };
     // ================================================================
-    // 💊 v3: ข้อมูลยา / จำกัดจำนวนต่อวัน / ถามอาการก่อนซื้อ
+    // 💊 v3: ข้อมูลยาแต่ละตัว (วิธีใช้ / ข้อห้าม / ควรพบแพทย์เมื่อไร)
     // สรุปจากฉลากยาสามัญประจำบ้าน ผู้ใช้ต้องอ่านฉลากจริงบนกล่องทุกครั้ง
     // ================================================================
-    const DAILY_LIMIT = { p1: 1, p2: 2, p3: 3, p4: 2 };   // แผง/ชิ้น ต่อคน ต่อวัน
-    const DEFAULT_DAILY_LIMIT = 2;
-    const dailyLimit = id => DAILY_LIMIT[id] ?? DEFAULT_DAILY_LIMIT;
-
     const DRUG_INFO = {
         p1: {
             dose: [['ผู้ใหญ่และเด็กอายุ 12 ปีขึ้นไป: ครั้งละ 1–2 เม็ด ทุก 4–6 ชั่วโมง เมื่อมีอาการ', 'Adults and children 12+: 1–2 tablets every 4–6 hours as needed'],
@@ -1966,23 +1956,6 @@
         }
     };
 
-    // คำถามก่อนซื้อ: lvl 'er' = ฉุกเฉิน (โทร 1669 ไม่ขาย), 'dr' = ควรพบแพทย์ (แนะนำไม่ซื้อ), 'stop' = ไม่ควรซื้อยานี้
-    const TRIAGE = {
-        p1: [['er', 'ไข้สูงร่วมกับซึม สับสน ชัก คอแข็ง หรือหายใจลำบาก', 'High fever with drowsiness, confusion, seizure, stiff neck or trouble breathing'],
-             ['er', 'ปวดหัวรุนแรงเฉียบพลัน แบบที่ไม่เคยเป็นมาก่อน', 'Sudden, severe headache unlike any before'],
-             ['dr', 'มีไข้ติดต่อกันมาเกิน 3 วันแล้ว', 'Fever for more than 3 days'],
-             ['dr', 'มีผื่น จุดเลือดออก หรือเลือดออกตามไรฟัน', 'Rash, red spots, or bleeding gums'],
-             ['stop', 'กำลังกินยาอื่นที่มีพาราเซตามอลอยู่ หรือเป็นโรคตับ', 'Already taking another paracetamol product, or have liver disease']],
-        p2: [['er', 'สงสัยว่ากินสารพิษ สารเคมี หรือกินยาเกินขนาด', 'Suspect poisoning, chemical ingestion or overdose'],
-             ['dr', 'ถ่ายเป็นเลือด หรือมีไข้สูงร่วมด้วย', 'Blood in stool, or high fever'],
-             ['dr', 'ปากแห้ง ปัสสาวะน้อย อ่อนเพลียมาก หรือท้องเสียเกิน 2 วัน', 'Dry mouth, little urine, very weak, or diarrhoea for more than 2 days']],
-        p3: [['er', 'เลือดไหลไม่หยุดหลังกดแผลไว้ 10 นาที', 'Bleeding does not stop after 10 minutes of pressure'],
-             ['dr', 'แผลลึก กว้าง หรือมีสิ่งแปลกปลอมฝังอยู่', 'Deep or wide wound, or something stuck in it'],
-             ['dr', 'ถูกสัตว์กัดหรือข่วน', 'Animal bite or scratch']],
-        p4: [['er', 'เจ็บแน่นหน้าอก ใจสั่น หรือเป็นลมหมดสติ', 'Chest pain, palpitations or fainting'],
-             ['er', 'แขนขาอ่อนแรงซีกเดียว พูดไม่ชัด หรือหน้าเบี้ยว', 'Weakness on one side, slurred speech or drooping face']]
-    };
-
     window.showDrugInfo = id => {
         const item = inventory.find(p => p.id === id); const info = DRUG_INFO[id];
         const name = item ? (currentLang === 'en' && item.nameEn ? item.nameEn : item.name) : '';
@@ -1992,97 +1965,12 @@
             <b style="color:#e0a800;"><i class="fa-solid fa-ban"></i> ${L('ข้อห้าม / ข้อควรระวัง', 'Do not use / cautions')}</b>${li(info.avoid)}
             <b style="color:#c51d23;"><i class="fa-solid fa-user-doctor"></i> ${L('ควรไปพบแพทย์เมื่อ', 'See a doctor if')}</b>${li(info.doctor)}
             <div style="background:#f6f7f9; border-radius:10px; padding:10px; font-size:12px; color:#666;">
-              ${L(`ซื้อได้ไม่เกิน <b>${dailyLimit(id)}</b> ชิ้นต่อคนต่อวัน · ข้อมูลสรุปจากฉลากยาสามัญประจำบ้าน กรุณาอ่านฉลากบนกล่องทุกครั้ง หากไม่แน่ใจปรึกษาเภสัชกร`,
-                  `Limit <b>${dailyLimit(id)}</b> per person per day · Summarised from the household-remedy label. Always read the label on the box and ask a pharmacist if unsure.`)}
+              ${L('ข้อมูลสรุปจากฉลากยาสามัญประจำบ้าน กรุณาอ่านฉลากบนกล่องทุกครั้ง หากไม่แน่ใจปรึกษาเภสัชกร', 'Summarised from the household-remedy label. Always read the label on the box and ask a pharmacist if unsure.')}
             </div></div>`
             : L('ยังไม่มีข้อมูลสำหรับยานี้ กรุณาอ่านฉลากบนกล่อง', 'No details yet. Please read the label on the box.');
         Swal.fire({ title: name, html, confirmButtonText: L('เข้าใจแล้ว', 'Got it'), confirmButtonColor: 'var(--tu-red)' });
     };
 
-    // คืนค่า true ถ้าผ่าน (ซื้อต่อได้)
-    async function runTriage(id) {
-        const qs = TRIAGE[id]; if (!qs || !qs.length) return true;
-        const item = inventory.find(p => p.id === id);
-        const name = item ? (currentLang === 'en' && item.nameEn ? item.nameEn : item.name) : '';
-        const res = await Swal.fire({
-            title: L('ก่อนซื้อ ขอถามอาการสั้น ๆ', 'A quick check before you buy'),
-            html: `<div style="text-align:left; font-size:14px;"><p style="margin:0 0 10px; color:#666;">${L(`มีข้อไหนตรงกับคุณบ้าง (สำหรับ ${name})`, `Do any of these apply to you? (${name})`)}</p>` +
-                qs.map((q, i) => `<label style="display:flex; gap:10px; align-items:flex-start; padding:10px; border:1px solid #eee; border-radius:10px; margin-bottom:8px; cursor:pointer;"><input type="checkbox" id="tri-${i}" style="margin-top:3px; width:18px; height:18px;"><span>${L(q[1], q[2])}</span></label>`).join('') +
-                `</div>`,
-            showCancelButton: true, confirmButtonText: L('ถัดไป', 'Next'), cancelButtonText: t('swal_btn_cancel'), confirmButtonColor: 'var(--tu-red)',
-            preConfirm: () => qs.map((q, i) => document.getElementById('tri-' + i).checked ? q[0] : null).filter(Boolean)
-        });
-        if (!res.isConfirmed) return false;
-        const hit = res.value || [];
-        if (hit.includes('er')) {
-            const r = await Swal.fire({
-                icon: 'error', title: L('อาการนี้ควรได้รับการรักษาทันที', 'This needs urgent care'),
-                html: L('ยาในตู้ไม่เหมาะกับอาการนี้ กรุณา<b>โทร 1669</b> หรือกดแจ้งเหตุฉุกเฉินเพื่อให้เจ้าหน้าที่ช่วยเหลือ', 'Medicine from the kiosk is not suitable. Please <b>call 1669</b> or send an SOS so staff can help.'),
-                showDenyButton: true, showCancelButton: true,
-                confirmButtonText: '<i class="fa-solid fa-phone"></i> ' + L('โทร 1669', 'Call 1669'), denyButtonText: L('แจ้ง SOS', 'Send SOS'), cancelButtonText: L('ปิด', 'Close'),
-                confirmButtonColor: '#c51d23', denyButtonColor: '#e0a800'
-            });
-            if (r.isConfirmed) location.href = 'tel:1669';
-            else if (r.isDenied && typeof window.openEmergency === 'function') window.openEmergency();
-            return false;
-        }
-        if (hit.includes('stop')) {
-            await Swal.fire({ icon: 'warning', title: L('ไม่แนะนำให้ซื้อยานี้', 'Not recommended'), html: L('เสี่ยงได้รับยาเกินขนาดหรือเป็นอันตรายต่อตับ กรุณาปรึกษาเภสัชกรหรือแพทย์ก่อน', 'Risk of overdose or liver harm. Please talk to a pharmacist or doctor first.'), confirmButtonColor: 'var(--tu-red)' });
-            return false;
-        }
-        if (hit.includes('dr')) {
-            const r = await Swal.fire({
-                icon: 'warning', title: L('แนะนำให้ไปพบแพทย์', 'Please see a doctor'),
-                html: L('อาการนี้ควรให้แพทย์หรือพยาบาลตรวจ ยาในตู้ช่วยบรรเทาได้เพียงชั่วคราว<br>ไปที่ห้องพยาบาลหรือโรงพยาบาลใกล้ที่สุด หากอาการแย่ลงโทร 1669', 'This should be checked by a doctor or nurse; kiosk medicine only gives short-term relief.<br>Go to the nearest clinic or hospital. If it gets worse, call 1669.'),
-                showCancelButton: true, confirmButtonText: L('เข้าใจแล้ว ยังต้องการซื้อ', 'I understand, buy anyway'), cancelButtonText: L('ไม่ซื้อ', 'Do not buy'),
-                confirmButtonColor: '#888', cancelButtonColor: 'var(--tu-red)', reverseButtons: true, focusCancel: true
-            });
-            return r.isConfirmed;
-        }
-        return true;
-    }
-
-    // ---- จำนวนที่ซื้อไปแล้ววันนี้ (สมาชิก: จากประวัติคำสั่งซื้อ, บุคคลทั่วไป: จากเครื่องนี้) ----
-    const todayKey = () => { const d = new Date(); return `${d.getFullYear()}-${d.getMonth() + 1}-${d.getDate()}`; };
-    let boughtCache = { key: '', who: '', counts: null };
-    function guestCounts() {
-        try { const s = JSON.parse(localStorage.getItem('rx_bought') || '{}'); return s.day === todayKey() ? (s.counts || {}) : {}; } catch (e) { return {}; }
-    }
-    async function boughtTodayCounts() {
-        const who = auth.currentUser ? auth.currentUser.email.split('@')[0] : 'guest';
-        if (who === 'guest') return guestCounts();
-        if (boughtCache.key === todayKey() && boughtCache.who === who && boughtCache.counts) return boughtCache.counts;
-        const counts = {};
-        try {
-            const start = new Date(); start.setHours(0, 0, 0, 0);
-            const snap = await getDocs(query(collection(db, "orders"), where("stuId", "==", who)));
-            snap.forEach(d => {
-                const o = d.data(); const at = o.createdAt && o.createdAt.toDate ? o.createdAt.toDate() : null;
-                if (at && at >= start && Array.isArray(o.items)) o.items.forEach(it => { counts[it.id] = (counts[it.id] || 0) + (it.qty || 0); });
-            });
-        } catch (e) { console.warn('daily limit lookup failed', e); }
-        boughtCache = { key: todayKey(), who, counts };
-        return counts;
-    }
-    function recordBought(items) {
-        if (auth.currentUser) {
-            if (boughtCache.counts && boughtCache.key === todayKey()) items.forEach(it => { boughtCache.counts[it.id] = (boughtCache.counts[it.id] || 0) + it.qty; });
-        } else {
-            const c = guestCounts(); items.forEach(it => { c[it.id] = (c[it.id] || 0) + it.qty; });
-            try { localStorage.setItem('rx_bought', JSON.stringify({ day: todayKey(), counts: c })); } catch (e) {}
-        }
-    }
-    // คืนค่า true ถ้าเพิ่มอีก 1 ชิ้นได้
-    async function withinDailyLimit(id, qtyAfter) {
-        const already = (await boughtTodayCounts())[id] || 0;
-        const limit = dailyLimit(id);
-        if (already + qtyAfter <= limit) return true;
-        Swal.fire({ icon: 'info', title: L('ถึงจำนวนสูงสุดต่อวันแล้ว', 'Daily limit reached'),
-            html: L(`ยานี้ซื้อได้ไม่เกิน <b>${limit}</b> ชิ้นต่อคนต่อวัน (วันนี้ซื้อไปแล้ว ${already})<br>เพื่อป้องกันการใช้ยาเกินขนาด หากยังมีอาการควรไปพบแพทย์`,
-                    `Limit <b>${limit}</b> per person per day (already bought today: ${already})<br>This helps prevent overdose. If symptoms continue, please see a doctor.`),
-            confirmButtonColor: 'var(--tu-red)' });
-        return false;
-    }
 
     const ALLERGENS = [
         { key: 'paracetamol', th: 'พาราเซตามอล', en: 'Paracetamol' },
