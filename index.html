@@ -306,6 +306,19 @@
         .empty-cta { width: auto; display: inline-flex; padding: 12px 28px; margin-top: 18px; }
         #view-map > div:first-child h2, #orders-list-container > h3 { font-size: 18px !important; font-weight: 600; color: var(--text-main) !important; }
         #view-map > div:first-child h2 i, #orders-list-container > h3 i { color: var(--tu-red); }
+        /* 🧪 โหมดสาธิต */
+        #demo-banner { position: sticky; top: 0; z-index: 900; background: #1a66d2; color: #fff; font-size: 12px; font-weight: 600; text-align: center; padding: 7px 12px; }
+        .demo-card { display: flex; gap: 14px; align-items: center; background: #eef4ff; border: 1.5px solid #b9d0f7; border-radius: 16px; padding: 14px 16px; margin-bottom: 15px; }
+        .demo-card h4 { margin: 0; font-size: 15px; color: #1a4fa0; }
+        .demo-card p { margin: 4px 0 0; font-size: 12px; color: #456; line-height: 1.45; }
+        .demo-switch { position: relative; width: 52px; height: 30px; flex-shrink: 0; }
+        .demo-switch input { opacity: 0; width: 0; height: 0; }
+        .demo-switch span { position: absolute; inset: 0; background: #c9ced8; border-radius: 30px; transition: .2s; cursor: pointer; }
+        .demo-switch span:before { content: ""; position: absolute; width: 24px; height: 24px; left: 3px; top: 3px; background: #fff; border-radius: 50%; transition: .2s; box-shadow: 0 1px 3px rgba(0,0,0,.25); }
+        .demo-switch input:checked + span { background: #1a66d2; }
+        .demo-switch input:checked + span:before { transform: translateX(22px); }
+        .demo-pay-btn { margin-top: 12px; background: #1a66d2 !important; }
+        .demo-tag { display: inline-block; background: #e8f1fe; color: #1a66d2; font-size: 10px; font-weight: 700; padding: 1px 7px; border-radius: 999px; margin-right: 4px; vertical-align: 1px; }
     </style>
 </head>
 <body>
@@ -328,6 +341,7 @@
     </div>
 
     <!-- VIEW: Home -->
+    <div id="demo-banner" style="display:none;"><i class="fa-solid fa-flask"></i> <span id="demo-banner-text">โหมดสาธิต · ไม่มีการเก็บเงินจริงและไม่สั่งตู้จ่ายยา</span></div>
     <div id="view-home" class="view-section active">
         
         <!-- แบนเนอร์ปรึกษาแพทย์ Tham-C -->
@@ -545,6 +559,14 @@
                 <div id="mqtt-status-badge" class="badge-status status-offline">
                     <div class="status-dot"></div> <span id="mqtt-status-text" data-i18n="admin_offline">Offline</span>
                 </div>
+            </div>
+
+            <div class="demo-card">
+                <div style="flex:1;">
+                    <h4><i class="fa-solid fa-flask"></i> <span id="demo-card-title">โหมดสาธิต (สำหรับนำเสนอ)</span></h4>
+                    <p id="demo-card-desc">เปิดแล้วทุกคนที่เปิดแอปจะซื้อยาได้โดยไม่ต้องจ่ายเงินจริงผ่าน Omise ระบบจำลองการชำระเงิน ไม่ตัดสต๊อก ไม่หักเครดิต และไม่ส่งสัญญาณไปที่ตู้</p>
+                </div>
+                <label class="demo-switch"><input type="checkbox" id="demo-toggle" onchange="toggleDemoMode(this.checked)"><span></span></label>
             </div>
 
             <div class="stats-container" style="margin-bottom: 15px;">
@@ -1351,6 +1373,41 @@
     let timerInterval, paymentCheckInterval;
     let isPaymentSuccess = false;
 
+    // ================================================================
+    // 🧪 โหมดสาธิต: แอดมินเปิด/ปิดได้ ทุกเครื่องเห็นพร้อมกันผ่าน Firestore (settings/demo)
+    // เปิดอยู่ = จำลองการชำระเงิน ไม่เรียก Omise ไม่ตัดสต๊อก ไม่หักเครดิต ไม่ส่ง MQTT ไปที่ตู้
+    // ================================================================
+    let demoMode = false;
+    let paymentIsDemo = false;
+    let demoAutoTimer = null;
+    function applyDemoUI() {
+        const b = document.getElementById('demo-banner');
+        if (b) { b.style.display = demoMode ? 'block' : 'none'; document.getElementById('demo-banner-text').innerText = L('โหมดสาธิต · ไม่มีการเก็บเงินจริงและไม่สั่งตู้จ่ายยา', 'Demo mode · no real payment, kiosk will not dispense'); }
+        const tg = document.getElementById('demo-toggle'); if (tg) tg.checked = demoMode;
+        const ct = document.getElementById('demo-card-title'); if (ct) ct.innerText = L('โหมดสาธิต (สำหรับนำเสนอ)', 'Demo mode (for presentations)');
+        const cd = document.getElementById('demo-card-desc'); if (cd) cd.innerText = L('เปิดแล้วทุกคนที่เปิดแอปจะซื้อยาได้โดยไม่ต้องจ่ายเงินจริงผ่าน Omise ระบบจำลองการชำระเงิน ไม่ตัดสต๊อก ไม่หักเครดิต และไม่ส่งสัญญาณไปที่ตู้', 'Everyone using the app can check out without a real Omise payment. Payment is simulated; stock, credits and the kiosk are not touched.');
+    }
+    onSnapshot(doc(db, "settings", "demo"), snap => {
+        demoMode = !!(snap.exists() && snap.data().on);
+        applyDemoUI();
+    }, () => { demoMode = false; applyDemoUI(); });
+    window.toggleDemoMode = async (on) => {
+        try {
+            await setDoc(doc(db, "settings", "demo"), { on: !!on, updatedAt: serverTimestamp() });
+            Swal.fire({ toast: true, position: 'top', icon: 'success', showConfirmButton: false, timer: 1800,
+                title: on ? L('เปิดโหมดสาธิตแล้ว ทุกเครื่องจะเห็นภายในไม่กี่วินาที', 'Demo mode ON for everyone') : L('ปิดโหมดสาธิตแล้ว กลับมาเก็บเงินจริง', 'Demo mode OFF, real payments resume') });
+        } catch (e) {
+            document.getElementById('demo-toggle').checked = demoMode;
+            Swal.fire({ icon: 'error', title: L('เปลี่ยนโหมดไม่สำเร็จ', 'Could not change mode'), text: e.message });
+        }
+    };
+    const DEMO_QR = 'data:image/svg+xml;utf8,' + encodeURIComponent(`<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 210 210"><rect width="210" height="210" fill="#fff"/>${Array.from({length:21*21},(_, k)=>{const x=k%21,y=(k/21|0);const f=(x<7&&y<7)||(x>13&&y<7)||(x<7&&y>13);const on=f?((x%14<7&&y%14<7)&&(x%14==0||x%14==6||y%14==0||y%14==6||(x%14>1&&x%14<5&&y%14>1&&y%14<5))):((x*7+y*13+x*y)%5<2);return on?`<rect x="${x*10}" y="${y*10}" width="10" height="10" fill="#1d1d1f"/>`:''}).join('')}<rect x="45" y="88" width="120" height="34" rx="6" fill="#1a66d2"/><text x="105" y="111" font-family="sans-serif" font-size="18" font-weight="700" fill="#fff" text-anchor="middle">DEMO</text></svg>`);
+
+    window.demoPayNow = function(itemName, itemPrice) {
+        clearTimeout(demoAutoTimer); clearInterval(timerInterval);
+        processSuccessfulOrder('DEMO-' + Date.now(), itemName, itemPrice);
+    };
+
     window.proceedToPayment = async function() {
         const consent = document.getElementById('consent-check').checked;
         if(!consent) {
@@ -1359,6 +1416,31 @@
         }
         
         isPaymentSuccess = false;
+        paymentIsDemo = demoMode;
+
+        if (paymentIsDemo) {
+            // 🧪 โหมดสาธิต: ไม่ตัดสต๊อก ไม่หักเครดิต ไม่เรียก Omise
+            document.getElementById('cart-modal').style.display = 'none';
+            const totalPrice = cart.reduce((sum, item) => sum + (item.price * item.qty), 0);
+            const systemItemName = cart.map(i => `${i.name} (x${i.qty})`).join(', ');
+            pendingCreditUse = 0;
+            document.getElementById('summary-price').innerText = `฿${totalPrice}.00`;
+            document.getElementById('payment-ui').style.display = 'block';
+            document.getElementById('hardware-sync-ui').style.display = 'none';
+            document.getElementById('payment-modal').style.display = 'flex';
+            document.getElementById('loader').style.display = 'none';
+            const qrImg = document.getElementById('qr-image');
+            qrImg.src = DEMO_QR; qrImg.style.display = 'block';
+            document.getElementById('qr-status').innerHTML = L('<b>โหมดสาธิต</b> ไม่ต้องสแกน ระบบจะจำลองการชำระเงินใน 5 วินาที', '<b>Demo</b> No need to scan. Payment will be simulated in 5 seconds.');
+            const old = document.getElementById('btn-demo-pay'); if (old) old.remove();
+            document.getElementById('summary-price').parentElement.insertAdjacentHTML('afterend', `<button id="btn-demo-pay" class="btn-primary demo-pay-btn">${L('จำลองชำระเงินสำเร็จทันที', 'Simulate payment now')}</button>`);
+            document.getElementById('btn-demo-pay').onclick = () => demoPayNow(systemItemName, totalPrice);
+            startTimer(180);
+            clearTimeout(demoAutoTimer);
+            demoAutoTimer = setTimeout(() => { if (!isPaymentSuccess && document.getElementById('payment-modal').style.display === 'flex') demoPayNow(systemItemName, totalPrice); }, 5000);
+            return;
+        }
+        { const old = document.getElementById('btn-demo-pay'); if (old) old.remove(); }
 
         // 🔴 1. ระบบ Lock สต๊อกแบบ Transaction ป้องกันชนกัน
         try {
@@ -1511,10 +1593,13 @@
 
         document.getElementById('payment-ui').style.display = 'none';
         document.getElementById('hardware-sync-ui').style.display = 'flex';
-        
-        mqttClient.publish("tse100/dispense", "PAYMENT_SUCCESS");
+        const isDemo = paymentIsDemo;
+        const syncP = document.querySelector('#hardware-sync-ui p[data-i18n="sync_wait"]');
+        if (syncP) syncP.innerText = isDemo ? L('โหมดสาธิต: จำลองการส่งคำสั่งไปที่ตู้ (ไม่ได้ส่งสัญญาณจริง)', 'Demo: simulating the kiosk command (nothing is sent)') : t('sync_wait');
 
-        const creditUsed = pendingCreditUse || 0;
+        if (!isDemo) mqttClient.publish("tse100/dispense", "PAYMENT_SUCCESS");
+
+        const creditUsed = isDemo ? 0 : (pendingCreditUse || 0);
         pendingCreditUse = 0;
 
         if (auth.currentUser) {
@@ -1529,7 +1614,7 @@
                 }
                 await addDoc(collection(db, "orders"), {
                     stuId: stuId, itemName: itemName, price: itemPrice - creditUsed, creditUsed: creditUsed, fullPrice: itemPrice,
-                    chargeId: chargeId, status: "completed", createdAt: serverTimestamp()
+                    chargeId: chargeId, status: "completed", createdAt: serverTimestamp(), ...(isDemo ? { demo: true } : {})
                 });
             } catch (e) { }
         }
@@ -1563,9 +1648,10 @@
         document.getElementById('payment-modal').style.display = 'none'; 
         
         // ถ้าปิดหน้าต่างทั้งที่ยังจ่ายไม่สำเร็จ หรือกดยกเลิก ให้คืนสต๊อกเข้าตู้ทันที
-        if (!isPaymentSuccess && cart.length > 0) {
+        if (!isPaymentSuccess && cart.length > 0 && !paymentIsDemo) {
             restoreStock();
         }
+        clearTimeout(demoAutoTimer);
 
         clearInterval(timerInterval);
         if (paymentCheckInterval) clearInterval(paymentCheckInterval);
@@ -1814,7 +1900,7 @@
             querySnapshot.forEach((doc) => { 
                 const data = doc.data(); 
                 allOrders.push({id: doc.id, ...data}); 
-                const price = parseInt(data.price || 0);
+                const price = data.demo ? 0 : parseInt(data.price || 0);
                 totalSales += price;
                 if (data.createdAt && new Date(data.createdAt.toDate()).toLocaleDateString('th-TH') === todayStr) todaySales += price;
             });
@@ -1839,7 +1925,7 @@
                 html += `
                     <div style="padding: 12px 0; border-bottom: 1px solid #f0f1f4;">
                         <div style="display:flex; justify-content:space-between; margin-bottom:4px;">
-                            <span style="font-weight:600; font-size:13px;">${order.itemName}</span>
+                            <span style="font-weight:600; font-size:13px;">${order.demo ? `<span class="demo-tag">${L('สาธิต', 'DEMO')}</span>` : ''}${order.itemName}</span>
                             <span style="color:var(--tu-red); font-weight:600;">฿${order.price}</span>
                         </div>
                         <div style="display:flex; justify-content:space-between; align-items:center; font-size:11px; color:var(--text-sub);">
@@ -1889,7 +1975,7 @@
             querySnapshot.forEach((doc) => { 
                 const data = doc.data(); 
                 orders.push({id: doc.id, ...data}); 
-                totalSpent += parseInt(data.price || 0); 
+                if (!data.demo) totalSpent += parseInt(data.price || 0); 
             });
             document.getElementById('stat-total-orders').innerText = orders.length;
             document.getElementById('stat-total-spent').innerText = `฿${totalSpent}`;
@@ -1906,6 +1992,7 @@
                 const timeStr = dateObj.toLocaleTimeString(currentLang === 'en' ? 'en-GB' : 'th-TH', { hour: '2-digit', minute: '2-digit' });
                 
                 let translatedItemName = order.itemName;
+                const demoTag = order.demo ? `<span class="demo-tag">${L('สาธิต', 'DEMO')}</span>` : '';
                 if(currentLang === 'en') {
                     translatedItemName = translatedItemName.replace('พาราเซตามอล 500mg', 'Paracetamol 500mg')
                                                            .replace('ผงถ่านคาร์บอน', 'Activated Charcoal')
@@ -1916,7 +2003,7 @@
 
                 html += `<div class="order-history-card">
                             <div style="display: flex; justify-content: space-between; margin-bottom: 8px;">
-                                <strong>${translatedItemName}</strong> <span style="color: var(--tu-red); font-weight:bold;">฿${order.price}</span>
+                                ${demoTag}<strong>${translatedItemName}</strong> <span style="color: var(--tu-red); font-weight:bold;">฿${order.price}</span>
                             </div>
                             <div style="font-size: 12px; color: var(--text-sub); display: flex; justify-content: space-between; align-items:center;">
                                 <span><i class="fa-regular fa-clock"></i> ${dateStr} ${timeStr}</span> 

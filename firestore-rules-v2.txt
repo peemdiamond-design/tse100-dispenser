@@ -56,4 +56,9 @@
     match /inventory/{itemId} {
       allow write: if rxAdmin();
     }
+    // โหมดสาธิต: ทุกคนอ่านได้ (แอปต้องรู้ว่าเปิดอยู่ไหม) เปลี่ยนได้เฉพาะแอดมิน
+    match /settings/{key} {
+      allow read: if true;
+      allow write: if rxAdmin();
+    }
     // ===== TU Smart Rx v2 : จบ =====
