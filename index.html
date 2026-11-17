@@ -1129,7 +1129,7 @@
     if (btnReportIssue) {
         btnReportIssue.addEventListener('click', () => {
             let title = currentLang === 'th' ? 'แจ้งปัญหาตู้ขัดข้อง' : 'Report an Issue';
-            let desc = currentLang === 'th' ? 'กรุณาติดต่อ Line OA: <b>@TSE_SmartRx</b><br>หรือ โทร <b>08X-XXX-XXXX</b><br><br><span style="font-size:13px; color:#c51d23;"><i>* โปรดเตรียมภาพสลิปโอนเงินเพื่อขอคืนเงิน</i></span>' : 'Please contact Line OA: <b>@TSE_SmartRx</b><br>or Call <b>08X-XXX-XXXX</b><br><br><span style="font-size:13px; color:#c51d23;"><i>* Please prepare your payment slip for refunds</i></span>';
+            let desc = currentLang === 'th' ? 'กรุณาติดต่อทีมงาน โทร <a href="tel:0800527499" style="color:#c51d23;"><b>080-052-7499</b></a><br><br><span style="font-size:13px; color:#c51d23;"><i>* โปรดเตรียมภาพสลิปโอนเงินเพื่อขอคืนเงิน</i></span>' : 'Please contact our team: <a href="tel:0800527499" style="color:#c51d23;"><b>080-052-7499</b></a><br><br><span style="font-size:13px; color:#c51d23;"><i>* Please prepare your payment slip for refunds</i></span>';
             Swal.fire({ icon: 'warning', title: title, html: desc, confirmButtonColor: 'var(--tu-red)' });
         });
     }
