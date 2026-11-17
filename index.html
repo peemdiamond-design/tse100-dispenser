@@ -1563,6 +1563,7 @@
             return;
         }
 
+        stockReserved = true; currentChargeId = null;
         // 🟢 2. ผ่านด่านสต๊อกแล้ว ค่อยเปิดหน้าจ่ายเงิน
         document.getElementById('cart-modal').style.display = 'none';
         let totalPrice = cart.reduce((sum, item) => sum + (item.price * item.qty), 0);
@@ -1626,13 +1627,14 @@
     }
 
     // ✅ ฟังก์ชันคืนสต๊อก (กรณียกเลิก, เน็ตหลุด, หรือหมดเวลา 3 นาที)
-    window.restoreStock = async function() {
-        for (const item of cart) {
-            const prodRef = doc(db, "inventory", item.id);
-            const prodSnap = await getDoc(prodRef);
-            if(prodSnap.exists()) {
-                await updateDoc(prodRef, { stock: prodSnap.data().stock + item.qty });
-            }
+    // คืนได้ครั้งเดียวต่อการจอง และใช้ increment กันคนอื่นซื้อพร้อมกันแล้วตัวเลขเพี้ยน
+    let stockReserved = false;
+    let currentChargeId = null;
+    window.restoreStock = async function(items) {
+        if (!stockReserved) return;
+        stockReserved = false;
+        for (const item of (items || cart.map(c => ({ id: c.id, qty: c.qty })))) {
+            try { await updateDoc(doc(db, "inventory", item.id), { stock: increment(item.qty) }); } catch (e) { console.warn('restore failed', item.id, e); }
         }
     }
 
@@ -1673,6 +1675,7 @@
     }
 
     function startCheckingPayment(chargeId, itemName, itemPrice) {
+        currentChargeId = chargeId; window._pendingOrder = { itemName, itemPrice };
         paymentCheckInterval = setInterval(async () => {
             try {
                 const response = await fetch(`${BACKEND_URL}/api/check-payment/${chargeId}`);
@@ -1686,7 +1689,9 @@
     }
 
     async function processSuccessfulOrder(chargeId, itemName, itemPrice) {
+        if (isPaymentSuccess) return;   // กันบันทึกซ้ำ (เช่น เช็กการจ่ายเงินซ้อนกัน)
         isPaymentSuccess = true;
+        stockReserved = false; currentChargeId = null;
 
         document.getElementById('payment-ui').style.display = 'none';
         document.getElementById('hardware-sync-ui').style.display = 'flex';
@@ -1837,14 +1842,25 @@
     window.closePayment = function() {
         document.getElementById('payment-modal').style.display = 'none'; 
         
-        // ถ้าปิดหน้าต่างทั้งที่ยังจ่ายไม่สำเร็จ หรือกดยกเลิก ให้คืนสต๊อกเข้าตู้ทันที
-        if (!isPaymentSuccess && cart.length > 0 && !paymentIsDemo) {
-            restoreStock();
-        }
         clearTimeout(demoAutoTimer);
-
         clearInterval(timerInterval);
         if (paymentCheckInterval) clearInterval(paymentCheckInterval);
+
+        // ถ้าปิดหน้าต่างทั้งที่ยังไม่เห็นว่าจ่ายสำเร็จ: เช็กกับ Omise อีกครั้งก่อน (เผื่อเพิ่งสแกนจ่าย)
+        // จ่ายแล้วจริง → ทำรายการต่อ · ยังไม่จ่าย → คืนสต๊อก
+        if (!isPaymentSuccess && cart.length > 0 && !paymentIsDemo) {
+            const cid = currentChargeId, po = window._pendingOrder;
+            const items = cart.map(c => ({ id: c.id, qty: c.qty }));   // เก็บไว้ก่อน เพราะบางเส้นทางล้างตะกร้าทันทีหลังปิด
+            (async () => {
+                if (cid) {
+                    try {
+                        const r = await fetch(`${BACKEND_URL}/api/check-payment/${cid}`); const d = await r.json();
+                        if (d.status === 'success' && po) { document.getElementById('payment-modal').style.display = 'flex'; processSuccessfulOrder(cid, po.itemName, po.itemPrice); return; }
+                    } catch (e) {}
+                }
+                restoreStock(items);
+            })();
+        }
     }
 
     onAuthStateChanged(auth, async (user) => {
