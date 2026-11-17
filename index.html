@@ -1438,10 +1438,23 @@
         const ct = document.getElementById('demo-card-title'); if (ct) ct.innerText = L('โหมดสาธิต (สำหรับนำเสนอ)', 'Demo mode (for presentations)');
         const cd = document.getElementById('demo-card-desc'); if (cd) cd.innerText = L('เปิดแล้วทุกคนที่เปิดแอปจะซื้อยาได้โดยไม่ต้องจ่ายเงินจริงผ่าน Omise ระบบจำลองการชำระเงิน ไม่ตัดสต๊อก ไม่หักเครดิต และไม่ส่งสัญญาณไปที่ตู้', 'Everyone using the app can check out without a real Omise payment. Payment is simulated; stock, credits and the kiosk are not touched.');
     }
-    onSnapshot(doc(db, "settings", "demo"), snap => {
-        demoMode = !!(snap.exists() && snap.data().on);
-        applyDemoUI();
-    }, () => { demoMode = false; applyDemoUI(); });
+    // ฟังแบบเรียลไทม์ + ตรวจซ้ำเป็นระยะ: บนมือถือการเชื่อมต่อเรียลไทม์มักหลุดเมื่อพักหน้าจอ/สลับแอป
+    // หรือถูกตัวบล็อกโฆษณาบล็อก จึงเช็กซ้ำทุก 15 วิ (เฉพาะตอนเปิดหน้าอยู่) และทุกครั้งที่กลับมาที่แอป
+    function setDemo(on) { const v = !!on; if (v !== demoMode) { demoMode = v; } applyDemoUI(); }
+    let demoUnsub = null;
+    function listenDemo() {
+        if (demoUnsub) { try { demoUnsub(); } catch (e) {} }
+        demoUnsub = onSnapshot(doc(db, "settings", "demo"), snap => setDemo(snap.exists() && snap.data().on),
+            () => { demoUnsub = null; setTimeout(listenDemo, 5000); });
+    }
+    listenDemo();
+    async function refreshDemo() {
+        try { const snap = await getDoc(doc(db, "settings", "demo")); setDemo(snap.exists() && snap.data().on); } catch (e) {}
+    }
+    setInterval(() => { if (document.visibilityState === 'visible') refreshDemo(); }, 15000);
+    document.addEventListener('visibilitychange', () => { if (document.visibilityState === 'visible') { refreshDemo(); listenDemo(); } });
+    window.addEventListener('focus', refreshDemo);
+    window.addEventListener('online', () => { refreshDemo(); listenDemo(); });
     window.toggleDemoMode = async (on) => {
         try {
             await setDoc(doc(db, "settings", "demo"), { on: !!on, updatedAt: serverTimestamp() });
@@ -1460,6 +1473,8 @@
     };
 
     window.proceedToPayment = async function() {
+        // เช็กโหมดสาธิตล่าสุดจากเซิร์ฟเวอร์ก่อนจ่ายทุกครั้ง (รอไม่เกิน 3 วิ)
+        await Promise.race([refreshDemo(), new Promise(r => setTimeout(r, 3000))]);
         const consent = document.getElementById('consent-check').checked;
         if(!consent) {
             Swal.fire({icon: 'warning', title: t('swal_consent'), text: t('swal_consent_desc'), confirmButtonColor: 'var(--tu-red)'});
