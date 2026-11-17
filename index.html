@@ -196,7 +196,7 @@
 
         /* ปุ่มฉุกเฉินตรงกลาง */
         .nav-sos { flex: 1; display: flex; flex-direction: column; align-items: center; justify-content: flex-end; font-size: 10px; color: var(--tu-red); font-weight: 600; cursor: pointer; position: relative; }
-        .nav-sos .sos-btn { position: absolute; top: -34px; width: 64px; height: 64px; border-radius: 50%; background: radial-gradient(circle at 30% 30%, #ff4d52, #c51d23 60%, #8e0f14); color: #fff; display: flex; align-items: center; justify-content: center; flex-direction: column; font-size: 13px; font-weight: 800; letter-spacing: 1px; box-shadow: 0 6px 18px rgba(197,29,35,0.45), 0 0 0 5px #fff; animation: sosPulse 2.2s ease-in-out infinite; }
+        .nav-sos .sos-btn { position: absolute; top: -34px; width: 64px; height: 64px; border-radius: 50%; background: radial-gradient(circle at 30% 30%, #ff4d52, #c51d23 60%, #8e0f14); color: #fff; display: flex; align-items: center; justify-content: center; flex-direction: column; font-size: 13px; font-weight: 800; letter-spacing: 1px; box-shadow: 0 6px 18px rgba(197,29,35,0.45), 0 0 0 5px #fff; }
         .nav-sos .sos-btn i { font-size: 18px; margin-bottom: 1px; }
         .nav-sos span.lbl { margin-top: 34px; }
         @keyframes sosPulse { 0%,100% { box-shadow: 0 6px 18px rgba(197,29,35,0.45), 0 0 0 5px #fff, 0 0 0 5px rgba(197,29,35,0.35); } 50% { box-shadow: 0 6px 18px rgba(197,29,35,0.45), 0 0 0 5px #fff, 0 0 0 14px rgba(197,29,35,0); } }
@@ -319,6 +319,17 @@
         .demo-switch input:checked + span:before { transform: translateX(22px); }
         .demo-pay-btn { margin-top: 12px; background: #1a66d2 !important; }
         .demo-tag { display: inline-block; background: #e8f1fe; color: #1a66d2; font-size: 10px; font-weight: 700; padding: 1px 7px; border-radius: 999px; margin-right: 4px; vertical-align: 1px; }
+        /* 💚 การ์ดบริจาคยา (หน้าแรก) */
+        .donate-card { margin: 12px var(--gutter) 0; display: flex; align-items: center; gap: 14px; padding: 16px; border-radius: var(--radius); cursor: pointer;
+            background: linear-gradient(135deg, #1f8a46 0%, #2e9e4f 55%, #5cc07a 100%); color: #fff; box-shadow: 0 6px 18px rgba(46,158,79,.28); position: relative; overflow: hidden; }
+        .donate-card::after { content: ""; position: absolute; right: -30px; top: -30px; width: 120px; height: 120px; border-radius: 50%; background: rgba(255,255,255,.10); }
+        .donate-card:active { transform: scale(.99); }
+        .donate-ic { width: 48px; height: 48px; border-radius: 14px; background: rgba(255,255,255,.18); display: flex; align-items: center; justify-content: center; font-size: 22px; flex-shrink: 0; }
+        .donate-tx { flex: 1; min-width: 0; }
+        .donate-tx h4 { margin: 0; font-size: 15px; font-weight: 600; color: #fff; }
+        .donate-tx p { margin: 3px 0 0; font-size: 12px; color: rgba(255,255,255,.88); }
+        .donate-go { position: relative; z-index: 1; background: #fff; color: #1f8a46; font-size: 12px; font-weight: 700; padding: 8px 12px; border-radius: 999px; white-space: nowrap; }
+        .manual-link { display: block; margin: 14px auto 0; background: none; border: none; color: #1a66d2; font-size: 13px; font-weight: 500; cursor: pointer; font-family: inherit; }
     </style>
 </head>
 <body>
@@ -333,8 +344,6 @@
             </div>
         </div>
         <div class="header-actions">
-            <!-- 📖 คู่มือการใช้งาน -->
-            <button class="icon-btn" onclick="openManual()" aria-label="คู่มือการใช้งาน"><i class="fa-regular fa-circle-question"></i></button>
             <!-- 🌍 ปุ่มสลับภาษา -->
             <button class="lang-toggle-btn" onclick="toggleLanguage()" id="langBtn">🇹🇭</button>
         </div>
@@ -368,10 +377,13 @@
         </div>
 
         <!-- ทางลัด -->
-        <div class="quick-actions">
-            <div class="qa-btn" onclick="openDonate()"><i class="fa-solid fa-hand-holding-medical"></i><span data-i18n="qa_donate">บริจาคยา</span></div>
-            <div class="qa-btn" onclick="openFeedback()"><i class="fa-regular fa-face-smile"></i><span data-i18n="qa_feedback">ให้คะแนน</span></div>
-            <div class="qa-btn" onclick="openManual()"><i class="fa-solid fa-book-open"></i><span data-i18n="qa_manual">คู่มือ</span></div>
+        <div class="donate-card" onclick="openDonate()" role="button">
+            <div class="donate-ic"><i class="fa-solid fa-hand-holding-medical"></i></div>
+            <div class="donate-tx">
+                <h4 id="donate-card-title">บริจาคยาที่ไม่ได้ใช้</h4>
+                <p id="donate-card-sub">รับเครดิตไว้แลกยาในตู้</p>
+            </div>
+            <span class="donate-go" id="donate-card-btn">บริจาค <i class="fa-solid fa-arrow-right"></i></span>
         </div>
 
         <div id="loading-inventory" style="text-align:center; margin-top:50px;">
@@ -467,6 +479,7 @@
             <p style="text-align:right; margin:-5px 0 15px;"><a style="font-size:13px; color:var(--tu-red); cursor:pointer; text-decoration:underline;" onclick="forgotPassword()" data-i18n="forgot_pwd">ลืมรหัสผ่าน?</a></p>
             <button class="btn-primary" id="btnLogin" data-i18n="btn_login">เข้าสู่ระบบ</button>
             <button class="btn-secondary" id="btnRegister" data-i18n="btn_reg">สมัครสมาชิกใหม่</button>
+            <button class="manual-link" onclick="openManual()"><i class="fa-solid fa-book-open"></i> <span id="guest-manual-text">คู่มือการใช้งาน</span></button>
 
             <div style="display:flex; align-items:center; gap:10px; margin:20px 0 10px; color:var(--text-sub); font-size:12px;">
                 <div style="flex:1; height:1px; background:#eee;"></div><span data-i18n="or">หรือ</span><div style="flex:1; height:1px; background:#eee;"></div>
@@ -1200,6 +1213,8 @@
         document.getElementById('search-empty').style.display = (searchTerm && shown.length === 0) ? 'block' : 'none';
 
         const head = document.getElementById('product-head');
+        { const dt = document.getElementById('donate-card-title'); if (dt) { dt.innerText = L('บริจาคยาที่ไม่ได้ใช้', 'Donate unused medicine'); document.getElementById('donate-card-sub').innerText = L('รับเครดิตไว้แลกยาในตู้', 'Earn credits for kiosk medicine'); document.getElementById('donate-card-btn').innerHTML = L('บริจาค', 'Donate') + ' <i class="fa-solid fa-arrow-right"></i>'; }
+          const gm = document.getElementById('guest-manual-text'); if (gm) gm.innerText = L('คู่มือการใช้งาน', 'User guide'); }
         if (head) { head.style.display = 'flex'; document.getElementById('product-count').innerText = L(`${shown.length} รายการ`, `${shown.length} items`); head.querySelector('h2').innerText = L('ยาในตู้', 'In this kiosk'); }
 
         shown.forEach(item => {
@@ -2324,6 +2339,13 @@
     };
     function askFeedbackAfterOrder() {
         if (!isMember()) return;
+        // ถามแบบสุ่มประมาณ 1 ใน 3 ครั้ง และไม่ถามซ้ำภายใน 3 วัน
+        try {
+            const last = +localStorage.getItem('rx_fb_asked') || 0;
+            if (Date.now() - last < 3 * 24 * 3600 * 1000) return;
+            if (Math.random() > 0.33) return;
+            localStorage.setItem('rx_fb_asked', String(Date.now()));
+        } catch (e) { if (Math.random() > 0.33) return; }
         Swal.fire({ title: L('การใช้งานครั้งนี้เป็นอย่างไร?', 'How was your experience?'), text: L('ใช้เวลาไม่ถึง 10 วินาที', 'Takes less than 10 seconds'), icon: 'question', showCancelButton: true, confirmButtonText: L('ให้คะแนน', 'Rate now'), cancelButtonText: L('ไว้ทีหลัง', 'Later'), confirmButtonColor: 'var(--tu-red)' })
             .then(r => { if (r.isConfirmed) openFeedback(); });
     }
