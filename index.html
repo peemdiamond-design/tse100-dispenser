@@ -330,6 +330,30 @@
         .donate-tx p { margin: 3px 0 0; font-size: 12px; color: rgba(255,255,255,.88); }
         .donate-go { position: relative; z-index: 1; background: #fff; color: #1f8a46; font-size: 12px; font-weight: 700; padding: 8px 12px; border-radius: 999px; white-space: nowrap; }
         .manual-link { display: block; margin: 14px auto 0; background: none; border: none; color: #1a66d2; font-size: 13px; font-weight: 500; cursor: pointer; font-family: inherit; }
+        /* 🎁 ซื้อให้เพื่อน + 🧾 ใบเสร็จ */
+        .friend-box { display: flex; gap: 10px; align-items: flex-start; background: #f2faf5; border: 1px solid #cdebd8; border-radius: 12px; padding: 10px 12px; margin-bottom: 10px; cursor: pointer; flex-shrink: 0; }
+        .friend-box input { margin-top: 3px; width: 18px; height: 18px; accent-color: #2e9e4f; flex-shrink: 0; }
+        .friend-box b { display: block; font-size: 13px; color: #1f8a46; }
+        .friend-box small { display: block; font-size: 11px; color: #5b6b62; margin-top: 2px; line-height: 1.4; }
+        .pk-hero { width: 64px; height: 64px; border-radius: 20px; background: #e9f7ee; color: #2e9e4f; display: flex; align-items: center; justify-content: center; font-size: 28px; margin: 6px auto 12px; }
+        .pk-hero.bad { background: #f1f2f5; color: #6b6f78; }
+        .pk-title { text-align: center; font-size: 18px; margin: 0; }
+        .pk-sub { text-align: center; font-size: 13px; color: var(--text-sub); margin: 8px 0 14px; line-height: 1.55; }
+        .pk-items { text-align: center; font-weight: 600; background: #f7f8fa; border-radius: 12px; padding: 10px; margin-top: 10px; font-size: 14px; }
+        .pk-link { font-size: 12px; background: #f7f8fa; border: 1px dashed #cfd3da; border-radius: 10px; padding: 10px; word-break: break-all; color: #1a66d2; margin-bottom: 12px; }
+        .pk-actions { display: flex; gap: 10px; } .pk-actions button { flex: 1; margin: 0; }
+        .pk-warn { font-size: 11px; color: #8a6100; background: #fff8e6; border-radius: 10px; padding: 8px 10px; margin-top: 12px; }
+        .rcpt-extra { border-top: 1px dashed #e3e3e3; margin-top: 10px; padding-top: 8px; font-size: 12px; color: #555; }
+        .rcpt-extra div { display: flex; justify-content: space-between; gap: 10px; margin: 3px 0; }
+        .rcpt-demo { margin-top: 10px; text-align: center; font-size: 12px; font-weight: 700; color: #1a66d2; border: 1.5px dashed #1a66d2; border-radius: 8px; padding: 6px; }
+        .rcpt-pdf-btn { margin: 14px 0 0; display: flex; align-items: center; justify-content: center; gap: 8px; }
+        @media print {
+            body.printing-receipt * { visibility: hidden !important; }
+            body.printing-receipt #receipt-content, body.printing-receipt #receipt-content * { visibility: visible !important; }
+            body.printing-receipt #receipt-content { position: absolute; left: 0; top: 0; width: 80mm; box-shadow: none !important; margin: 0 !important; }
+            body.printing-receipt .no-print { display: none !important; }
+            body.printing-receipt .receipt-modal { position: static !important; background: none !important; }
+        }
     </style>
 </head>
 <body>
@@ -692,6 +716,11 @@
             <span id="credit-discount" style="color:#2e9e4f; font-weight:700;"></span>
         </div>
 
+        <label class="friend-box">
+            <input type="checkbox" id="friend-check">
+            <div><b id="friend-title">ซื้อให้เพื่อนมารับแทน</b><small id="friend-sub">จ่ายเงินตอนนี้ ได้ลิงก์ส่งให้เพื่อนไปกดรับยาที่ตู้ภายใน 24 ชม. (ตู้ยังไม่จ่ายยาจนกว่าเพื่อนจะกดรับ)</small></div>
+        </label>
+
         <div class="consent-box">
             <input type="checkbox" id="consent-check">
             <label for="consent-check" data-i18n="cart_consent">ข้าพเจ้าได้อ่านคำเตือนของยาทุกรายการ และยืนยันว่าไม่มีประวัติแพ้ยาเหล่านี้</label>
@@ -754,7 +783,7 @@
         <div class="receipt-header">
             <img src="assets/images.png" class="receipt-logo" onerror="this.src='https://upload.wikimedia.org/wikipedia/th/thumb/3/30/Thammasat_University_logo.svg/1200px-Thammasat_University_logo.svg.png'">
             <div class="receipt-title">TU Smart Rx</div>
-            <div class="receipt-info" data-i18n="rcpt_title">ใบเสร็จรับเงิน / Tax Invoice</div>
+            <div class="receipt-info" id="receipt-title-txt">ใบเสร็จรับเงิน / Receipt</div>
             <div class="receipt-info" id="receipt-date">วันที่: --/--/----</div>
             <div class="receipt-info" id="receipt-ref">Ref: -----------</div>
         </div>
@@ -764,6 +793,7 @@
                 <span data-i18n="rcpt_amt">จำนวนเงิน</span>
             </div>
             <div id="receipt-items-list" style="margin-top: 10px;"></div>
+            <div id="receipt-extra"></div>
             <div class="receipt-total">
                 <span data-i18n="cart_total">ยอดสุทธิรวม</span>
                 <span id="receipt-grand-total">฿0.00</span>
@@ -773,8 +803,14 @@
             <p data-i18n="rcpt_thx">ขอบคุณที่ใช้บริการตู้จ่ายยาอัตโนมัติ</p>
             <p data-i18n="rcpt_fac">คณะวิศวกรรมศาสตร์ มหาวิทยาลัยธรรมศาสตร์</p>
         </div>
-        <button class="btn-close-receipt" onclick="closeReceipt()" data-i18n="btn_close_rcpt">ปิดใบเสร็จ</button>
+        <button class="btn-primary rcpt-pdf-btn no-print" onclick="downloadReceiptPDF()"><i class="fa-solid fa-file-arrow-down"></i> <span id="rcpt-pdf-txt">ดาวน์โหลด PDF</span></button>
+        <button class="btn-close-receipt no-print" onclick="closeReceipt()" data-i18n="btn_close_rcpt">ปิดใบเสร็จ</button>
     </div>
+</div>
+
+<!-- 🎁 MODAL: ส่งลิงก์ให้เพื่อน / รับยาแทนเพื่อน -->
+<div class="overlay-bg" id="pickup-modal" onclick="if(event.target===this) closeSheet('pickup-modal')">
+    <div class="bottom-sheet" id="pickup-sheet"></div>
 </div>
 
 <!-- 🚨 MODAL: แจ้งเหตุฉุกเฉิน -->
@@ -1432,6 +1468,7 @@
         
         isPaymentSuccess = false;
         paymentIsDemo = demoMode;
+        paymentForFriend = !!(document.getElementById('friend-check') && document.getElementById('friend-check').checked);
 
         if (paymentIsDemo) {
             // 🧪 โหมดสาธิต: ไม่ตัดสต๊อก ไม่หักเครดิต ไม่เรียก Omise
@@ -1612,7 +1649,13 @@
         const syncP = document.querySelector('#hardware-sync-ui p[data-i18n="sync_wait"]');
         if (syncP) syncP.innerText = isDemo ? L('โหมดสาธิต: จำลองการส่งคำสั่งไปที่ตู้ (ไม่ได้ส่งสัญญาณจริง)', 'Demo: simulating the kiosk command (nothing is sent)') : t('sync_wait');
 
-        if (!isDemo) mqttClient.publish("tse100/dispense", "PAYMENT_SUCCESS");
+        const forFriend = paymentForFriend;
+        if (syncP && forFriend) syncP.innerText = L('กำลังสร้างลิงก์ให้เพื่อน (ตู้จะจ่ายยาเมื่อเพื่อนกดรับ)', 'Creating a pickup link (the kiosk dispenses when your friend claims it)');
+        if (!isDemo && !forFriend) mqttClient.publish("tse100/dispense", "PAYMENT_SUCCESS");
+        let pickupId = null;
+        if (forFriend) {
+            try { pickupId = await createPickup(itemName, isDemo); } catch (e) { console.warn('pickup create failed', e); }
+        }
 
         const creditUsed = isDemo ? 0 : (pendingCreditUse || 0);
         pendingCreditUse = 0;
@@ -1629,13 +1672,23 @@
                 }
                 await addDoc(collection(db, "orders"), {
                     stuId: stuId, itemName: itemName, price: itemPrice - creditUsed, creditUsed: creditUsed, fullPrice: itemPrice,
-                    chargeId: chargeId, status: "completed", createdAt: serverTimestamp(), ...(isDemo ? { demo: true } : {})
+                    chargeId: chargeId, status: "completed", createdAt: serverTimestamp(), ...(isDemo ? { demo: true } : {}), ...(pickupId ? { pickupId } : {})
                 });
             } catch (e) { }
         }
 
         const isGuestOrder = !auth.currentUser;
         const nowStr = new Date().toLocaleString(currentLang === 'en' ? 'en-GB' : 'th-TH', { dateStyle: 'short', timeStyle: 'short' });
+
+        if (forFriend) {
+            setTimeout(() => {
+                closePayment(); cart = []; updateCartUI();
+                const fc = document.getElementById('friend-check'); if (fc) fc.checked = false;
+                if (pickupId) showPickupShare(pickupId, { chargeId, nowStr, itemName, itemPrice, creditUsed, isDemo });
+                else Swal.fire({ icon: 'error', title: L('สร้างลิงก์ไม่สำเร็จ', 'Could not create link'), html: L('ชำระเงินแล้วแต่สร้างลิงก์ไม่สำเร็จ กรุณาติดต่อ <a href="tel:0800527499">080-052-7499</a>', 'Payment went through but the link failed. Please call <a href="tel:0800527499">080-052-7499</a>') });
+            }, 1500);
+            return;
+        }
 
         setTimeout(() => {
             closePayment();
@@ -1649,7 +1702,7 @@
                 cart = []; updateCartUI();
                 if (isGuestOrder) {
                     // บุคคลทั่วไป: แสดงใบเสร็จครั้งเดียว (ไม่ได้บันทึกในระบบ)
-                    showReceipt(chargeId, nowStr, itemName, itemPrice);
+                    showReceipt(chargeId, nowStr, itemName, itemPrice, { demo: isDemo, fullPrice: itemPrice });
                     setTimeout(() => askFeedbackAfterOrder(), 400);
                 } else if (auth.currentUser.email.split('@')[0] !== ADMIN_ID) {
                     switchTab('view-orders', document.getElementById('nav-orders'));
@@ -1658,6 +1711,83 @@
             });
         }, 2500);
     }
+
+    // ================================================================
+    // 🎁 v3: ซื้อให้เพื่อนมารับแทน (pickups/{id}) — id สุ่มยาว ใช้เป็นรหัสในลิงก์
+    // ⚠️ ตอนนี้แอปเป็นคนสั่งตู้เหมือนการซื้อปกติ เมื่อติดตั้ง PR #2 ต้องย้ายขั้นตอน "กดรับ" ไปให้เซิร์ฟเวอร์สั่งตู้
+    // ================================================================
+    let paymentForFriend = false;
+    const PICKUP_HOURS = 24;
+    const pickupUrl = id => `${location.origin}${location.pathname}?pickup=${id}`;
+    async function createPickup(itemName, isDemo) {
+        const id = Array.from(crypto.getRandomValues(new Uint8Array(12)), b => b.toString(16).padStart(2, '0')).join('');
+        await setDoc(doc(db, "pickups", id), {
+            itemName, status: 'pending', buyer: auth.currentUser ? myId() : 'guest', demo: !!isDemo,
+            createdAt: serverTimestamp(), expiresAt: new Date(Date.now() + PICKUP_HOURS * 3600 * 1000)
+        });
+        return id;
+    }
+    window.showPickupShare = (id, rc) => {
+        const url = pickupUrl(id);
+        document.getElementById('pickup-sheet').innerHTML = `
+            <div class="drag-handle"></div>
+            <div class="pk-hero"><i class="fa-solid fa-gift"></i></div>
+            <h3 class="pk-title">${L('ส่งลิงก์ให้เพื่อนไปรับยา', 'Send the pickup link to your friend')}</h3>
+            <p class="pk-sub">${L(`เพื่อนเปิดลิงก์แล้วกด "รับยาเลย" ตอนยืนอยู่หน้าตู้ ใช้ได้ 1 ครั้ง ภายใน ${PICKUP_HOURS} ชม.`, `Your friend opens the link and taps "Collect now" at the kiosk. One use, within ${PICKUP_HOURS} h.`)}</p>
+            <div class="pk-link" id="pk-link">${esc(url)}</div>
+            <div class="pk-actions">
+                ${navigator.share ? `<button class="btn-primary" id="pk-share"><i class="fa-solid fa-share-nodes"></i> ${L('แชร์ลิงก์', 'Share')}</button>` : ''}
+                <button class="btn-secondary" id="pk-copy"><i class="fa-regular fa-copy"></i> ${L('คัดลอกลิงก์', 'Copy link')}</button>
+            </div>
+            ${rc ? `<button class="manual-link" id="pk-rcpt"><i class="fa-solid fa-receipt"></i> ${L('ดูใบเสร็จ', 'View receipt')}</button>` : ''}
+            <p class="pk-warn"><i class="fa-solid fa-triangle-exclamation"></i> ${L('ใครมีลิงก์นี้ก็กดรับยาได้ ส่งให้เฉพาะเพื่อนที่ไว้ใจ', 'Anyone with this link can collect the medicine. Share it only with your friend.')}</p>`;
+        openSheet('pickup-modal');
+        const msg = L('เพื่อนซื้อยาจากตู้ TU Smart Rx ไว้ให้ เปิดลิงก์แล้วกด "รับยาเลย" ตอนอยู่หน้าตู้นะ: ', 'A friend bought you medicine at the TU Smart Rx kiosk. Open the link at the kiosk and tap "Collect now": ');
+        const sh = document.getElementById('pk-share'); if (sh) sh.onclick = () => navigator.share({ title: 'TU Smart Rx', text: msg, url }).catch(() => {});
+        document.getElementById('pk-copy').onclick = async () => {
+            try { await navigator.clipboard.writeText(msg + url); } catch (e) { const r = document.createRange(); r.selectNode(document.getElementById('pk-link')); getSelection().removeAllRanges(); getSelection().addRange(r); document.execCommand('copy'); }
+            Swal.fire({ toast: true, position: 'top', icon: 'success', title: L('คัดลอกแล้ว', 'Copied'), showConfirmButton: false, timer: 1400 });
+        };
+        const rb = document.getElementById('pk-rcpt');
+        if (rb) rb.onclick = () => { closeSheet('pickup-modal'); showReceipt(rc.chargeId, rc.nowStr, rc.itemName, rc.itemPrice - (rc.creditUsed || 0), { stuId: myId(), creditUsed: rc.creditUsed, fullPrice: rc.itemPrice, demo: rc.isDemo, forFriend: true }); };
+    };
+    async function openPickupClaim(id) {
+        let data = null;
+        try { const snap = await getDoc(doc(db, "pickups", id)); if (snap.exists()) data = snap.data(); } catch (e) {}
+        const sheet = document.getElementById('pickup-sheet');
+        const exp = data && data.expiresAt && data.expiresAt.toDate ? data.expiresAt.toDate() : null;
+        let body;
+        if (!data) body = `<div class="pk-hero bad"><i class="fa-solid fa-link-slash"></i></div><h3 class="pk-title">${L('ไม่พบลิงก์นี้', 'Link not found')}</h3><p class="pk-sub">${L('ตรวจสอบลิงก์กับเพื่อนอีกครั้ง', 'Please check the link with your friend.')}</p>`;
+        else if (data.status === 'claimed') body = `<div class="pk-hero bad"><i class="fa-solid fa-circle-check"></i></div><h3 class="pk-title">${L('ลิงก์นี้รับยาไปแล้ว', 'Already collected')}</h3><p class="pk-sub">${L('แต่ละลิงก์รับยาได้ครั้งเดียว', 'Each link can be used once.')}</p>`;
+        else if (exp && exp < new Date()) body = `<div class="pk-hero bad"><i class="fa-regular fa-clock"></i></div><h3 class="pk-title">${L('ลิงก์หมดอายุแล้ว', 'Link expired')}</h3><p class="pk-sub">${L('ติดต่อทีมงานเพื่อขอคืนเงิน', 'Contact us for a refund')}: <a href="tel:0800527499">080-052-7499</a></p>`;
+        else body = `<div class="pk-hero"><i class="fa-solid fa-gift"></i></div>
+            <h3 class="pk-title">${L('เพื่อนซื้อยาไว้ให้คุณ', 'A friend bought this for you')}</h3>
+            <div class="pk-items">${esc(data.itemName)}</div>
+            <p class="pk-sub">${L('ไปที่ตู้', 'Go to the kiosk at')} <b>${t('app_loc')}</b><br>${L('แล้วกดปุ่มด้านล่าง<b>ตอนยืนอยู่หน้าตู้</b>', 'and tap the button <b>while standing at the kiosk</b>')}${exp ? `<br><small>${L('ใช้ได้ถึง', 'Valid until')} ${exp.toLocaleString(currentLang === 'en' ? 'en-GB' : 'th-TH', { dateStyle: 'short', timeStyle: 'short' })}</small>` : ''}</p>
+            ${data.demo ? `<div class="rcpt-demo" style="margin:0 0 10px;">${L('โหมดสาธิต · ตู้จะไม่จ่ายยาจริง', 'Demo · the kiosk will not dispense')}</div>` : ''}
+            <button class="btn-primary" id="pk-claim"><i class="fa-solid fa-hand-holding-medical"></i> ${L('รับยาเลย', 'Collect now')}</button>`;
+        sheet.innerHTML = `<div class="drag-handle"></div>${body}`;
+        openSheet('pickup-modal');
+        const btn = document.getElementById('pk-claim');
+        if (btn) btn.onclick = async () => {
+            btn.disabled = true;
+            try {
+                await runTransaction(db, async (tx) => {
+                    const ref = doc(db, "pickups", id); const s = await tx.get(ref);
+                    if (!s.exists() || s.data().status !== 'pending') throw new Error(L('ลิงก์นี้ถูกใช้ไปแล้ว', 'This link was already used'));
+                    tx.update(ref, { status: 'claimed', claimedAt: serverTimestamp() });
+                });
+                if (!data.demo) mqttClient.publish("tse100/dispense", "PAYMENT_SUCCESS");
+                closeSheet('pickup-modal');
+                history.replaceState(null, '', location.pathname);
+                Swal.fire({ icon: 'success', title: data.demo ? L('สาธิต: จำลองการจ่ายยาสำเร็จ', 'Demo: dispense simulated') : t('swal_pay_success'), text: data.demo ? '' : L('รับยาที่ช่องด้านล่างของตู้ได้เลย', 'Collect your medicine from the tray below.'), confirmButtonColor: 'var(--tu-red)' });
+            } catch (e) {
+                btn.disabled = false;
+                Swal.fire({ icon: 'error', title: L('รับยาไม่สำเร็จ', 'Could not collect'), text: e.message });
+            }
+        };
+    }
+    { const pk = new URLSearchParams(location.search).get('pickup'); if (pk && /^[a-f0-9]{24}$/.test(pk)) setTimeout(() => openPickupClaim(pk), 800); }
 
     window.closePayment = function() {
         document.getElementById('payment-modal').style.display = 'none'; 
@@ -2015,26 +2145,38 @@
                                                            .replace('ยาดมตราโป๊ยเซียน', 'Poy-Sian Inhaler');
                 }
                 const safeItemName = translatedItemName ? translatedItemName.replace(/'/g, "\\'") : "";
+                const extraJson = esc(JSON.stringify({ stuId: order.stuId, creditUsed: order.creditUsed || 0, fullPrice: order.fullPrice || order.price, demo: !!order.demo, forFriend: !!order.pickupId }));
+                const friendTag = order.pickupId ? `<span class="demo-tag" style="background:#e9f7ee;color:#1f8a46;">${L('ซื้อให้เพื่อน', 'For a friend')}</span>` : '';
+                const resendBtn = order.pickupId ? `<button class="btn-secondary" style="width:100%; margin-top:6px; padding:8px; font-size:12px; background:#e9f7ee; color:#1f8a46;" onclick="showPickupShare('${esc(order.pickupId)}')"><i class="fa-solid fa-share-nodes"></i> ${L('ส่งลิงก์ให้เพื่อนอีกครั้ง', 'Share pickup link again')}</button>` : '';
 
                 html += `<div class="order-history-card">
                             <div style="display: flex; justify-content: space-between; margin-bottom: 8px;">
-                                ${demoTag}<strong>${translatedItemName}</strong> <span style="color: var(--tu-red); font-weight:bold;">฿${order.price}</span>
+                                <span>${demoTag}${friendTag}<strong>${translatedItemName}</strong></span> <span style="color: var(--tu-red); font-weight:bold;">฿${order.price}</span>
                             </div>
                             <div style="font-size: 12px; color: var(--text-sub); display: flex; justify-content: space-between; align-items:center;">
                                 <span><i class="fa-regular fa-clock"></i> ${dateStr} ${timeStr}</span> 
                                 <span style="color: #28a745; font-weight:500;">${t('rcpt_success')}</span>
                             </div>
                             <button class="btn-secondary" style="width: 100%; margin-top: 10px; padding: 8px; font-size: 12px; background: #f5f6f8; color: #1d1d1f;" 
-                                onclick="showReceipt('${order.chargeId || order.id}', '${dateStr} ${timeStr}', '${safeItemName}', ${order.price})">
+                                onclick='showReceipt("${order.chargeId || order.id}", "${dateStr} ${timeStr}", "${safeItemName.replace(/"/g, '')}", ${order.price}, JSON.parse(this.dataset.x))' data-x="${extraJson}">
                                 <i class="fa-solid fa-receipt"></i> ${t('btn_view_rcpt')}
-                            </button>
+                            </button>${resendBtn}
                         </div>`;
             });
             ordersList.innerHTML = html;
         } catch (error) { }
     }
 
-    window.showReceipt = function(ref, dateTime, items, price) {
+    window.showReceipt = function(ref, dateTime, items, price, extra = {}) {
+        document.getElementById('receipt-title-txt').innerText = L('ใบเสร็จรับเงิน / Receipt', 'Receipt');
+        document.getElementById('rcpt-pdf-txt').innerText = L('ดาวน์โหลด PDF', 'Download PDF');
+        const rows = [];
+        if (extra.stuId) rows.push([L('รหัสนักศึกษา', 'Student ID'), esc(extra.stuId)]);
+        if (extra.creditUsed > 0) rows.push([L('ใช้เครดิต', 'Credits used'), `-฿${extra.creditUsed}.00 (${L('ราคาเต็ม', 'full price')} ฿${extra.fullPrice}.00)`]);
+        if (extra.forFriend) rows.push([L('การรับยา', 'Pickup'), L('เพื่อนมารับแทน', 'Picked up by a friend')]);
+        rows.push([L('ชำระผ่าน', 'Paid via'), extra.demo ? L('โหมดสาธิต (ไม่มีการเก็บเงินจริง)', 'Demo mode (no real payment)') : (price > 0 ? 'PromptPay' : L('เครดิต', 'Credits'))]);
+        document.getElementById('receipt-extra').innerHTML = `<div class="rcpt-extra">${rows.map(r => `<div><span>${r[0]}</span><span>${r[1]}</span></div>`).join('')}</div>` + (extra.demo ? `<div class="rcpt-demo">${L('สาธิต · ไม่ใช่ใบเสร็จจริง', 'DEMO · not a real receipt')}</div>` : '');
+        window._rcptRef = ref;
         document.getElementById('receipt-ref').innerText = `Ref: ${ref}`;
         document.getElementById('receipt-date').innerText = `${t('rcpt_date')} ${dateTime}`;
         document.getElementById('receipt-items-list').innerHTML = `
@@ -2047,6 +2189,15 @@
         document.getElementById('receipt-modal').style.display = 'flex';
     }
     window.closeReceipt = () => document.getElementById('receipt-modal').style.display = 'none';
+    // 🧾 v3: ดาวน์โหลดใบเสร็จเป็น PDF ด้วยหน้าต่างพิมพ์ของเบราว์เซอร์ (เลือก "บันทึกเป็น PDF")
+    window.downloadReceiptPDF = () => {
+        const oldTitle = document.title;
+        document.title = 'TU-SmartRx-Receipt-' + String(window._rcptRef || '').replace(/[^\w-]/g, '').slice(-12);
+        document.body.classList.add('printing-receipt');
+        const done = () => { document.body.classList.remove('printing-receipt'); document.title = oldTitle; window.removeEventListener('afterprint', done); };
+        window.addEventListener('afterprint', done);
+        setTimeout(() => { window.print(); setTimeout(done, 1500); }, 50);
+    };
 
     /* =====================================================================
        v2: ฟีเจอร์ใหม่

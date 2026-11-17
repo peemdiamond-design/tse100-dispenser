@@ -61,4 +61,17 @@
       allow read: if true;
       allow write: if rxAdmin();
     }
+    // ซื้อให้เพื่อนมารับแทน: id สุ่ม 24 ตัวอักษรใช้เป็นรหัสในลิงก์
+    // สร้างได้ในชื่อตัวเอง (หรือ 'guest' เมื่อไม่ล็อกอิน) · เปิดดูได้ถ้ารู้ id · รับยาได้ครั้งเดียว (pending → claimed) ก่อนหมดอายุ
+    match /pickups/{id} {
+      allow create: if request.resource.data.status == 'pending'
+        && (request.resource.data.buyer == rxSid() || (request.auth == null && request.resource.data.buyer == 'guest'))
+        && rxOnly(['itemName', 'status', 'buyer', 'demo', 'createdAt', 'expiresAt']);
+      allow get: if true;
+      allow list: if rxAdmin();
+      allow update: if resource.data.status == 'pending'
+        && request.resource.data.status == 'claimed'
+        && request.resource.data.diff(resource.data).affectedKeys().hasOnly(['status', 'claimedAt'])
+        && request.time < resource.data.expiresAt;
+    }
     // ===== TU Smart Rx v2 : จบ =====
