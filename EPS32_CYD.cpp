@@ -1,16 +1,23 @@
 #include <WiFi.h>
+#include <WiFiClientSecure.h>
 #include <PubSubClient.h>
 #include <SPI.h>
+#include <time.h>
 #include <Adafruit_GFX.h>
 #include <Adafruit_ILI9341.h>
-#include "tu_qrcode.h" 
-#include <XPT2046_Touchscreen.h> 
+#include "tu_qrcode.h"
+#include <XPT2046_Touchscreen.h>
 
 // ---------------- 1. ตั้งค่า Wi-Fi & MQTT ----------------
-const char* ssid = "0800652735";      
-const char* password = "1234567890";     
-const char* mqtt_server = "broker.emqx.io"; 
-const char* mqtt_topic = "tse100/dispense"; 
+// 🔒 ค่าลับทั้งหมดย้ายไปไว้ที่ secrets.h แล้ว (คัดลอกจาก secrets.example.h) — ห้าม commit secrets.h
+#include "secrets.h"
+#include "kiosk_auth.h"   // ตรวจลายเซ็นคำสั่ง: รับเฉพาะคำสั่งที่เซิร์ฟเวอร์เซ็นจริง ไม่หมดอายุ และไม่ซ้ำ
+
+const char* ssid = WIFI_SSID;
+const char* password = WIFI_PASSWORD;
+const char* mqtt_topic = MQTT_TOPIC_CMD;
+const unsigned long HEARTBEAT_MS = 60000;
+unsigned long lastHeartbeat = 0;
 
 // ---------------- 2. ตั้งค่าขาพิน (หน้าจอ & ฮาร์ดแวร์) ----------------
 // ขาของหน้าจอ (SPI วงจรที่ 1)
@@ -37,7 +44,7 @@ Adafruit_ILI9341 tft = Adafruit_ILI9341(TFT_CS, TFT_DC, TFT_RST);
 SPIClass touchSpi = SPIClass(HSPI); 
 XPT2046_Touchscreen ts(TOUCH_CS); 
 
-WiFiClient espClient;
+WiFiClientSecure espClient;   // MQTT ผ่าน TLS (พอร์ต 8883)
 PubSubClient client(espClient);
 
 // ---------------- 3. โทนสี ----------------
@@ -152,22 +159,39 @@ void setup_wifi() {
 
   clearCenterCard();
   printCentered("WiFi Connected!", 90, 2, SUCCESS_GREEN);
-  printCentered(WiFi.localIP().toString(), 130, 2, BLACK_TEXT); 
-  delay(2000); 
+  printCentered(WiFi.localIP().toString(), 130, 2, BLACK_TEXT);
+  delay(2000);
+}
+
+// ซิงก์นาฬิกาจากอินเทอร์เน็ต (จำเป็นสำหรับตรวจอายุคำสั่งและใบรับรอง TLS)
+void syncClock() {
+  clearCenterCard();
+  printCentered("Syncing clock...", 100, 2, BLACK_TEXT);
+  configTime(0, 0, "pool.ntp.org", "time.google.com", "time.cloudflare.com");
+  unsigned long start = millis();
+  while (time(nullptr) < 1700000000L && millis() - start < 20000) delay(250);
+  if (time(nullptr) < 1700000000L) {
+    printCentered("CLOCK SYNC FAILED", 130, 2, TU_RED);
+    delay(2000);
+  }
 }
 
 void callback(char* topic, byte* payload, unsigned int length) {
-  lastActivityTime = millis(); 
-  
-  String message = "";
-  for (int i = 0; i < length; i++) {
-    message += (char)payload[i];
+  lastActivityTime = millis();
+
+  // 🔒 ตรวจลายเซ็นก่อนทำอะไรทั้งนั้น
+  KioskCommand cmd;
+  int v = kioskVerifyCommand(DISPENSE_SECRET, (const char*)payload, length, (long)time(nullptr), &cmd);
+  if (v != KV_OK) {
+    Serial.print("Rejected command: ");
+    Serial.println(kioskVerifyText(v));
+    return;   // คำสั่งปลอม / หมดอายุ / ซ้ำ → ไม่หมุนมอเตอร์
   }
-  
-  if (message == "PAYMENT_PENDING") {
+
+  if (strcmp(cmd.cmd, "PENDING") == 0) {
     showWaitingPayment();
   }
-  if (message == "PAYMENT_SUCCESS") {
+  if (strcmp(cmd.cmd, "DISPENSE") == 0) {
     showSuccessMark();
     delay(2000); 
     clearCenterCard();
@@ -190,12 +214,16 @@ void callback(char* topic, byte* payload, unsigned int length) {
       }
     }
     // ✅ แก้ไข: สั่ง HIGH ให้รีเลย์ตัดไฟ (มอเตอร์หยุด)
-    digitalWrite(MOTOR_PIN, HIGH); 
+    digitalWrite(MOTOR_PIN, HIGH);
     isDispensing = false;
-    delay(2000); 
-    
-    showReadyScreen(); 
-    lastActivityTime = millis(); 
+
+    // แจ้งเซิร์ฟเวอร์ว่าจ่ายยาเสร็จแล้ว (บันทึกเวลาใน Firestore)
+    String done = String("DISPENSED|") + cmd.id;
+    client.publish(MQTT_TOPIC_STATUS, done.c_str());
+    delay(2000);
+
+    showReadyScreen();
+    lastActivityTime = millis();
   }
 }
 
@@ -203,10 +231,12 @@ void reconnect() {
   while (!client.connected()) {
     clearCenterCard();
     printCentered("Connecting MQTT...", 100, 2, BLACK_TEXT);
-    String clientId = "TU-SmartRx-";
-    clientId += String(random(0xffff), HEX);
-    if (client.connect(clientId.c_str())) {
-      client.subscribe(mqtt_topic);
+    String clientId = String("TU-SmartRx-") + KIOSK_ID;
+    // ล็อกอินด้วย username/password + ตั้ง "พินัยกรรม" (LWT): ถ้าตู้หลุด broker จะประกาศ OFFLINE ให้เอง
+    if (client.connect(clientId.c_str(), MQTT_USERNAME, MQTT_PASSWORD, MQTT_TOPIC_STATUS, 1, true, "OFFLINE")) {
+      client.subscribe(mqtt_topic, 1);
+      client.publish(MQTT_TOPIC_STATUS, "ONLINE", true);
+      lastHeartbeat = millis();
       showReadyScreen();
       lastActivityTime = millis(); 
     } else {
@@ -243,17 +273,33 @@ void setup() {
   
   drawStaticUI();
   setup_wifi();
-  client.setServer(mqtt_server, 1883);
+  syncClock();
+
+  // TLS: ตรวจใบรับรอง broker ถ้าใส่ Root CA ไว้ใน secrets.h
+  if (strstr(MQTT_CA_CERT, "BEGIN CERTIFICATE")) espClient.setCACert(MQTT_CA_CERT);
+  else espClient.setInsecure();   // ยังเข้ารหัสอยู่ แต่ไม่ยืนยันตัวตน broker — แนะนำให้ใส่ CA
+
+  client.setServer(MQTT_HOST, MQTT_PORT);
+  client.setKeepAlive(30);
   client.setCallback(callback);
   
   lastActivityTime = millis();
 }
 
 void loop() {
+  if (WiFi.status() != WL_CONNECTED) {
+    setup_wifi();
+  }
   if (!client.connected()) {
     reconnect();
   }
   client.loop();
+
+  // ส่งสัญญาณชีพให้เซิร์ฟเวอร์ทุก 1 นาที (หน้าแอดมินใช้แสดงสถานะตู้)
+  if (millis() - lastHeartbeat > HEARTBEAT_MS) {
+    lastHeartbeat = millis();
+    client.publish(MQTT_TOPIC_STATUS, "ONLINE", true);
+  }
 
   // ----------------------------------------------------
   // เช็คทัชสกรีน (ตอนนี้คุยกันรู้เรื่องแล้ว!)
